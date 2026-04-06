@@ -122,5 +122,6 @@ public class Cafe {
 	
 	public void crearAdministrador() {
 		return;
-	}//Crea un administrador
+	}
+}//Crea un administrador
 		
