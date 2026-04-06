@@ -143,11 +143,6 @@ public boolean crearSolicitudCambio(Empleado empleado, Turno actual, Turno nuevo
     solicitudesCambioTurno.put(id, solicitud);
 
     return true;
-
-    
-    
-    solicitudesCambioTurno.put(solicitud.getId(), solicitud);
-    return true;
     }
 
 private boolean puedeSalirDelTurno(Empleado empleado, Turno actual) {
@@ -167,7 +162,7 @@ private boolean puedeSalirDelTurno(Empleado empleado, Turno actual) {
     return true;
 }
 
-}
+
 
 //Metodo para ver las solicitudes pendientes del mapa de solicitudes
 public HashMap<Integer, CambioDeTurno> getSolicitudesPendientes() {
