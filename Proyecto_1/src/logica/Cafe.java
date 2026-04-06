@@ -130,15 +130,44 @@ public class Cafe {
 //REQUERIMIENTO FUNCIONAL 1: CREAR SOLICITUD DE CAMBIO DE TURNO
 
 //Agregar solicitud de cambio al mapa de solicitudes.
-public boolean agregarSolicitud(CambioDeTurno solicitud) {
+public boolean crearSolicitudCambio(Empleado empleado, Turno actual, Turno nuevo) {
 
-    if (solicitud == null) {
+	if (!puedeSalirDelTurno(empleado, actual)) {
         return false;
     }
+
+    int id = generarIdSolicitud();
+
+    CambioDeTurno solicitud = new CambioDeTurno(id, empleado, actual, nuevo);
+
+    solicitudesCambioTurno.put(id, solicitud);
+
+    return true;
+
+    
     
     solicitudesCambioTurno.put(solicitud.getId(), solicitud);
     return true;
     }
+
+private boolean puedeSalirDelTurno(Empleado empleado, Turno actual) {
+	// TODO Auto-generated method stub
+	Turno turno = empleado.getTurno();
+	int numCocineros = turno.getCocineros().size();
+    int numMeseros = turno.getMeseros().size();
+
+    if (empleado instanceof Cocinero) {
+        return numCocineros > 2; // mínimo 2
+    }
+
+    if (empleado instanceof Mesero) {
+        return numMeseros > 1; // mínimo 1
+    }
+
+    return true;
+}
+
+}
 
 //Metodo para ver las solicitudes pendientes del mapa de solicitudes
 public HashMap<Integer, CambioDeTurno> getSolicitudesPendientes() {

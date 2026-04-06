@@ -4,24 +4,25 @@ import java.util.ArrayList;
 
 public class Turno {
 	private String jornada;
-	private ArrayList<Mesero> listaMeseros;
-	private ArrayList<Cocinero> listaCocineros;
+	private ArrayList<Mesero> Meseros;
+	private ArrayList<Cocinero> Cocineros;
 	//Constructor
 	public Turno(String jornada, ArrayList<Mesero> listaMeseros,
 			ArrayList<Cocinero> listaCocineros) {
 		this.jornada = jornada;
-		this.listaMeseros = listaMeseros;
-		this.listaCocineros = listaCocineros;
+		this.Meseros = listaMeseros;
+		this.Cocineros = listaCocineros;
 	}
 	//Getters
 	public String getJornada() {
 		return jornada;
 	}
-	public ArrayList<Mesero> getListaMeseros() {
-		return listaMeseros;
+	public ArrayList<Mesero> getMeseros() {
+		return Meseros;
 	}
-	public ArrayList<Cocinero> getListaCocineros() {
-		return listaCocineros;
+	public ArrayList<Cocinero> getCocineros() {
+		return Cocineros;
 	}
+	
 	
 }
