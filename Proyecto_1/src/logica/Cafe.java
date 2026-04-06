@@ -123,11 +123,13 @@ public class Cafe {
 	public void crearAdministrador() {
 		return;
 	}
-}//Crea un administrador
+//Crea un administrador
 
 
 
 //REQUERIMIENTO FUNCIONAL 1: CREAR SOLICITUD DE CAMBIO DE TURNO
+
+//Agregar solicitud de cambio al mapa de solicitudes.
 public boolean agregarSolicitud(CambioDeTurno solicitud) {
 
     if (solicitud == null) {
@@ -137,6 +139,45 @@ public boolean agregarSolicitud(CambioDeTurno solicitud) {
     solicitudesCambioTurno.put(solicitud.getId(), solicitud);
     return true;
     }
+
+//Metodo para ver las solicitudes pendientes del mapa de solicitudes
+public HashMap<Integer, CambioDeTurno> getSolicitudesPendientes() {
+    HashMap<Integer, CambioDeTurno> pendientes = new HashMap<>();
+
+    for (CambioDeTurno s : solicitudesCambioTurno.values()) {
+        if (s.getEstado().equals("PENDIENTE")) {
+            pendientes.put(s.getId(), s);
+        }
+    }
+
+    return pendientes;
 }
+
+//Metodo usado por administrador para aprobar una solicitud 
+public boolean aprobarSolicitud(int idSolicitud) {
+	// TODO Auto-generated method stub
+	CambioDeTurno solicitud = solicitudesCambioTurno.get(idSolicitud);
+
+    if (solicitud == null || !solicitud.getEstado().equals("PENDIENTE")) {
+        return false;
+    }
+
+    //aplicar cambio de turno
+    Empleado empleado = solicitud.getEmpleado();
+
+    empleado.cambiarTurno(
+        solicitud.getTurnoOriginal(),
+        solicitud.getTurnoCambio()
+    );
+
+    // cambiar estado
+    solicitud.aprobar();
+
+    return true;
+
+	}
+
+}
+
 
 		

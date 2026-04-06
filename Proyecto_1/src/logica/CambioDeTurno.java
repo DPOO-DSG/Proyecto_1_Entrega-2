@@ -7,7 +7,7 @@ public class CambioDeTurno {
 	private Turno turnoCambio;
 	private String estado;
 	
-	public CambioDeTurno(int id, Empleado empleado, Turno turnoOriginal, Turno turnoCambio, boolean estado) {
+	public CambioDeTurno(int id, Empleado empleado, Turno turnoOriginal, Turno turnoCambio) {
 		super();
 		this.id = id;
 		this.empleado = empleado;
@@ -40,12 +40,18 @@ public class CambioDeTurno {
 	public void setTurnoCambio(Turno turnoCambio) {
 		this.turnoCambio = turnoCambio;
 	}
-	public boolean isEstado() {
-		return estado;
-	}
-	public void setEstado(boolean estado) {
+	
+	public void setEstado(String estado) {
 		this.estado = estado;
 	}
+	public String getEstado() {
+		return estado;
+	}
+	public void aprobar() {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	
 	
 	

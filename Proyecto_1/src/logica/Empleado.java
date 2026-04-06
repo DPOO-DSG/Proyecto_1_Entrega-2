@@ -35,8 +35,12 @@ public abstract class Empleado extends Usuario {
 	
 	public void solicitarCambioTurno(Cafe cafe, Turno turnoOrigen, Turno turnoDestino) {
 	    int id= cafe.generarIdSolicitud();
-	    CambioDeTurno solicitud = new CambioDeTurno(id,this,turnoOrigen,turnoDeseado);
+	    CambioDeTurno solicitud = new CambioDeTurno(id,this,turnoOrigen,turnoDestino);
 	    
 	    cafe.agregarSolicitud(solicitud);
+	}
+	public void cambiarTurno(Turno turnoOriginal, Turno turnoCambio) {
+		// TODO Auto-generated method stub
+		
 	}
 }
