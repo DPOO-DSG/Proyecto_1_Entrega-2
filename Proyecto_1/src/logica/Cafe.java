@@ -135,7 +135,7 @@ public boolean agregarSolicitud(CambioDeTurno solicitud) {
     if (solicitud == null) {
         return false;
     }
-
+    
     solicitudesCambioTurno.put(solicitud.getId(), solicitud);
     return true;
     }
@@ -176,6 +176,18 @@ public boolean aprobarSolicitud(int idSolicitud) {
     return true;
 
 	}
+
+public boolean rechazarSolicitud(int idSolicitud) {
+	CambioDeTurno solicitud = solicitudesCambioTurno.get(idSolicitud);
+
+    if (solicitud == null || !solicitud.getEstado().equals("PENDIENTE")) {
+        return false;
+    }
+
+    solicitud.rechazar();
+
+    return true;
+}
 
 }
 

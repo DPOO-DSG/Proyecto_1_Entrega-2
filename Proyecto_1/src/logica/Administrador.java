@@ -12,6 +12,9 @@ public class Administrador {
 	public boolean aprobarSolicitud(Cafe cafe, int idSolicitud) {
 	    return cafe.aprobarSolicitud(idSolicitud);
 	}
-
+	
+	public boolean rechazarSolicitud(Cafe cafe, int idSolicitud) {
+	    return cafe.rechazarSolicitud(idSolicitud);
+	}
 }
 

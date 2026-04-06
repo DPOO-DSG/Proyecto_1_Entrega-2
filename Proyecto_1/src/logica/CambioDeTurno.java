@@ -49,7 +49,12 @@ public class CambioDeTurno {
 	}
 	public void aprobar() {
 		// TODO Auto-generated method stub
+		this.estado = "APROBADA";
 		
+	}
+	public void rechazar() {
+		// TODO Auto-generated method stub
+		this.estado= "RECHAZADA";
 	}
 	
 	
