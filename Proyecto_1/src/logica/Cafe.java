@@ -124,4 +124,19 @@ public class Cafe {
 		return;
 	}
 }//Crea un administrador
+
+
+
+//REQUERIMIENTO FUNCIONAL 1: CREAR SOLICITUD DE CAMBIO DE TURNO
+public boolean agregarSolicitud(CambioDeTurno solicitud) {
+
+    if (solicitud == null) {
+        return false;
+    }
+
+    solicitudesCambioTurno.put(solicitud.getId(), solicitud);
+    return true;
+    }
+}
+
 		

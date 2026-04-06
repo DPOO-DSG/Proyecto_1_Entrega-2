@@ -31,5 +31,12 @@ public abstract class Empleado extends Usuario {
 	}
 	
 	
+	//Metodo en el que el empleado crea la solicitud de cambio
 	
+	public void solicitarCambioTurno(Cafe cafe, Turno turnoOrigen, Turno turnoDestino) {
+	    int id= cafe.generarIdSolicitud();
+	    CambioDeTurno solicitud = new CambioDeTurno(id,this,turnoOrigen,turnoDeseado);
+	    
+	    cafe.agregarSolicitud(solicitud);
+	}
 }
