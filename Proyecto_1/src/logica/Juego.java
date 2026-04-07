@@ -1,5 +1,128 @@
 package logica;
 
 public class Juego {
+	
+	private String categoria;
+	private String nombre;
+	private int cantidad;
+	private int añoPublicacion;
+	private String empresaMatriz;
+	private int minJugadores;
+	private int maxJugadores;
+	private String restriccionEdad;
+	private boolean dificl;
+
+	//Constructo
+	
+	public Juego(String categoria, String nombre, int cantidad, int añoPublicacion, String empresaMatriz,
+			int minJugadores, int maxJugadores, String restriccionEdad, boolean dificl) {
+		super();
+		this.categoria = categoria;
+		this.nombre = nombre;
+		this.cantidad = cantidad;
+		this.añoPublicacion = añoPublicacion;
+		this.empresaMatriz = empresaMatriz;
+		this.minJugadores = minJugadores;
+		this.maxJugadores = maxJugadores;
+		this.restriccionEdad = restriccionEdad;
+		this.dificl = dificl;
+	}
+
+
+	//getters y setters
+	
+	
+	public boolean esDeAccion() {
+	    return this.categoria.equals("ACCION");
+	}
+	
+	public boolean isDificl() {
+		return dificl;
+	}
+	
+	public void setDificl(boolean dificl) {
+		this.dificl = dificl;
+	}
+
+
+	public String getCategoria() {
+		return categoria;
+	}
+
+
+	public void setCategoria(String categoria) {
+		this.categoria = categoria;
+	}
+
+
+	public String getNombre() {
+		return nombre;
+	}
+
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+
+	public int getCantidad() {
+		return cantidad;
+	}
+
+
+	public void setCantidad(int cantidad) {
+		this.cantidad = cantidad;
+	}
+
+
+	public int getAñoPublicacion() {
+		return añoPublicacion;
+	}
+
+
+	public void setAñoPublicacion(int añoPublicacion) {
+		this.añoPublicacion = añoPublicacion;
+	}
+
+
+	public String getEmpresaMatriz() {
+		return empresaMatriz;
+	}
+
+
+	public void setEmpresaMatriz(String empresaMatriz) {
+		this.empresaMatriz = empresaMatriz;
+	}
+
+
+	public int getMinJugadores() {
+		return minJugadores;
+	}
+
+
+	public void setMinJugadores(int minJugadores) {
+		this.minJugadores = minJugadores;
+	}
+
+
+	public int getMaxJugadores() {
+		return maxJugadores;
+	}
+
+
+	public void setMaxJugadores(int maxJugadores) {
+		this.maxJugadores = maxJugadores;
+	}
+
+
+	public String getRestriccionEdad() {
+		return restriccionEdad;
+	}
+
+
+	public void setRestriccionEdad(String restriccionEdad) {
+		this.restriccionEdad = restriccionEdad;
+	}
+	
 
 }
