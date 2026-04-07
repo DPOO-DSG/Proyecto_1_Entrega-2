@@ -1,5 +1,6 @@
 package logica;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -13,12 +14,13 @@ public class Cafe {
 	private HashMap<String,Cliente> clientes;
 	private HashMap<String,Administrador> administradores;
 	private HashMap<Integer,CambioDeTurno> solicitudesCambioTurno;
+	private HashMap<Integer, Mesa> mesas;
 	
     private int contadorSolicitudes = 0;
 
 
 	
-	public Cafe() {
+	public Cafe(int capacidad, int cantidadMesas) {
 		this.capacidad = capacidad;
 		this.registroVentas = registroVentas;
 		this.registroPrestamos = registroPrestamos;
@@ -28,7 +30,8 @@ public class Cafe {
 		this.clientes = new HashMap<String, Cliente>();
 		this.administradores = new HashMap<String, Administrador>();
 		this.solicitudesCambioTurno = new HashMap<Integer, CambioDeTurno>();
-	}
+		this.mesas =new HashMap<Integer,Mesa>();
+		}
 	
 	public int getCapacidad() {
 		return capacidad;
@@ -49,6 +52,15 @@ public class Cafe {
 
 	public InventarioVenta getInventarioVentas() {
 		return inventarioVentas;
+	}
+	
+
+	public HashMap<Integer, Mesa> getMesas() {
+		return mesas;
+	}
+
+	public void setMesas(HashMap<Integer, Mesa> mesas) {
+		this.mesas = mesas;
 	}
 
 	public void setInventarioVentas(InventarioVenta inventarioVentas) {
@@ -211,6 +223,23 @@ public boolean rechazarSolicitud(int idSolicitud) {
     solicitud.rechazar();
 
     return true;
+}
+
+//REQUERIMIENTO DE SOLCITUD DE MESA
+//Reservar mesa
+public boolean agendarReserva(Cliente cliente, int cantidadPersonas, boolean ninos, boolean jovenes, LocalDateTime fechaDeseada) {
+    // Buscamos una mesa libre para la fecha solicitada
+    for (Mesa mesa : mesas.values()) {
+        if (mesa.getCapacidad() >= cantidadPersonas && mesa.estaDisponibleEnFecha(fechaDeseada)) {
+            Reserva nueva = new Reserva(fechaDeseada, cliente, cantidadPersonas, ninos, jovenes);
+            mesa.agregarReserva(nueva);
+            
+            System.out.println("Reserva para la mesa #" + mesa.getIdMesa() + " para la fecha: " + fechaDeseada);
+            return true;
+        }
+    }
+    System.out.println("No hay mesas disponibles para esa cantidad de personas en esa fecha.");
+    return false;
 }
 
 }

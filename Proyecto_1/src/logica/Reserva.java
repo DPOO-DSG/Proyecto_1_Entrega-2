@@ -3,36 +3,27 @@ package logica;
 import java.time.LocalDateTime;
 
 public class Reserva {
-	private LocalDateTime fecha;
-	private LocalDateTime fechaHora;
+    private LocalDateTime fechaReserva;
     private Cliente cliente; 
     private int cantidadPersonas;
     private boolean tieneNinos;  
-    private boolean tieneJovenes; 
-    private Mesa mesaAsignada;
+    private boolean tieneJovenes;
     //Constructor
-	public Reserva(LocalDateTime fecha, LocalDateTime fechaHora, Cliente cliente, int cantidadPersonas,
-			boolean tieneNinos, boolean tieneJovenes, Mesa mesaAsignada) {
-		this.fecha = fecha;
-		this.fechaHora = fechaHora;
+	public Reserva(LocalDateTime fechaReserva, Cliente cliente, int cantidadPersonas,
+			boolean tieneNinos, boolean tieneJovenes) {
+		this.fechaReserva = fechaReserva;
 		this.cliente = cliente;
 		this.cantidadPersonas = cantidadPersonas;
 		this.tieneNinos = tieneNinos;
 		this.tieneJovenes = tieneJovenes;
-		this.mesaAsignada = mesaAsignada;
 	}
-	//getters y setters
-	public LocalDateTime getFecha() {
-		return fecha;
+	//Getters y setters
+
+	public LocalDateTime getFechaReserva() {
+		return fechaReserva;
 	}
-	public void setFecha(LocalDateTime fecha) {
-		this.fecha = fecha;
-	}
-	public LocalDateTime getFechaHora() {
-		return fechaHora;
-	}
-	public void setFechaHora(LocalDateTime fechaHora) {
-		this.fechaHora = fechaHora;
+	public void setFechaReserva(LocalDateTime fechaReserva) {
+		this.fechaReserva = fechaReserva;
 	}
 	public Cliente getCliente() {
 		return cliente;
@@ -57,13 +48,8 @@ public class Reserva {
 	}
 	public void setTieneJovenes(boolean tieneJovenes) {
 		this.tieneJovenes = tieneJovenes;
-	}
-	public Mesa getMesaAsignada() {
-		return mesaAsignada;
-	}
-	public void setMesaAsignada(Mesa mesaAsignada) {
-		this.mesaAsignada = mesaAsignada;
-	}
+	} 
+}
 
     
-}
+

@@ -1,74 +1,54 @@
 package logica;
 
+import java.util.ArrayList;
+import java.time.LocalDateTime;
+
 public class Mesa {
-	
-	private int idMesa;
-	private int capacidad;
-	private boolean ninos;
-	private boolean jovenes;
-	private Reserva reservaActual;
-	//Constructores
-	public Mesa(int idMesa, int capacidad, boolean ninos, boolean jovenes, Reserva reservaActual) {
-		this.idMesa = idMesa;
-		this.capacidad = capacidad;
-		this.ninos = ninos;
-		this.jovenes = jovenes;
-		this.reservaActual = reservaActual;
-	}
-	//Gettters y setters
-	public int getIdMesa() {
+    private int idMesa;
+    private int capacidad;
+    private ArrayList<Reserva> agenda; // Lista de todas sus reservas futuras
+
+    public Mesa(int idMesa, int capacidad) {
+        this.idMesa = idMesa;
+        this.capacidad = capacidad;
+        this.agenda = new ArrayList<>();
+    }
+    
+    public int getIdMesa() {
 		return idMesa;
 	}
+
 	public void setIdMesa(int idMesa) {
 		this.idMesa = idMesa;
 	}
+
 	public int getCapacidad() {
 		return capacidad;
 	}
+
 	public void setCapacidad(int capacidad) {
 		this.capacidad = capacidad;
 	}
-	public boolean isNinos() {
-		return ninos;
+
+	public ArrayList<Reserva> getAgenda() {
+		return agenda;
 	}
-	public void setNinos(boolean ninos) {
-		this.ninos = ninos;
+
+	public void setAgenda(ArrayList<Reserva> agenda) {
+		this.agenda = agenda;
 	}
-	public boolean isJovenes() {
-		return jovenes;
-	}
-	public void setJovenes(boolean jovenes) {
-		this.jovenes = jovenes;
-	}
-	public Reserva getReservaActual() {
-		return reservaActual;
-	}
-	public void setReservaActual(Reserva reservaActual) {
-		this.reservaActual = reservaActual;
-	}
-	
-	//Metodos
-	
-	// El estado de disponibilidad se deduce
-    public boolean estaDisponible() {
-        return this.reservaActual == null;
-    }
-    //Ocupa la mesa
-    public void asignarReserva(Reserva reserva) {
-        this.reservaActual = reserva;
-    }
-    //liberar la mesa
-    public void liberarMesa() {
-        this.reservaActual = null;
-    }
-    //saber si la mesa tiene niños
-    public boolean tieneNinos() {
-        if (reservaActual != null) {
-            return reservaActual.isTieneNinos();
+
+    public boolean estaDisponibleEnFecha(LocalDateTime fechaSolicitada) {
+        for (Reserva r : agenda) {
+            
+            if (r.getFechaReserva().equals(fechaSolicitada)) {
+                return false; 
+            }
         }
-        return false;
+        return true; 
     }
-	
-	
-	
+
+    public void agregarReserva(Reserva nuevaReserva) {
+        this.agenda.add(nuevaReserva);
+    }
 }
