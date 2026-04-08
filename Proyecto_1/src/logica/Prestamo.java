@@ -1,20 +1,69 @@
 package logica;
 
-public class Prestamo {
+import java.time.LocalDateTime;
 
-	public Object getUsuario() {
-		// TODO Auto-generated method stub
-		return null;
+public class Prestamo {
+	private String id;
+    private Usuario usuario;
+    private Juego juego;
+    private LocalDateTime fechaInicio;
+    private LocalDateTime fechaFin;
+    private boolean devuelto;
+
+    // Constructor
+    public Prestamo(String id, Usuario usuario, Juego juego) {
+        this.id = id;
+        this.usuario = usuario;
+        this.juego = juego;
+        this.fechaInicio = LocalDateTime.now();
+        this.devuelto = false;
+    }
+
+    public void devolver() {
+        this.devuelto = true;
+        this.fechaFin = LocalDateTime.now();
+    }
+
+    
+    public String getId() {
+		return id;
 	}
 
-	public boolean isDevuelto() {
-		// TODO Auto-generated method stub
-		return false;
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
 	}
 
 	public Juego getJuego() {
-		// TODO Auto-generated method stub
-		return null;
+		return juego;
 	}
 
+	public void setJuego(Juego juego) {
+		this.juego = juego;
+	}
+
+	public LocalDateTime getFechaInicio() {
+		return fechaInicio;
+	}
+
+	
+
+	public LocalDateTime getFechaFin() {
+		return fechaFin;
+	}
+
+	public void setDevuelto(boolean devuelto) {
+		this.devuelto = devuelto;
+	}
+
+	public boolean isDevuelto() {
+        return devuelto;  
+    }
 }

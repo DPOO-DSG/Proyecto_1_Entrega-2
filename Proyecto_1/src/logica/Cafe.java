@@ -392,6 +392,13 @@ private double aplicarDescuento(Usuario usuario, double subtotal, String codigo)
 }
 private Empleado buscarEmpleadoPorCodigo(String codigo) {
 	// TODO Auto-generated method stub
+	for(String code: empleados.keySet()) {
+		if(code == codigo) {
+			return empleados.get(code);
+		}
+		
+		
+	}
 	return null;
 }
 
@@ -448,84 +455,97 @@ public void agregarPlatillo(Mesa mesa, Platillo platillo) {
 
 //Requerimiento funcional gestion de inventario
 
-public boolean prestamo (Juego juego, Mesa mesa) {  //Verificar si se puede prestar un juego y si si asignarlo a la mesa
-	 
-	//1era restriccion - no mas de dos juegos por mesa:
+public boolean solicitarPrestamo(Usuario usuario, Juego juego) {
 
-	int mesaId = mesa.getIdMesa();
-	if (mesa.getJuegosPrestados().size() == 2) {
-		System.out.println("Ya hay dos juegos en esta mesa, no se puede prestar mas");
-		return false;
-	}
-	
-	//2da restriccion - verificar diponibilidad de juego:
-	
-	if(!inventarioPrestamo.estaDisponible(juego)) {
-		System.out.println("No hay disponibilidad de juego en el inventario");
-		return false;
-	}
-	
-	//3ra restriccion - verificar si hay bebidas calientes en la mesa y si el juego que piden es de accion
-	Pedido pedido =  mesa.getPedido();
-	
-	if (pedido == null) {
-	    System.out.println("La mesa no tiene un pedido activo.");
-	    return false;
-	}
-	
-	
-    ArrayList<Platillo> platillos = pedido.getPlatillos();
+    // 1. validar disponibilidad
+    if (!inventarioPrestamo.estaDisponible(juego)) {
+        return false;
+    }
 
-    for (Platillo platillo : platillos) {
-        if (platillo instanceof Bebida) {
-            Bebida bebida = (Bebida) platillo;
-
-            if (bebida.getTipo().equals("CALIENTE") && juego.esDeAccion()) {
-                System.out.println("No se puede prestar " + juego + " porque hay una bebida caliente en la mesa");
-                return false;
-            }
+    // 2. validar restricciones según tipo
+    if (usuario instanceof Cliente) {
+        if (!validarPrestamoCliente((Cliente) usuario)) {
+            return false;
         }
     }
 
-	
-	//4ta restriccion - verificar la edad de los jugadores puesto que ls juegos tienen edad.
-		
-	if(mesa.tieneMenores() == true && juego.getRestriccionEdad().equals("+18")) {
-		System.out.println("No se puede presatr el juego puesto que hay miembros que no cumplen con la edad necesaria");
-		return false;
-	}
-	
-	//5ta restriccion - verificar capacidad de perosnas jugando
-	
-	int numPersonas = mesa.getCapacidad();
-	if(numPersonas < juego.getMinJugadores() || numPersonas > juego.getMaxJugadores()) {
-		System.out.println("Este juego no se puede presatr puesto que no cumplen con la cantidad de personas requeridas para jugarlo");
-		return false; // TODO
-	}
-	
-	// Si cumple con las restricciones se registra el pestramo
-	boolean prestado = inventarioPrestamo.registrarPrestamo(juego);
-	if(prestado) {
-		mesa.getJuegosPrestados().add(juego);
-		System.out.println("El juego fue prestado correctamente.");
-		HashMap<Juego, ArrayList<LocalDateTime>> historial = inventarioPrestamo.getHistorial();
-		
-		LocalDateTime ahora = LocalDateTime.now();
-	
-		if (historial.containsKey(juego)) {
-		    historial.get(juego).add(ahora);
-		} else {
-		    ArrayList<LocalDateTime> fechas = new ArrayList<>();
-		    fechas.add(ahora);
-		    historial.put(juego, fechas);
-		    
-		    return true;
+    if (usuario instanceof Empleado) {
+        if (!validarPrestamoEmpleado((Empleado) usuario)) {
+            return false;
+        }
+    }
+
+    // 3. crear préstamo
+    String id = "P" + (registroPrestamos.size() + 1);
+
+    Prestamo prestamo = new Prestamo(id, usuario, juego);
+
+    // 4. registrar
+    registroPrestamos.put(id, prestamo);
+
+    // 5. actualizar inventario
+    inventarioPrestamo.registrarPrestamo(juego);
+
+    return true;
+}
+
+private boolean validarPrestamoEmpleado(Empleado usuario) {
+	// TODO Auto-generated method stub
+	if (usuario.estaEnTurno()) {
+        return false;
+    }
+
+	return false;
+}
+
+private boolean validarPrestamoCliente(Cliente usuario) {
+	// TODO Auto-generated method stub
+	//1era restriccion - no mas de dos juegos por mesa:
+
+		int mesaId = mesa.getIdMesa();
+		if (mesa.getJuegosPrestados().size() == 2) {
+			System.out.println("Ya hay dos juegos en esta mesa, no se puede prestar mas");
+			return false;
 		}
-	
-    return false;
-	
+		//3ra restriccion - verificar si hay bebidas calientes en la mesa y si el juego que piden es de accion
+		Pedido pedido =  mesa.getPedido();
+		
+		if (pedido == null) {
+		    System.out.println("La mesa no tiene un pedido activo.");
+		    return false;
+		    ArrayList<Platillo> platillos = pedido.getPlatillos();
+
+		    for (Platillo platillo : platillos) {
+		        if (platillo instanceof Bebida) {
+		            Bebida bebida = (Bebida) platillo;
+
+		            if (bebida.getTipo().equals("CALIENTE") && juego.esDeAccion()) {
+		                System.out.println("No se puede prestar " + juego + " porque hay una bebida caliente en la mesa");
+		                return false;
+		            }
+		        }
+		    }
+		}
+		//4ta restriccion - verificar la edad de los jugadores puesto que ls juegos tienen edad.
+		
+		if(mesa.tieneMenores() == true && juego.getRestriccionEdad().equals("+18")) {
+			System.out.println("No se puede presatr el juego puesto que hay miembros que no cumplen con la edad necesaria");
+			return false;
+		}
+		
+		//5ta restriccion - verificar capacidad de perosnas jugando
+		
+		int numPersonas = mesa.getCapacidad();
+		if(numPersonas < juego.getMinJugadores() || numPersonas > juego.getMaxJugadores()) {
+			System.out.println("Este juego no se puede presatr puesto que no cumplen con la cantidad de personas requeridas para jugarlo");
+			return false; // TODO
+		}
+		
+	return false;
 }
+
+
 }
-}
+
 
 	

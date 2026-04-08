@@ -33,5 +33,8 @@ public abstract class Usuario {
 		this.juegosFavoritos = juegosFavoritos;
 	}
 	
-
+	
+	public void solicitarPrestamo(Cafe cafe, Juego juego) {
+		cafe.solicitarPrestamo(this, juego);
+	}
 }

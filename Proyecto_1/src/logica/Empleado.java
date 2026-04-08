@@ -40,4 +40,8 @@ public abstract class Empleado extends Usuario {
 		// TODO Auto-generated method stub
 		
 	}
+	public boolean estaEnTurno() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
