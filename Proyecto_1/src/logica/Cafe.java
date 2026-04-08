@@ -242,6 +242,136 @@ public boolean agendarReserva(Cliente cliente, int cantidadPersonas, boolean nin
     return false;
 }
 
+
+//REQUERIMIENTO DE REALIZAR COMPRA 
+public boolean crearFactura(Usuario usuario,
+        ArrayList<Platillo> platillos,
+        ArrayList<Juego> juegos,
+        double propina,
+        boolean usarPuntos,
+        String codigo,
+        Mesa mesa) {
+
+// VALIDACIONES
+if (!validarAlcohol(platillos, mesa)) return false;
+if (!validarCalienteConAccion(platillos, usuario)) return false;
+
+for (Juego j : juegos) {
+if (!inventarioVentas.estaDisponible(j)) return false;
+}
+
+//  CREAR PEDIDO
+Pedido pedido = new Pedido(usuario,platillos, juegos);
+
+int id = registroVentas.size() + 1;
+
+CompraVenta compra = new CompraVenta(id, usuario, pedido, propina);
+
+// CALCULAR BASE
+compra.calcularValores();
+
+double total = compra.getTotal(); 
+
+// DESCUENTO
+total = aplicarDescuento(usuario, total, codigo);
+
+// PUNTOS
+if (usuario instanceof Cliente) {
+Cliente c = (Cliente) usuario;
+
+total = aplicarPuntos(c, total, usarPuntos);
+asignarPuntos(c, total);
+}
+
+compra.setTotal(total);
+
+//  INVENTARIO
+for (Juego j : juegos) {
+inventarioVentas.registrarVenta(j);
+}
+
+registroVentas.put(id, compra);
+
+return true;
+}
+private boolean validarAlcohol(ArrayList<Platillo> platillos, Mesa mesa) {
+
+    for (Platillo p : platillos) {
+        if (p instanceof Bebida) {
+            Bebida b = (Bebida) p;
+
+            if (b.isAlcoholico() && mesa.tieneMenores()) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+private boolean validarCalienteConAccion(ArrayList<Platillo> platillos, Usuario usuario) {
+
+    boolean hayCaliente = false;
+
+    for (Platillo p : platillos) {
+        if (p instanceof Bebida) {
+            Bebida b = (Bebida) p;
+
+            if (b.getTipo().equals("caliente")) {
+                hayCaliente = true;
+                break;
+            }
+        }
+    }
+
+    if (!hayCaliente) return true;
+
+    // revisar préstamos
+    for (Prestamo pr : registroPrestamos.values()) {
+        if (pr.getUsuario().equals(usuario) && !pr.isDevuelto()) {
+
+            if (pr.getJuego().getCategoria().equals("accion")) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+private double aplicarDescuento(Usuario usuario, double subtotal, String codigo) {
+
+    if (codigo == null) return subtotal;
+
+    Empleado dueñoCodigo = buscarEmpleadoPorCodigo(codigo);
+
+    if (dueñoCodigo == null) return subtotal;
+
+    // mismo empleado
+    if (usuario.equals(dueñoCodigo)) {
+        return subtotal * 0.8; // 20%
+    }
+
+    // otro usuario
+    return subtotal * 0.9; // 10%
+}
+private Empleado buscarEmpleadoPorCodigo(String codigo) {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+private double aplicarPuntos(Cliente cliente, double total, boolean usarPuntos) {
+
+    if (!usarPuntos) return total;
+
+    double descuento = cliente.getPuntosFidelidad();
+
+    cliente.setPuntosFidelidad(0);
+
+    return Math.max(0, total - descuento);
+}
+private void asignarPuntos(Cliente cliente, double total) {
+    double puntos = total * 0.01;
+    cliente.setPuntosFidelidad(cliente.getPuntosFidelidad() + puntos);
+}
 }
 
 

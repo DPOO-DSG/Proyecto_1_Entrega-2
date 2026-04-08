@@ -51,4 +51,9 @@ public class Mesa {
     public void agregarReserva(Reserva nuevaReserva) {
         this.agenda.add(nuevaReserva);
     }
+
+	public boolean tieneMenores() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

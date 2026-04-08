@@ -11,4 +11,31 @@ public class Cliente extends Usuario {
 	}
 	
 	
+	
+	public double getPuntosFidelidad() {
+		return puntosFidelidad;
+	}
+
+
+
+	public void setPuntosFidelidad(double puntosFidelidad) {
+		this.puntosFidelidad = puntosFidelidad;
+	}
+
+
+
+	public void realizarCompra(Cafe cafe,
+            ArrayList<Platillo> platillos,
+            ArrayList<Juego> juegos,
+            double propina,
+            boolean usarPuntos,
+            String codigoDescuento,
+            Mesa mesa) {
+
+cafe.crearFactura(this, platillos, juegos, propina, usarPuntos, codigoDescuento, mesa);
+}
+	
+	
+	
+	
 }

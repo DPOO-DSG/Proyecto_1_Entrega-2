@@ -5,12 +5,14 @@ public class Juego {
 	private String categoria;
 	private String nombre;
 	private int cantidad;
+	private int precio;
 	private int añoPublicacion;
 	private String empresaMatriz;
 	private int minJugadores;
 	private int maxJugadores;
 	private String restriccionEdad;
 	private boolean dificl;
+	
 
 	//Constructo
 	
@@ -122,6 +124,16 @@ public class Juego {
 
 	public void setRestriccionEdad(String restriccionEdad) {
 		this.restriccionEdad = restriccionEdad;
+	}
+
+
+	public int getprecio() {
+		return precio;
+	}
+
+
+	public void setprecio(int precio) {
+		this.precio = precio;
 	}
 	
 
