@@ -13,6 +13,7 @@ public class Cafe {
 	private HashMap<String,Empleado> empleados; 
 	private HashMap<String,Cliente> clientes;
 	private HashMap<String,Administrador> administradores;
+	private HashMap<String, String> credencialesAdmin;
 	private HashMap<Integer,CambioDeTurno> solicitudesCambioTurno;
 	private HashMap<Integer, Mesa> mesas;
 	
@@ -31,6 +32,7 @@ public class Cafe {
 		this.administradores = new HashMap<String, Administrador>();
 		this.solicitudesCambioTurno = new HashMap<Integer, CambioDeTurno>();
 		this.mesas =new HashMap<Integer,Mesa>();
+	    this.credencialesAdmin = new HashMap<>();
 		}
 	
 	public int getCapacidad() {
@@ -114,28 +116,63 @@ public class Cafe {
 	public int generarIdSolicitud() {
 	    return contadorSolicitudes++;
 	}//Genera id de solicitud
+	private boolean existeLogin(String login) {
+	    return clientes.containsKey(login) || empleados.containsKey(login) ||administradores.containsKey(login);
+	}//Verificar la existencia del usuario
 	
-	public void crearCliente(String login, String password, ArrayList<Juego> juegosFavoritos, double puntosFidelidad) {
-		Cliente nuevoCliente = new Cliente(login, password, juegosFavoritos, puntosFidelidad);
-		this.clientes.put(login, nuevoCliente);
-	}//Crea un nuevo cliente
-	
-	public void crearMesero (String login, String password, ArrayList<Juego> juegosFavoritos, 
-			String codigoDescuento, Turno turno, ArrayList<Juego> juegosConocidos) {
-		Mesero nuevoMesero = new Mesero(login, password, juegosFavoritos, codigoDescuento, turno, juegosConocidos);
-		this.empleados.put(login, nuevoMesero);
-	} //Crea un nuevo mesero
-	
-	public void crearCocinero (String login, String password, ArrayList<Juego> juegosFavoritos, String codigoDescuento,
-			Turno turno) {
-		Cocinero nuevoCocinero = new Cocinero(login, password, juegosFavoritos, codigoDescuento, turno);
-		this.empleados.put(login, nuevoCocinero);
-	}//Crea un cocinero
-	
-	public void crearAdministrador() {
-		return;
+	public boolean crearCliente(String login, String password, ArrayList<Juego> juegosFavoritos, double puntosFidelidad) {
+	    if (existeLogin(login)) return false;
+	    Cliente nuevo = new Cliente(login, password, juegosFavoritos, puntosFidelidad);
+	    clientes.put(login, nuevo);
+	    return true;
 	}
-//Crea un administrador
+	
+	public boolean crearMesero(String login, String password, ArrayList<Juego> juegosFavoritos,
+	        String codigoDescuento, Turno turno, ArrayList<Juego> juegosConocidos) {
+	    if (existeLogin(login)) return false;
+	    Mesero nuevo = new Mesero(login, password, juegosFavoritos, codigoDescuento, turno, juegosConocidos);
+	    empleados.put(login, nuevo);
+	    return true;
+	}//Crea un nuevo mesero
+	
+	public boolean crearCocinero(String login, String password, ArrayList<Juego> juegosFavoritos,
+	        String codigoDescuento, Turno turno) {
+	    if (existeLogin(login)) return false;
+	    Cocinero nuevo = new Cocinero(login, password, juegosFavoritos, codigoDescuento, turno);
+	    empleados.put(login, nuevo);
+	    return true;
+	} //Crea un nuevo cocinero
+	
+	public boolean crearAdministrador(String login, String password) {
+	    if (existeLogin(login)) return false;
+	    Administrador admin = new Administrador();
+	    administradores.put(login, admin);
+	    credencialesAdmin.put(login, password);
+	    return true;
+	} //Crear administrador
+	
+	public Object login(String login, String password) {
+
+	    // cliente
+	    if (clientes.containsKey(login)) {
+	        Cliente c = clientes.get(login);
+	        if (c.getPassword().equals(password)) return c;
+	    }
+
+	    // empleado
+	    if (empleados.containsKey(login)) {
+	        Empleado e = empleados.get(login);
+	        if (e.getPassword().equals(password)) return e;
+	    }
+
+	    // administrador
+	    if (administradores.containsKey(login)) {
+	        String pass = credencialesAdmin.get(login);
+	        if (pass != null && pass.equals(password)) return administradores.get(login);
+	    }
+
+	    return null;
+	}
 
 
 
