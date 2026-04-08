@@ -6,15 +6,14 @@ public class Pedido {
 	private Usuario comprador;
 	private ArrayList<Platillo> platillos;
 	private ArrayList<Juego> juegos;
-	
-	
-	
+
 	
 	public Pedido(Usuario usuario, ArrayList<Platillo> platillos, ArrayList<Juego> juegos) {
 		super();
 		this.comprador = usuario; 
 		this.platillos = platillos;
 		this.juegos = juegos;
+
 	}
 
 
@@ -58,7 +57,9 @@ public class Pedido {
 	public void setJuegos(ArrayList<Juego> juegos) {
 		this.juegos = juegos;
 	}
-	
+
+
+
 	
 	
 	

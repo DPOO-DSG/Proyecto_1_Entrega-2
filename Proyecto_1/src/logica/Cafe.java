@@ -22,10 +22,10 @@ public class Cafe {
 	
 	public Cafe(int capacidad, int cantidadMesas) {
 		this.capacidad = capacidad;
-		this.registroVentas = registroVentas;
-		this.registroPrestamos = registroPrestamos;
-		this.inventarioVentas = inventarioVentas;
-		this.inventarioPrestamo = inventarioPrestamo;
+		this.registroVentas = new HashMap<>();
+		this.registroPrestamos = new HashMap<>();
+		this.inventarioVentas = new InventarioVenta();
+		this.inventarioPrestamo = inventarioPrestamo; //TODO
 		this.empleados = new HashMap<String, Empleado>();
 		this.clientes = new HashMap<String, Cliente>();
 		this.administradores = new HashMap<String, Administrador>();
@@ -372,7 +372,123 @@ private void asignarPuntos(Cliente cliente, double total) {
     double puntos = total * 0.01;
     cliente.setPuntosFidelidad(cliente.getPuntosFidelidad() + puntos);
 }
+
+
+
+//Requerimiento funcional asignar pedido a mesa
+
+
+public boolean asignarPedidoaMesa(Mesa mesa, Usuario usuario) {
+
+    if (mesa == null) {
+        return false;
+    }
+
+    // mirar si ya tiene un pedido activo, pues si si no sepuede crear otro
+    if (mesa.getPedido() != null) {
+        System.out.println("La mesa ya tiene un pedido activo.");
+        return false;
+    }
+
+    Pedido pedido = new Pedido(usuario, null, null);
+
+    mesa.setPedido(pedido);
+
+    return true;
+}
+
+//Caso en el que se quiere agregar algo al pedido
+
+public void agregarPlatillo(Mesa mesa, Platillo platillo) {
+
+    Pedido pedido = mesa.getPedido();
+
+    if (pedido != null) {
+        pedido.getPlatillos().add(platillo);
+    }
 }
 
 
+//Requerimiento funcional gestion de inventario
+
+public boolean prestamo (Juego juego, Mesa mesa) {  //Verificar si se puede prestar un juego y si si asignarlo a la mesa
+	 
+	//1era restriccion - no mas de dos juegos por mesa:
+
+	int mesaId = mesa.getIdMesa();
+	if (mesa.getJuegosPrestados().size() == 2) {
+		System.out.println("Ya hay dos juegos en esta mesa, no se puede prestar mas");
+		return false;
+	}
+	
+	//2da restriccion - verificar diponibilidad de juego:
+	
+	if(!inventarioPrestamo.estaDisponible(juego)) {
+		System.out.println("No hay disponibilidad de juego en el inventario");
+		return false;
+	}
+	
+	//3ra restriccion - verificar si hay bebidas calientes en la mesa y si el juego que piden es de accion
+	Pedido pedido =  mesa.getPedido();
+	
+	if (pedido == null) {
+	    System.out.println("La mesa no tiene un pedido activo.");
+	    return false;
+	}
+	
+	
+    ArrayList<Platillo> platillos = pedido.getPlatillos();
+
+    for (Platillo platillo : platillos) {
+        if (platillo instanceof Bebida) {
+            Bebida bebida = (Bebida) platillo;
+
+            if (bebida.getTipo().equals("CALIENTE") && juego.esDeAccion()) {
+                System.out.println("No se puede prestar " + juego + " porque hay una bebida caliente en la mesa");
+                return false;
+            }
+        }
+    }
+
+	
+	//4ta restriccion - verificar la edad de los jugadores puesto que ls juegos tienen edad.
 		
+	if(mesa.tieneMenores() == true && juego.getRestriccionEdad().equals("+18")) {
+		System.out.println("No se puede presatr el juego puesto que hay miembros que no cumplen con la edad necesaria");
+		return false;
+	}
+	
+	//5ta restriccion - verificar capacidad de perosnas jugando
+	
+	int numPersonas = mesa.getCapacidad();
+	if(numPersonas < juego.getMinJugadores() || numPersonas > juego.getMaxJugadores()) {
+		System.out.println("Este juego no se puede presatr puesto que no cumplen con la cantidad de personas requeridas para jugarlo");
+		return false; // TODO
+	}
+	
+	// Si cumple con las restricciones se registra el pestramo
+	boolean prestado = inventarioPrestamo.registrarPrestamo(juego);
+	if(prestado) {
+		mesa.getJuegosPrestados().add(juego);
+		System.out.println("El juego fue prestado correctamente.");
+		HashMap<Juego, ArrayList<LocalDateTime>> historial = inventarioPrestamo.getHistorial();
+		
+		LocalDateTime ahora = LocalDateTime.now();
+	
+		if (historial.containsKey(juego)) {
+		    historial.get(juego).add(ahora);
+		} else {
+		    ArrayList<LocalDateTime> fechas = new ArrayList<>();
+		    fechas.add(ahora);
+		    historial.put(juego, fechas);
+		    
+		    return true;
+		}
+	
+    return false;
+	
+}
+}
+}
+
+	

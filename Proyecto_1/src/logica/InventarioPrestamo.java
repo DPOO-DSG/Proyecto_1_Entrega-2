@@ -1,16 +1,20 @@
 package logica;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class InventarioPrestamo {
 	private ArrayList<Juego> juegos;
 	private HashMap<Juego,Integer> stock;
+	private HashMap<Juego, ArrayList<LocalDateTime>> historial;
+	
 	//constructor
-		public InventarioPrestamo(ArrayList<Juego> juegos, HashMap<Juego, Integer> stock) {
+		public InventarioPrestamo(ArrayList<Juego> juegos, HashMap<Juego, Integer> stock, HashMap<Juego, ArrayList<LocalDateTime>> historial) {
 			super();
 			this.juegos = juegos;
 			this.stock = stock;
+			this.historial = historial;
 		}
 
 		//getters and setters
@@ -30,17 +34,12 @@ public class InventarioPrestamo {
 			this.stock = stock;
 		}
 
-		public boolean estaDisponible(Juego juego) { 
-			// TODO Auto-generated method stub
-			return stock.containsKey(juego);
+		public boolean estaDisponible(Juego juego) {
+		    return stock.containsKey(juego) && stock.get(juego) > 0;
 		}
 
 		public boolean registrarPrestamo(Juego juego) {
-			// TODO Auto-generated method stub
-			if (!stock.containsKey(juego)) { 
-		        return false;
-		    } 
-
+			
 		    int cantidad = stock.get(juego);
 
 		    if (cantidad == 1) {
@@ -48,6 +47,10 @@ public class InventarioPrestamo {
 		    } else {
 		        stock.put(juego, cantidad - 1);
 		    }
+		    
+		    if (!stock.containsKey(juego)) { 
+		        return false;
+		    } 
 
 		    return true;
 		    }
@@ -60,6 +63,14 @@ public class InventarioPrestamo {
 		    } else {
 		        stock.put(juego, 1); //  recrear la llave
 		    }
+		}
+
+		public HashMap<Juego, ArrayList<LocalDateTime>> getHistorial() {
+			return historial;
+		}
+
+		public void setHistorial(HashMap<Juego, ArrayList<LocalDateTime>> historial) {
+			this.historial = historial;
 		}
 		
 		
