@@ -24,11 +24,15 @@ public class Cliente extends Usuario {
 
 
  
-	public void realizarCompra(Cafe cafe, ArrayList<Platillo> platillos, ArrayList<Juego> juegos,double propina, boolean usarPuntos, String codigoDescuento, Mesa mesa) 
-	{
-
-		cafe.crearFactura(this, platillos, juegos, propina, usarPuntos, codigoDescuento, mesa);
+	public void hacerPedido(Cafe cafe, Reserva reserva,ArrayList<Platillo> platillos,ArrayList<Juego> juegos) {
+		cafe.crearPedido(reserva, this, platillos, juegos);
+	}
+	public void pagar(Cafe cafe,Reserva reserva,double propina,boolean usarPuntos, String codigoDescuento) {
+		cafe.crearFactura(this, propina, usarPuntos, codigoDescuento, reserva);
 }
+	public void solicitarPrestamo(Cafe cafe, Juego juego, Reserva reserva) {
+	    cafe.solicitarPrestamo(this, juego, reserva);
+	}
 
 	
 	

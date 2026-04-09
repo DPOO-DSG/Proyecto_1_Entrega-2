@@ -280,39 +280,46 @@ public boolean agendarReserva(Cliente cliente, int cantidadPersonas, boolean nin
 }
 
 
-//REQUERIMIENTO DE REALIZAR COMPRA 
-public boolean crearFactura(Usuario usuario,
+//REQUERIMIENTO DE REALIZAR COMPRA
+public void crearPedido(Reserva reserva,
+        Usuario usuario,
         ArrayList<Platillo> platillos,
-        ArrayList<Juego> juegos,
+        ArrayList<Juego> juegos) {
+
+Pedido pedido = new Pedido(usuario, platillos, juegos);
+
+reserva.getPedidos().add(pedido);
+}
+public boolean crearFactura(Usuario usuario,
         double propina,
         boolean usarPuntos,
         String codigo,
-        Mesa mesa) {
+        Reserva reserva) {
 
-// VALIDACIONES
-if (!validarAlcohol(platillos, mesa)) return false;
-if (!validarCalienteConAccion(platillos, usuario)) return false;
+// VALIDACIONES (ahora con reserva)
+if (!validarAlcoholReserva(reserva)) return false;
+if (!validarCalienteConAccionReserva(reserva, usuario)) return false;
 
-for (Juego j : juegos) {
+// validar juegos en TODOS los pedidos
+for (Pedido ped : reserva.getPedidos()) {
+for (Juego j : ped.getJuegos()) {
 if (!inventarioVentas.estaDisponible(j)) return false;
 }
-
-//  CREAR PEDIDO
-Pedido pedido = new Pedido(usuario,platillos, juegos);
+}
 
 int id = registroVentas.size() + 1;
 
-CompraVenta compra = new CompraVenta(id, usuario, pedido, propina);
+CompraVenta compra = new CompraVenta(id, usuario, propina, reserva);
 
-// CALCULAR BASE
+// calcular base
 compra.calcularValores();
 
-double total = compra.getTotal(); 
+double total = compra.getTotal();
 
-// DESCUENTO
+// descuento
 total = aplicarDescuento(usuario, total, codigo);
 
-// PUNTOS
+// puntos
 if (usuario instanceof Cliente) {
 Cliente c = (Cliente) usuario;
 
@@ -322,47 +329,67 @@ asignarPuntos(c, total);
 
 compra.setTotal(total);
 
-//  INVENTARIO
-for (Juego j : juegos) {
+// descontar inventario
+for (Pedido ped : reserva.getPedidos()) {
+for (Juego j : ped.getJuegos()) {
 inventarioVentas.registrarVenta(j);
+}
 }
 
 registroVentas.put(id, compra);
 
 return true;
 }
-private boolean validarAlcohol(ArrayList<Platillo> platillos, Mesa mesa) {
+private boolean validarAlcoholReserva(Reserva reserva) {
+	boolean hayAlcohol = false;
 
-    for (Platillo p : platillos) {
-        if (p instanceof Bebida) {
-            Bebida b = (Bebida) p;
+    // Revisar todos los pedidos
+    for (Pedido ped : reserva.getPedidos()) {
+        for (Platillo p : ped.getPlatillos()) {
 
-            if (b.isAlcoholico() && mesa.tieneMenores()) {
-                return false;
+            if (p instanceof Bebida) {
+                Bebida b = (Bebida) p;
+
+                if (b.isAlcoholico()) {
+                    hayAlcohol = true;
+                    break;
+                }
             }
         }
     }
 
+    if (!hayAlcohol) return true;
+
+    // Revisar si hay menores
+    if(reserva.isTieneNinos()) {
+    	return false;
+    }
+
     return true;
+
+    
 }
-private boolean validarCalienteConAccion(ArrayList<Platillo> platillos, Usuario usuario) {
+private boolean validarCalienteConAccionReserva(Reserva reserva, Usuario usuario) {
+	boolean hayCaliente = false;
 
-    boolean hayCaliente = false;
+    // Revisar pedidos
+    for (Pedido ped : reserva.getPedidos()) {
+        for (Platillo p : ped.getPlatillos()) {
 
-    for (Platillo p : platillos) {
-        if (p instanceof Bebida) {
-            Bebida b = (Bebida) p;
+            if (p instanceof Bebida) {
+                Bebida b = (Bebida) p;
 
-            if (b.getTipo().equals("caliente")) {
-                hayCaliente = true;
-                break;
+                if (b.getTipo().equals("caliente")) {
+                    hayCaliente = true;
+                    break;
+                }
             }
         }
     }
 
     if (!hayCaliente) return true;
 
-    // revisar préstamos
+    // Revisar préstamos activos del usuario
     for (Prestamo pr : registroPrestamos.values()) {
         if (pr.getUsuario().equals(usuario) && !pr.isDevuelto()) {
 
@@ -393,7 +420,7 @@ private double aplicarDescuento(Usuario usuario, double subtotal, String codigo)
 private Empleado buscarEmpleadoPorCodigo(String codigo) {
 	// TODO Auto-generated method stub
 	for(String code: empleados.keySet()) {
-		if(code == codigo) {
+		if(code.equals(codigo)) {
 			return empleados.get(code);
 		}
 		
@@ -417,54 +444,19 @@ private void asignarPuntos(Cliente cliente, double total) {
     cliente.setPuntosFidelidad(cliente.getPuntosFidelidad() + puntos);
 }
 
-
-
-//Requerimiento funcional asignar pedido a mesa
-
-
-public boolean asignarPedidoaMesa(Mesa mesa, Usuario usuario) {
-
-    if (mesa == null) {
-        return false;
-    }
-
-    // mirar si ya tiene un pedido activo, pues si si no sepuede crear otro
-    if (mesa.getPedido() != null) {
-        System.out.println("La mesa ya tiene un pedido activo.");
-        return false;
-    }
-
-    Pedido pedido = new Pedido(usuario, null, null);
-
-    mesa.setPedido(pedido);
-
-    return true;
-}
-
-//Caso en el que se quiere agregar algo al pedido
-
-public void agregarPlatillo(Mesa mesa, Platillo platillo) {
-
-    Pedido pedido = mesa.getPedido();
-
-    if (pedido != null) {
-        pedido.getPlatillos().add(platillo);
-    }
-}
-
-
 //Requerimiento funcional gestion de inventario
 
-public boolean solicitarPrestamo(Usuario usuario, Juego juego) {
+public boolean solicitarPrestamo(Usuario usuario, Juego juego, Reserva reserva) {
 
     // 1. validar disponibilidad
     if (!inventarioPrestamo.estaDisponible(juego)) {
         return false;
     }
-
+    
     // 2. validar restricciones según tipo
     if (usuario instanceof Cliente) {
-        if (!validarPrestamoCliente((Cliente) usuario)) {
+        if (reserva == null) return false;
+        if (!validarPrestamoCliente((Cliente) usuario, juego, reserva)) {
             return false;
         }
     }
@@ -480,7 +472,7 @@ public boolean solicitarPrestamo(Usuario usuario, Juego juego) {
 
     Prestamo prestamo = new Prestamo(id, usuario, juego);
 
-    // 4. registrar
+    // 4. registrar en el historial que puede ser visualizado por el administrador 
     registroPrestamos.put(id, prestamo);
 
     // 5. actualizar inventario
@@ -495,53 +487,53 @@ private boolean validarPrestamoEmpleado(Empleado usuario) {
         return false;
     }
 
-	return false;
+	return true;
 }
 
-private boolean validarPrestamoCliente(Cliente usuario) {
-	// TODO Auto-generated method stub
-	//1era restriccion - no mas de dos juegos por mesa:
+private boolean validarPrestamoCliente(Cliente cliente, Juego juego, Reserva reserva) {
 
-		int mesaId = mesa.getIdMesa();
-		if (mesa.getJuegosPrestados().size() == 2) {
-			System.out.println("Ya hay dos juegos en esta mesa, no se puede prestar mas");
-			return false;
-		}
-		//3ra restriccion - verificar si hay bebidas calientes en la mesa y si el juego que piden es de accion
-		Pedido pedido =  mesa.getPedido();
-		
-		if (pedido == null) {
-		    System.out.println("La mesa no tiene un pedido activo.");
-		    return false;
-		    ArrayList<Platillo> platillos = pedido.getPlatillos();
+    // 1. máximo 2 préstamos activos
+    int activos = 0;
 
-		    for (Platillo platillo : platillos) {
-		        if (platillo instanceof Bebida) {
-		            Bebida bebida = (Bebida) platillo;
+    for (Prestamo p : registroPrestamos.values()) {
+        if (p.getUsuario().equals(cliente) && !p.isDevuelto()) {
+            activos++;
+        }
+    }
 
-		            if (bebida.getTipo().equals("CALIENTE") && juego.esDeAccion()) {
-		                System.out.println("No se puede prestar " + juego + " porque hay una bebida caliente en la mesa");
-		                return false;
-		            }
-		        }
-		    }
-		}
-		//4ta restriccion - verificar la edad de los jugadores puesto que ls juegos tienen edad.
-		
-		if(mesa.tieneMenores() == true && juego.getRestriccionEdad().equals("+18")) {
-			System.out.println("No se puede presatr el juego puesto que hay miembros que no cumplen con la edad necesaria");
-			return false;
-		}
-		
-		//5ta restriccion - verificar capacidad de perosnas jugando
-		
-		int numPersonas = mesa.getCapacidad();
-		if(numPersonas < juego.getMinJugadores() || numPersonas > juego.getMaxJugadores()) {
-			System.out.println("Este juego no se puede presatr puesto que no cumplen con la cantidad de personas requeridas para jugarlo");
-			return false; // TODO
-		}
-		
-	return false;
+    if (activos >= 2) return false;
+
+    // 2. bebidas calientes + acción
+    boolean hayCaliente = false;
+
+    for (Pedido ped : reserva.getPedidos()) {
+        for (Platillo p : ped.getPlatillos()) {
+            if (p instanceof Bebida) {
+                Bebida b = (Bebida) p;
+
+                if (b.getTipo().equals("caliente")) {
+                    hayCaliente = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (hayCaliente && juego.getCategoria().equals("accion")) {
+        return false;
+    }
+
+    // 3. edad mínima
+    if (reserva.isTieneNinos() && juego.getEdadMinima() > 0) {
+        return false;
+    }
+
+    // 4. capacidad
+    if (reserva.getCantidadPersonas() > juego.getMaxJugadores()) {
+        return false;
+    }
+
+    return true;
 }
 
 

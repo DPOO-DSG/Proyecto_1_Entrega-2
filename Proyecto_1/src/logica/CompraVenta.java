@@ -12,14 +12,15 @@ public class CompraVenta {
 	private double propina;
 	private double total;
 	private int puntosGenerados;
+	
 
-	private Pedido pedido;
+	private Reserva reserva;
 	private Usuario usuario;
 	
-	public CompraVenta(int numeroFactura, Usuario usuario, Pedido pedido, double propina) {
+	public CompraVenta(int numeroFactura, Usuario usuario, double propina, Reserva reserva) {
 	    this.numeroFactura = numeroFactura;
 	    this.usuario = usuario;
-	    this.pedido = pedido;
+	    this.reserva = reserva;
 	    this.propina = propina;
 	    this.fecha = LocalDateTime.now();
 	}
@@ -27,22 +28,19 @@ public class CompraVenta {
 
 	    double suma = 0;
 
-	    // Platillos
-	    for (Platillo p : pedido.getPlatillos()) {
-	        suma += p.getprecio();
-	    }
+	    for (Pedido ped : reserva.getPedidos()) {
 
-	    // Juegos
-	    for (Juego j : pedido.getJuegos()) {
-	        suma += j.getprecio();
+	        for (Platillo p : ped.getPlatillos()) {
+	            suma += p.getprecio();
+	        }
+
+	        for (Juego j : ped.getJuegos()) {
+	            suma += j.getprecio();
+	        }
 	    }
 
 	    this.subtotal = suma;
-
-	    // IVA 19%
 	    this.iva = subtotal * 0.19;
-
-	    // Total
 	    this.total = subtotal + iva + propina;
 
 	    // Puntos (ejemplo)

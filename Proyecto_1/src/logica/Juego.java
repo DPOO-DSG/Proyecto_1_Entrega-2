@@ -135,6 +135,12 @@ public class Juego {
 	public void setprecio(int precio) {
 		this.precio = precio;
 	}
+
+
+	public int getEdadMinima() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	
 
 }
