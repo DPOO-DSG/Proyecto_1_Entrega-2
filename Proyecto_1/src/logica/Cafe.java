@@ -176,32 +176,32 @@ public class Cafe {
 
 
 // REQUERIMIENTO FUNCIONAL 1: CREAR SOLICITUD DE CAMBIO DE TURNO
+	public boolean crearSolicitudCambio(Empleado empleado, Turno actual, Turno nuevo) {
 
-public boolean crearSolicitudCambio(Empleado empleado, Turno actual, Turno nuevo) {
+	    if (empleado == null || actual == null || nuevo == null) {
+	        return false;
+	    }
 
-    if (empleado == null || actual == null || nuevo == null) {
-        return false;
-    }
+	    // Mirar que el empleado tenga ese turno
+	    if (!empleado.getTurnos().contains(actual)) {
+	        System.out.println("El empleado no pertenece al turno indicado.");
+	        return false;
+	    }
 
-    // Validar que el empleado realmente esté en ese turno
-    if (!empleado.getTurno().equals(actual)) {
-        System.out.println("El empleado no pertenece al turno indicado.");
-        return false;
-    }
+	    if (!puedeSalirDelTurno(empleado, actual)) {
+	        System.out.println("No se puede salir del turno por falta de personal.");
+	        return false;
+	    }
 
-    if (!puedeSalirDelTurno(empleado, actual)) {
-        System.out.println("No se puede salir del turno por falta de personal.");
-        return false;
-    }
+	    int id = generarIdSolicitud();
 
-    int id = generarIdSolicitud();
+	    CambioDeTurno solicitud = new CambioDeTurno(id, empleado, actual, nuevo);
 
-    CambioDeTurno solicitud = new CambioDeTurno(id, empleado, actual, nuevo);
+	    solicitudesCambioTurno.put(id, solicitud);
 
-    solicitudesCambioTurno.put(id, solicitud);
-
-    return true;
+	    return true;
 	}
+
 	private boolean puedeSalirDelTurno(Empleado empleado, Turno turno) {
 
     int numCocineros = turno.getCocineros().size();
@@ -244,11 +244,11 @@ public boolean crearSolicitudCambio(Empleado empleado, Turno actual, Turno nuevo
 
     Empleado empleado = solicitud.getEmpleado();
 
-    Turno turnoActual = solicitud.getTurnoOriginal();
+    Turno turnoViejo = solicitud.getTurnoOriginal();
     Turno turnoNuevo = solicitud.getTurnoCambio();
 
     // actualizar
-    actualizarTurno(empleado, turnoActual, turnoNuevo);
+    actualizarTurno(empleado, turnoViejo, turnoNuevo);
 
     solicitud.aprobar();
 
@@ -269,349 +269,350 @@ public boolean crearSolicitudCambio(Empleado empleado, Turno actual, Turno nuevo
 	}
 
 
-private void actualizarTurno(Empleado e, Turno turnoViejo, Turno turnoNuevo) {
+	private void actualizarTurno(Empleado e, Turno turnoViejo, Turno turnoNuevo) {
 
-    if (e == null || turnoViejo == null || turnoNuevo == null) {
-        return;
-    }
+	    if (e == null || turnoViejo == null || turnoNuevo == null) {
+	        return;
+	    }
 
-    turnoViejo.removerEmpleado(e);
-    e.cambiarTurno(turnoNuevo);
-    turnoNuevo.agregarEmpleado(e);
-}
+	    turnoViejo.removerEmpleado(e);
 
+	    e.getTurnos().remove(turnoViejo);
+	    e.getTurnos().add(turnoNuevo);
 
-public boolean intercambiarTurnos(Empleado e1, Empleado e2) {
-
-    if (e1 == null || e2 == null) {
-        return false;
-    }
-
-    Turno turno1 = e1.getTurno();
-    Turno turno2 = e2.getTurno();
-
-    // validar salida de ambos turnos
-    if (!puedeSalirDelTurno(e1, turno1) || !puedeSalirDelTurno(e2, turno2)) {
-        System.out.println("No se puede realizar el intercambio por falta de personal.");
-        return false;
-    }
-
-    //Actualizar turno
-    actualizarTurno(e1, turno1, turno2);
-    actualizarTurno(e2, turno2, turno1);
-
-    return true;
-}
-
-
-
-
-// REQUERIMIENTO PARA CONSULTAR CATALOGO DE JUEGOS (PRESTAMO Y VENTA) DE PARTE DEL USUARIO 
-
-public ArrayList<Juego> consultarCatalogoPrestamo() {
-    return new ArrayList<>(inventarioPrestamo.getStock().keySet());
-}
-public ArrayList<Juego> consultarCatalogoVenta() {
-    return new ArrayList<>(inventarioVentas.getStock().keySet());
-}
-
-
-
-
-//REQUERIMIENTO CONSULTAR PUNTOS DE FIDELIDAD 
-public double consultarPuntosFidelidad(Cliente cliente) {
-    return cliente.getPuntosFidelidad();
-}
-
-
-
-
-//REQUERIMIENTO CONSULTAR TURNOS EMPLEADO 
-
-public ArrayList<Turno> consultarTurnosEmpleado(Empleado empleado) {
-    return empleado.getTurnos();
-}
-
-
-
-
-
-//REQUERIMIENTO DE SOLCITUD DE MESA
-//Reservar mesa
-public boolean agendarReserva(Cliente cliente, int cantidadPersonas, boolean ninos, boolean jovenes, LocalDateTime fechaDeseada) {
-    // Buscamos una mesa libre para la fecha solicitada
-    for (Mesa mesa : mesas.values()) {
-        if (mesa.getCapacidad() >= cantidadPersonas && mesa.estaDisponibleEnFecha(fechaDeseada)) {
-            Reserva nueva = new Reserva(fechaDeseada, cliente, cantidadPersonas, ninos, jovenes);
-            mesa.agregarReserva(nueva);
-            
-            System.out.println("Reserva para la mesa #" + mesa.getIdMesa() + " para la fecha: " + fechaDeseada);
-            return true;
-        }
-    }
-    System.out.println("No hay mesas disponibles para esa cantidad de personas en esa fecha.");
-    return false;
-}
-
-
-//REQUERIMIENTO DE REALIZAR COMPRA
-public void crearPedido(Reserva reserva,
-        Usuario usuario,
-        ArrayList<Platillo> platillos,
-        ArrayList<Juego> juegos) {
-
-Pedido pedido = new Pedido(usuario, platillos, juegos);
-
-reserva.getPedidos().add(pedido);
-}
-public boolean crearFactura(Usuario usuario,
-        double propina,
-        boolean usarPuntos,
-        String codigo,
-        Reserva reserva) {
-
-// VALIDACIONES (ahora con reserva)
-if (!validarAlcoholReserva(reserva)) return false;
-if (!validarCalienteConAccionReserva(reserva, usuario)) return false;
-
-// validar juegos en TODOS los pedidos
-for (Pedido ped : reserva.getPedidos()) {
-for (Juego j : ped.getJuegos()) {
-if (!inventarioVentas.estaDisponible(j)) return false;
-}
-}
-
-int id = registroVentas.size() + 1;
-
-CompraVenta compra = new CompraVenta(id, usuario, propina, reserva);
-
-// calcular base
-compra.calcularValores();
-
-double total = compra.getTotal();
-
-// descuento
-total = aplicarDescuento(usuario, total, codigo);
-
-// puntos
-if (usuario instanceof Cliente) {
-Cliente c = (Cliente) usuario;
-
-total = aplicarPuntos(c, total, usarPuntos);
-asignarPuntos(c, total);
-}
-
-compra.setTotal(total);
-
-// descontar inventario
-for (Pedido ped : reserva.getPedidos()) {
-for (Juego j : ped.getJuegos()) {
-inventarioVentas.registrarVenta(j);
-}
-}
-
-registroVentas.put(id, compra);
-
-return true;
-}
-private boolean validarAlcoholReserva(Reserva reserva) {
-	boolean hayAlcohol = false;
-
-    // Revisar todos los pedidos
-    for (Pedido ped : reserva.getPedidos()) {
-        for (Platillo p : ped.getPlatillos()) {
-
-            if (p instanceof Bebida) {
-                Bebida b = (Bebida) p;
-
-                if (b.isAlcoholico()) {
-                    hayAlcohol = true;
-                    break;
-                }
-            }
-        }
-    }
-
-    if (!hayAlcohol) return true;
-
-    // Revisar si hay menores
-    if(reserva.isTieneNinos()) {
-    	return false;
-    }
-
-    return true;
-
-    
-}
-private boolean validarCalienteConAccionReserva(Reserva reserva, Usuario usuario) {
-	boolean hayCaliente = false;
-
-    // Revisar pedidos
-    for (Pedido ped : reserva.getPedidos()) {
-        for (Platillo p : ped.getPlatillos()) {
-
-            if (p instanceof Bebida) {
-                Bebida b = (Bebida) p;
-
-                if (b.getTipo().equals("caliente")) {
-                    hayCaliente = true;
-                    break;
-                }
-            }
-        }
-    }
-
-    if (!hayCaliente) return true;
-
-    // Revisar préstamos activos del usuario
-    for (Prestamo pr : registroPrestamos.values()) {
-        if (pr.getUsuario().equals(usuario) && !pr.isDevuelto()) {
-
-            if (pr.getJuego().getCategoria().equals("accion")) {
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-private double aplicarDescuento(Usuario usuario, double subtotal, String codigo) {
-
-    if (codigo == null) return subtotal;
-
-    Empleado dueñoCodigo = buscarEmpleadoPorCodigo(codigo);
-
-    if (dueñoCodigo == null) return subtotal;
-
-    // mismo empleado
-    if (usuario.equals(dueñoCodigo)) {
-        return subtotal * 0.8; // 20%
-    }
-
-    // otro usuario
-    return subtotal * 0.9; // 10%
-}
-private Empleado buscarEmpleadoPorCodigo(String codigo) {
-	// TODO Auto-generated method stub
-	for(String code: empleados.keySet()) {
-		if(code.equals(codigo)) {
-			return empleados.get(code);
-		}
-		
-		
+	    turnoNuevo.agregarEmpleado(e);
 	}
-	return null;
-}
 
-private double aplicarPuntos(Cliente cliente, double total, boolean usarPuntos) {
-
-    if (!usarPuntos) return total;
-
-    double descuento = cliente.getPuntosFidelidad();
-
-    cliente.setPuntosFidelidad(0);
-
-    return Math.max(0, total - descuento);
-}
-private void asignarPuntos(Cliente cliente, double total) {
-    double puntos = total * 0.01;
-    cliente.setPuntosFidelidad(cliente.getPuntosFidelidad() + puntos);
-}
-
-//Requerimiento funcional gestion de inventario
-
-public boolean solicitarPrestamo(Usuario usuario, Juego juego, Reserva reserva) {
-
-    // 1. validar disponibilidad
-    if (!inventarioPrestamo.estaDisponible(juego)) {
-        return false;
-    }
-    
-    // 2. validar restricciones según tipo
-    if (usuario instanceof Cliente) {
-        if (reserva == null) return false;
-        if (!validarPrestamoCliente((Cliente) usuario, juego, reserva)) {
-            return false;
-        }
-    }
-
-    if (usuario instanceof Empleado) {
-        if (!validarPrestamoEmpleado((Empleado) usuario)) {
-            return false;
-        }
-    }
-
-    // 3. crear préstamo
-    String id = "P" + (registroPrestamos.size() + 1);
-
-    Prestamo prestamo = new Prestamo(id, usuario, juego);
-
-    // 4. registrar en el historial que puede ser visualizado por el administrador 
-    registroPrestamos.put(id, prestamo);
-
-    // 5. actualizar inventario
-    inventarioPrestamo.registrarPrestamo(juego);
-
-    return true;
-}
-
-private boolean validarPrestamoEmpleado(Empleado usuario) {
-	// TODO Auto-generated method stub
-	if (usuario.estaEnTurno()) {
-        return false;
-    }
-
-	return true;
-}
-
-private boolean validarPrestamoCliente(Cliente cliente, Juego juego, Reserva reserva) {
-
-    // 1. máximo 2 préstamos activos
-    int activos = 0;
-
-    for (Prestamo p : registroPrestamos.values()) {
-        if (p.getUsuario().equals(cliente) && !p.isDevuelto()) {
-            activos++;
-        }
-    }
-
-    if (activos >= 2) return false;
-
-    // 2. bebidas calientes + acción
-    boolean hayCaliente = false;
-
-    for (Pedido ped : reserva.getPedidos()) {
-        for (Platillo p : ped.getPlatillos()) {
-            if (p instanceof Bebida) {
-                Bebida b = (Bebida) p;
-
-                if (b.getTipo().equals("caliente")) {
-                    hayCaliente = true;
-                    break;
-                }
-            }
-        }
-    }
-
-    if (hayCaliente && juego.getCategoria().equals("accion")) {
-        return false;
-    }
-
-    // 3. edad mínima
-    if (reserva.isTieneNinos() && juego.getEdadMinima() > 0) {
-        return false;
-    }
-
-    // 4. capacidad
-    if (reserva.getCantidadPersonas() > juego.getMaxJugadores()) {
-        return false;
-    }
-
-    return true;
-}
-
-
-}
-
-
+	public boolean intercambiarTurnos(Empleado e1, Empleado e2, Turno turno1, Turno turno2) {
 	
+	    if (e1 == null || e2 == null || turno1 == null || turno2 == null) {
+	        return false;
+	    }
+	
+	    // verifcar que ambos empleados tengan esos turnos
+	    if (!e1.getTurnos().contains(turno1) || !e2.getTurnos().contains(turno2)) {
+	        System.out.println("Alguno de los empleados no tiene al turno dentro de su horario.");
+	        return false;
+	    }
+	
+	    if (!puedeSalirDelTurno(e1, turno1) || !puedeSalirDelTurno(e2, turno2)) {
+	        System.out.println("No se puede realizar el intercambio por falta de personal para el funcionamiento del cafe.");
+	        return false;
+	    }
+	
+	    actualizarTurno(e1, turno1, turno2);
+	    actualizarTurno(e2, turno2, turno1);
+	
+	    return true;
+	}
+	
+	
+	
+	// REQUERIMIENTO PARA CONSULTAR CATALOGO DE JUEGOS (PRESTAMO Y VENTA) DE PARTE DEL USUARIO 
+	
+	public ArrayList<Juego> consultarCatalogoPrestamo() {
+	    return new ArrayList<>(inventarioPrestamo.getStock().keySet());
+	}
+	public ArrayList<Juego> consultarCatalogoVenta() {
+	    return new ArrayList<>(inventarioVentas.getStock().keySet());
+	}
+	
+	
+	
+	
+	//REQUERIMIENTO CONSULTAR PUNTOS DE FIDELIDAD 
+	public double consultarPuntosFidelidad(Cliente cliente) {
+	    return cliente.getPuntosFidelidad();
+	}
+	
+	
+	
+	
+	//REQUERIMIENTO CONSULTAR TURNOS EMPLEADO 
+	
+	public ArrayList<Turno> consultarTurnosEmpleado(Empleado empleado) {
+	    return empleado.getTurnos();
+	}
+	
+	
+	
+	
+	
+	//REQUERIMIENTO DE SOLCITUD DE MESA
+	//Reservar mesa
+	public boolean agendarReserva(Cliente cliente, int cantidadPersonas, boolean ninos, boolean jovenes, LocalDateTime fechaDeseada) {
+	    // Buscamos una mesa libre para la fecha solicitada
+	    for (Mesa mesa : mesas.values()) {
+	        if (mesa.getCapacidad() >= cantidadPersonas && mesa.estaDisponibleEnFecha(fechaDeseada)) {
+	            Reserva nueva = new Reserva(fechaDeseada, cliente, cantidadPersonas, ninos, jovenes);
+	            mesa.agregarReserva(nueva);
+	            
+	            System.out.println("Reserva para la mesa #" + mesa.getIdMesa() + " para la fecha: " + fechaDeseada);
+	            return true;
+	        }
+	    }
+	    System.out.println("No hay mesas disponibles para esa cantidad de personas en esa fecha.");
+	    return false;
+	}
+	
+	
+	//REQUERIMIENTO DE REALIZAR COMPRA
+	public void crearPedido(Reserva reserva,
+	        Usuario usuario,
+	        ArrayList<Platillo> platillos,
+	        ArrayList<Juego> juegos) {
+	
+	Pedido pedido = new Pedido(usuario, platillos, juegos);
+	
+	reserva.getPedidos().add(pedido);
+	}
+	public boolean crearFactura(Usuario usuario,
+	        double propina,
+	        boolean usarPuntos,
+	        String codigo,
+	        Reserva reserva) {
+	
+	// VALIDACIONES (ahora con reserva)
+	if (!validarAlcoholReserva(reserva)) return false;
+	if (!validarCalienteConAccionReserva(reserva, usuario)) return false;
+	
+	// validar juegos en TODOS los pedidos
+	for (Pedido ped : reserva.getPedidos()) {
+	for (Juego j : ped.getJuegos()) {
+	if (!inventarioVentas.estaDisponible(j)) return false;
+	}
+	}
+	
+	int id = registroVentas.size() + 1;
+	
+	CompraVenta compra = new CompraVenta(id, usuario, propina, reserva);
+	
+	// calcular base
+	compra.calcularValores();
+	
+	double total = compra.getTotal();
+	
+	// descuento
+	total = aplicarDescuento(usuario, total, codigo);
+	
+	// puntos
+	if (usuario instanceof Cliente) {
+	Cliente c = (Cliente) usuario;
+	
+	total = aplicarPuntos(c, total, usarPuntos);
+	asignarPuntos(c, total);
+	}
+	
+	compra.setTotal(total);
+	
+	// descontar inventario
+	for (Pedido ped : reserva.getPedidos()) {
+	for (Juego j : ped.getJuegos()) {
+	inventarioVentas.registrarVenta(j);
+	}
+	}
+	
+	registroVentas.put(id, compra);
+	
+	return true;
+	}
+	private boolean validarAlcoholReserva(Reserva reserva) {
+		boolean hayAlcohol = false;
+	
+	    // Revisar todos los pedidos
+	    for (Pedido ped : reserva.getPedidos()) {
+	        for (Platillo p : ped.getPlatillos()) {
+	
+	            if (p instanceof Bebida) {
+	                Bebida b = (Bebida) p;
+	
+	                if (b.isAlcoholico()) {
+	                    hayAlcohol = true;
+	                    break;
+	                }
+	            }
+	        }
+	    }
+	
+	    if (!hayAlcohol) return true;
+	
+	    // Revisar si hay menores
+	    if(reserva.isTieneNinos()) {
+	    	return false;
+	    }
+	
+	    return true;
+	
+	    
+	}
+	private boolean validarCalienteConAccionReserva(Reserva reserva, Usuario usuario) {
+		boolean hayCaliente = false;
+	
+	    // Revisar pedidos
+	    for (Pedido ped : reserva.getPedidos()) {
+	        for (Platillo p : ped.getPlatillos()) {
+	
+	            if (p instanceof Bebida) {
+	                Bebida b = (Bebida) p;
+	
+	                if (b.getTipo().equals("caliente")) {
+	                    hayCaliente = true;
+	                    break;
+	                }
+	            }
+	        }
+	    }
+	
+	    if (!hayCaliente) return true;
+	
+	    // Revisar préstamos activos del usuario
+	    for (Prestamo pr : registroPrestamos.values()) {
+	        if (pr.getUsuario().equals(usuario) && !pr.isDevuelto()) {
+	
+	            if (pr.getJuego().getCategoria().equals("accion")) {
+	                return false;
+	            }
+	        }
+	    }
+	
+	    return true;
+	}
+	private double aplicarDescuento(Usuario usuario, double subtotal, String codigo) {
+	
+	    if (codigo == null) return subtotal;
+	
+	    Empleado dueñoCodigo = buscarEmpleadoPorCodigo(codigo);
+	
+	    if (dueñoCodigo == null) return subtotal;
+	
+	    // mismo empleado
+	    if (usuario.equals(dueñoCodigo)) {
+	        return subtotal * 0.8; // 20%
+	    }
+	
+	    // otro usuario
+	    return subtotal * 0.9; // 10%
+	}
+	private Empleado buscarEmpleadoPorCodigo(String codigo) {
+		// TODO Auto-generated method stub
+		for(String code: empleados.keySet()) {
+			if(code.equals(codigo)) {
+				return empleados.get(code);
+			}
+			
+			
+		}
+		return null;
+	}
+	
+	private double aplicarPuntos(Cliente cliente, double total, boolean usarPuntos) {
+	
+	    if (!usarPuntos) return total;
+	
+	    double descuento = cliente.getPuntosFidelidad();
+	
+	    cliente.setPuntosFidelidad(0);
+	
+	    return Math.max(0, total - descuento);
+	}
+	private void asignarPuntos(Cliente cliente, double total) {
+	    double puntos = total * 0.01;
+	    cliente.setPuntosFidelidad(cliente.getPuntosFidelidad() + puntos);
+	}
+	
+	//Requerimiento funcional gestion de inventario
+	
+	public boolean solicitarPrestamo(Usuario usuario, Juego juego, Reserva reserva) {
+	
+	    // 1. validar disponibilidad
+	    if (!inventarioPrestamo.estaDisponible(juego)) {
+	        return false;
+	    }
+	    
+	    // 2. validar restricciones según tipo
+	    if (usuario instanceof Cliente) {
+	        if (reserva == null) return false;
+	        if (!validarPrestamoCliente((Cliente) usuario, juego, reserva)) {
+	            return false;
+	        }
+	    }
+	
+	    if (usuario instanceof Empleado) {
+	        if (!validarPrestamoEmpleado((Empleado) usuario)) {
+	            return false;
+	        }
+	    }
+	
+	    // 3. crear préstamo
+	    String id = "P" + (registroPrestamos.size() + 1);
+	
+	    Prestamo prestamo = new Prestamo(id, usuario, juego);
+	
+	    // 4. registrar en el historial que puede ser visualizado por el administrador 
+	    registroPrestamos.put(id, prestamo);
+	
+	    // 5. actualizar inventario
+	    inventarioPrestamo.registrarPrestamo(juego);
+	
+	    return true;
+	}
+	
+	private boolean validarPrestamoEmpleado(Empleado usuario) {
+		// TODO Auto-generated method stub
+		if (usuario.estaEnTurno()) {
+	        return false;
+	    }
+	
+		return true;
+	}
+	
+	private boolean validarPrestamoCliente(Cliente cliente, Juego juego, Reserva reserva) {
+	
+	    // 1. máximo 2 préstamos activos
+	    int activos = 0;
+	
+	    for (Prestamo p : registroPrestamos.values()) {
+	        if (p.getUsuario().equals(cliente) && !p.isDevuelto()) {
+	            activos++;
+	        }
+	    }
+	
+	    if (activos >= 2) return false;
+	
+	    // 2. bebidas calientes + acción
+	    boolean hayCaliente = false;
+	
+	    for (Pedido ped : reserva.getPedidos()) {
+	        for (Platillo p : ped.getPlatillos()) {
+	            if (p instanceof Bebida) {
+	                Bebida b = (Bebida) p;
+	
+	                if (b.getTipo().equals("caliente")) {
+	                    hayCaliente = true;
+	                    break;
+	                }
+	            }
+	        }
+	    }
+	
+	    if (hayCaliente && juego.getCategoria().equals("accion")) {
+	        return false;
+	    }
+	
+	    // 3. edad mínima
+	    if (reserva.isTieneNinos() && juego.getEdadMinima() > 0) {
+	        return false;
+	    }
+	
+	    // 4. capacidad
+	    if (reserva.getCantidadPersonas() > juego.getMaxJugadores()) {
+	        return false;
+	    }
+	
+	    return true;
+	}
+	
+}
+	
+	
+		
