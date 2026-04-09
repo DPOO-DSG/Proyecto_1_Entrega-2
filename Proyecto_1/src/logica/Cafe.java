@@ -578,7 +578,7 @@ private boolean validarPrestamoCliente(Cliente usuario) {
 		            }
 		        }
 		    }
-		}
+		} //
 		//4ta restriccion - verificar la edad de los jugadores puesto que ls juegos tienen edad.
 		
 		if(mesa.tieneMenores() == true && juego.getRestriccionEdad().equals("+18")) {
