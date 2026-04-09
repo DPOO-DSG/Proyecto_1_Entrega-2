@@ -36,12 +36,14 @@ public abstract class Empleado extends Usuario {
 	public boolean solicitarCambioTurno(Cafe cafe, Turno actual, Turno nuevo) {
 	    return cafe.crearSolicitudCambio(this, actual, nuevo);
 	}
-	public void cambiarTurno(Turno turnoOriginal, Turno turnoCambio) {
-		// TODO Auto-generated method stub
-		
+	
+	public void cambiarTurno(Turno nuevoTurno) {
+	    this.turno = nuevoTurno;
 	}
 	public boolean estaEnTurno() {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	
 }

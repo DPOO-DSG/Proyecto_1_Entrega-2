@@ -24,5 +24,20 @@ public class Turno {
 		return Cocineros;
 	}
 	
+	public void agregarEmpleado(Empleado e) {
+	    if (e instanceof Cocinero) {
+	        Cocineros.add((Cocinero) e);
+	    } else if (e instanceof Mesero) {
+	        Meseros.add((Mesero) e);
+	    }
+	}
+
+	public void removerEmpleado(Empleado e) {
+	    if (e instanceof Cocinero) {
+	        Cocineros.remove(e);
+	    } else if (e instanceof Mesero) {
+	        Meseros.remove(e);
+	    }
+	}
 	
 }

@@ -179,20 +179,33 @@ public class Cafe {
 //REQUERIMIENTO FUNCIONAL 1: CREAR SOLICITUD DE CAMBIO DE TURNO
 
 //Agregar solicitud de cambio al mapa de solicitudes.
-public boolean crearSolicitudCambio(Empleado empleado, Turno actual, Turno nuevo) {
+	// REQUERIMIENTO FUNCIONAL 1: CREAR SOLICITUD DE CAMBIO DE TURNO
 
-	if (!puedeSalirDelTurno(empleado, actual)) {
-        return false;
-    }
+	public boolean crearSolicitudCambio(Empleado empleado, Turno actual, Turno nuevo) {
 
-    int id = generarIdSolicitud();
+	    if (empleado == null || actual == null || nuevo == null) {
+	        return false;
+	    }
 
-    CambioDeTurno solicitud = new CambioDeTurno(id, empleado, actual, nuevo);
+	    // Validar que el empleado realmente esté en ese turno
+	    if (!empleado.getTurno().equals(actual)) {
+	        System.out.println("El empleado no pertenece al turno indicado.");
+	        return false;
+	    }
 
-    solicitudesCambioTurno.put(id, solicitud);
+	    if (!puedeSalirDelTurno(empleado, actual)) {
+	        System.out.println("No se puede salir del turno por falta de personal.");
+	        return false;
+	    }
 
-    return true;
-    }
+	    int id = generarIdSolicitud();
+
+	    CambioDeTurno solicitud = new CambioDeTurno(id, empleado, actual, nuevo);
+
+	    solicitudesCambioTurno.put(id, solicitud);
+
+	    return true;
+	}
 
 private boolean puedeSalirDelTurno(Empleado empleado, Turno actual) {
 	// TODO Auto-generated method stub
@@ -201,11 +214,11 @@ private boolean puedeSalirDelTurno(Empleado empleado, Turno actual) {
     int numMeseros = turno.getMeseros().size();
 
     if (empleado instanceof Cocinero) {
-        return numCocineros > 2; // mínimo 2
+        return numCocineros > 1; // mínimo 2
     }
 
     if (empleado instanceof Mesero) {
-        return numMeseros > 1; // mínimo 1
+        return numMeseros > 2; // mínimo 1
     }
 
     return true;
@@ -215,10 +228,11 @@ private boolean puedeSalirDelTurno(Empleado empleado, Turno actual) {
 
 //Metodo para ver las solicitudes pendientes del mapa de solicitudes
 public HashMap<Integer, CambioDeTurno> getSolicitudesPendientes() {
+
     HashMap<Integer, CambioDeTurno> pendientes = new HashMap<>();
 
     for (CambioDeTurno s : solicitudesCambioTurno.values()) {
-        if (s.getEstado().equals("PENDIENTE")) {
+        if (s.getEstado().equalsIgnoreCase("PENDIENTE")) {
             pendientes.put(s.getId(), s);
         }
     }
@@ -228,27 +242,25 @@ public HashMap<Integer, CambioDeTurno> getSolicitudesPendientes() {
 
 //Metodo usado por administrador para aprobar una solicitud 
 public boolean aprobarSolicitud(int idSolicitud) {
-	// TODO Auto-generated method stub
-	CambioDeTurno solicitud = solicitudesCambioTurno.get(idSolicitud);
+
+    CambioDeTurno solicitud = solicitudesCambioTurno.get(idSolicitud);
 
     if (solicitud == null || !solicitud.getEstado().equals("PENDIENTE")) {
         return false;
     }
 
-    //aplicar cambio de turno
     Empleado empleado = solicitud.getEmpleado();
 
-    empleado.cambiarTurno(
-        solicitud.getTurnoOriginal(),
-        solicitud.getTurnoCambio()
-    );
+    Turno turnoActual = solicitud.getTurnoOriginal();
+    Turno turnoNuevo = solicitud.getTurnoCambio();
 
-    // cambiar estado
+    // actualizarTurno 
+    actualizarTurno(empleado, turnoActual, turnoNuevo);
+
     solicitud.aprobar();
 
     return true;
-
-	}
+}
 
 public boolean rechazarSolicitud(int idSolicitud) {
 	CambioDeTurno solicitud = solicitudesCambioTurno.get(idSolicitud);
@@ -261,6 +273,47 @@ public boolean rechazarSolicitud(int idSolicitud) {
 
     return true;
 }
+
+
+private void actualizarTurno(Empleado e, Turno turnoViejo, Turno turnoNuevo) {
+
+    if (e == null || turnoViejo == null || turnoNuevo == null) {
+        return;
+    }
+
+    // quitar del turno viejo
+    turnoViejo.removerEmpleado(e);
+
+    // cambiar turno del empleado
+    e.cambiarTurno(turnoNuevo);
+
+    // agregar al nuevo turno
+    turnoNuevo.agregarEmpleado(e);
+}
+
+public boolean intercambiarTurnos(Empleado e1, Empleado e2) {
+
+    if (e1 == null || e2 == null) {
+        return false;
+    }
+
+    Turno turno1 = e1.getTurno();
+    Turno turno2 = e2.getTurno();
+
+    // validar salida de ambos turnos
+    if (!puedeSalirDelTurno(e1, turno1) || !puedeSalirDelTurno(e2, turno2)) {
+        System.out.println("No se puede realizar el intercambio por falta de personal.");
+        return false;
+    }
+
+    //Actualizar turno
+    actualizarTurno(e1, turno1, turno2);
+    actualizarTurno(e2, turno2, turno1);
+
+    return true;
+}
+    
+
 
 //REQUERIMIENTO DE SOLCITUD DE MESA
 //Reservar mesa
