@@ -1,6 +1,7 @@
 package logica;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 public class Reserva {
     private LocalDateTime fechaReserva;
@@ -8,6 +9,8 @@ public class Reserva {
     private int cantidadPersonas;
     private boolean tieneNinos;  
     private boolean tieneJovenes;
+    private ArrayList<Pedido> pedidos;
+    
     //Constructor
 	public Reserva(LocalDateTime fechaReserva, Cliente cliente, int cantidadPersonas,
 			boolean tieneNinos, boolean tieneJovenes) {
@@ -18,10 +21,21 @@ public class Reserva {
 		this.tieneJovenes = tieneJovenes;
 	}
 	//Getters y setters
-
+	
+	
 	public LocalDateTime getFechaReserva() {
 		return fechaReserva;
 	}
+	public ArrayList<Pedido> getPedidos() {
+		return pedidos;
+	}
+
+
+	public void setPedidos(ArrayList<Pedido> pedidos) {
+		this.pedidos = pedidos;
+	}
+
+
 	public void setFechaReserva(LocalDateTime fechaReserva) {
 		this.fechaReserva = fechaReserva;
 	}

@@ -34,7 +34,7 @@ public abstract class Usuario {
 	}
 	
 	
-	public void solicitarPrestamo(Cafe cafe, Juego juego) {
-		cafe.solicitarPrestamo(this, juego);
+	public void solicitarPrestamo(Cafe cafe, Juego juego, Reserva reserva) {
+		cafe.solicitarPrestamo(this, juego,reserva);
 	}
 }
