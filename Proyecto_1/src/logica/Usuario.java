@@ -33,7 +33,15 @@ public abstract class Usuario {
 		this.juegosFavoritos = juegosFavoritos;
 	}
 	
+	//REQ FUNCIONAL CONSULTAR CATALOGO DE JUEGOS (PRESTAMOS Y VENTAS)
+	public ArrayList<Juego> consultarCatalogoPrestamo(Cafe cafe) {
+	    return cafe.consultarCatalogoPrestamo();
+	}
+	public ArrayList<Juego> consultarCatalogoVenta(Cafe cafe) {
+	    return cafe.consultarCatalogoVenta();
+	}
 	
+	//REQ FUNCIONAL SOLICITAR PRESTAMO 
 	public void solicitarPrestamo(Cafe cafe, Juego juego, Reserva reserva) {
 		cafe.solicitarPrestamo(this, juego,reserva);
 	}

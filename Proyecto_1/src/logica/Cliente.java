@@ -33,9 +33,10 @@ public class Cliente extends Usuario {
 	public void solicitarPrestamo(Cafe cafe, Juego juego, Reserva reserva) {
 	    cafe.solicitarPrestamo(this, juego, reserva);
 	}
-
+	public void consultarPuntosFidelidad(Cafe cafe) {
+		cafe.consultarPuntosFidelidad(this);
 	
 	
 	
-	
+	}
 }

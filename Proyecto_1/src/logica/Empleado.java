@@ -4,15 +4,15 @@ import java.util.ArrayList;
 
 public abstract class Empleado extends Usuario {
 	private String codigoDescuento;
-	private Turno turno;
+	private ArrayList<Turno> turnos;
 	
 	//Constructor
 	public Empleado(String login, String password, ArrayList<Juego> juegosFavoritos, String codigoDescuento,
-			Turno turno) {
+			ArrayList<Turno> turnos) {
 		super(login, password, juegosFavoritos);
 		this.codigoDescuento = codigoDescuento;
-		this.turno = turno;
-	}
+		this.turnos = turnos;
+	} 
 	//getters y setters
 	public String getCodigoDescuento() {
 		return codigoDescuento;
@@ -22,13 +22,14 @@ public abstract class Empleado extends Usuario {
 		this.codigoDescuento = codigoDescuento;
 	}
 
-	public Turno getTurno() {
-		return turno;
+	public ArrayList<Turno> getTurnos() {
+	    return turnos;
 	}
 
-	public void setTurno(Turno turno) {
-		this.turno = turno;
+	public void setTurnos(ArrayList<Turno> turnos) {
+	    this.turnos = turnos;
 	}
+	
 	
 	
 	//Metodo en el que el empleado crea la solicitud de cambio
@@ -45,5 +46,7 @@ public abstract class Empleado extends Usuario {
 		return false;
 	}
 	
-	
+	public ArrayList<Turno> consultarTurnos(Cafe cafe) {
+	    return cafe.consultarTurnosEmpleado(this);
+	}
 }

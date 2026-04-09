@@ -26,7 +26,7 @@ public class Cafe {
 		this.registroVentas = new HashMap<>();
 		this.registroPrestamos = new HashMap<>();
 		this.inventarioVentas = new InventarioVenta();
-		this.inventarioPrestamo = inventarioPrestamo; //TODO
+		this.inventarioPrestamo = new InventarioPrestamo(); 
 		this.empleados = new HashMap<String, Empleado>();
 		this.clientes = new HashMap<String, Cliente>();
 		this.administradores = new HashMap<String, Administrador>();
@@ -175,7 +175,6 @@ public class Cafe {
 	}
 
 
-
 // REQUERIMIENTO FUNCIONAL 1: CREAR SOLICITUD DE CAMBIO DE TURNO
 
 public boolean crearSolicitudCambio(Empleado empleado, Turno actual, Turno nuevo) {
@@ -202,8 +201,8 @@ public boolean crearSolicitudCambio(Empleado empleado, Turno actual, Turno nuevo
     solicitudesCambioTurno.put(id, solicitud);
 
     return true;
-}
-private boolean puedeSalirDelTurno(Empleado empleado, Turno turno) {
+	}
+	private boolean puedeSalirDelTurno(Empleado empleado, Turno turno) {
 
     int numCocineros = turno.getCocineros().size();
     int numMeseros = turno.getMeseros().size();
@@ -218,7 +217,7 @@ private boolean puedeSalirDelTurno(Empleado empleado, Turno turno) {
 
     return true;
     
-}
+	}
 
 //Metodo para ver las solicitudes pendientes del mapa de solicitudes
 	public HashMap<Integer, CambioDeTurno> getSolicitudesPendientes() {
@@ -234,8 +233,8 @@ private boolean puedeSalirDelTurno(Empleado empleado, Turno turno) {
 	    return pendientes;
 	}
 
-//Metodo usado por administrador para aprobar una solicitud 
-public boolean aprobarSolicitud(int idSolicitud) {
+	//Metodo usado por administrador para aprobar una solicitud 
+	public boolean aprobarSolicitud(int idSolicitud) {
 
     CambioDeTurno solicitud = solicitudesCambioTurno.get(idSolicitud);
 
@@ -254,9 +253,9 @@ public boolean aprobarSolicitud(int idSolicitud) {
     solicitud.aprobar();
 
     return true;
-}
+	}
 
-public boolean rechazarSolicitud(int idSolicitud) {
+	public boolean rechazarSolicitud(int idSolicitud) {
 
     CambioDeTurno solicitud = solicitudesCambioTurno.get(idSolicitud);
 
@@ -267,7 +266,7 @@ public boolean rechazarSolicitud(int idSolicitud) {
     solicitud.rechazar();
 
     return true;
-}
+	}
 
 
 private void actualizarTurno(Empleado e, Turno turnoViejo, Turno turnoNuevo) {
@@ -303,6 +302,39 @@ public boolean intercambiarTurnos(Empleado e1, Empleado e2) {
 
     return true;
 }
+
+
+
+
+// REQUERIMIENTO PARA CONSULTAR CATALOGO DE JUEGOS (PRESTAMO Y VENTA) DE PARTE DEL USUARIO 
+
+public ArrayList<Juego> consultarCatalogoPrestamo() {
+    return new ArrayList<>(inventarioPrestamo.getStock().keySet());
+}
+public ArrayList<Juego> consultarCatalogoVenta() {
+    return new ArrayList<>(inventarioVentas.getStock().keySet());
+}
+
+
+
+
+//REQUERIMIENTO CONSULTAR PUNTOS DE FIDELIDAD 
+public double consultarPuntosFidelidad(Cliente cliente) {
+    return cliente.getPuntosFidelidad();
+}
+
+
+
+
+//REQUERIMIENTO CONSULTAR TURNOS EMPLEADO 
+
+public ArrayList<Turno> consultarTurnosEmpleado(Empleado empleado) {
+    return empleado.getTurnos();
+}
+
+
+
+
 
 //REQUERIMIENTO DE SOLCITUD DE MESA
 //Reservar mesa

@@ -5,33 +5,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class InventarioPrestamo {
-	private ArrayList<Juego> juegos;
 	private HashMap<Juego,Integer> stock;
-	private HashMap<Juego, ArrayList<LocalDateTime>> historial;
 	
 	//constructor
-		public InventarioPrestamo(ArrayList<Juego> juegos, HashMap<Juego, Integer> stock, HashMap<Juego, ArrayList<LocalDateTime>> historial) {
+		public InventarioPrestamo() {
 			super();
-			this.juegos = juegos;
-			this.stock = stock;
-			this.historial = historial;
+		    this.stock = new HashMap<>();
 		}
 
 		//getters and setters
-		public ArrayList<Juego> getJuegos() {
-			return juegos;
-		}
+		
 
-		public void setJuegos(ArrayList<Juego> juegos) {
-			this.juegos = juegos;
+		public void setStock(HashMap<Juego, Integer> stock) {
+			this.stock = stock;
 		}
 
 		public HashMap<Juego, Integer> getStock() {
 			return stock;
-		}
-
-		public void setStock(HashMap<Juego, Integer> stock) {
-			this.stock = stock;
 		}
 
 		public boolean estaDisponible(Juego juego) {
@@ -65,13 +55,7 @@ public class InventarioPrestamo {
 		    }
 		}
 
-		public HashMap<Juego, ArrayList<LocalDateTime>> getHistorial() {
-			return historial;
-		}
-
-		public void setHistorial(HashMap<Juego, ArrayList<LocalDateTime>> historial) {
-			this.historial = historial;
-		}
+		
 		
 		
 
