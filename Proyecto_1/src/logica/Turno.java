@@ -4,39 +4,39 @@ import java.util.ArrayList;
 
 public class Turno {
 	private String jornada;
-	private ArrayList<Mesero> Meseros;
-	private ArrayList<Cocinero> Cocineros;
+	private ArrayList<Mesero> meseros;
+	private ArrayList<Cocinero> cocineros;
 	//Constructor
 	public Turno(String jornada, ArrayList<Mesero> listaMeseros,
 			ArrayList<Cocinero> listaCocineros) {
 		this.jornada = jornada;
-		this.Meseros = listaMeseros;
-		this.Cocineros = listaCocineros;
+		this.meseros = listaMeseros;
+		this.cocineros = listaCocineros;
 	}
 	//Getters
 	public String getJornada() {
 		return jornada;
 	}
 	public ArrayList<Mesero> getMeseros() {
-		return Meseros;
+		return meseros;
 	}
 	public ArrayList<Cocinero> getCocineros() {
-		return Cocineros;
+		return cocineros;
 	}
 	
 	public void agregarEmpleado(Empleado e) {
 	    if (e instanceof Cocinero) {
-	        Cocineros.add((Cocinero) e);
+	        cocineros.add((Cocinero) e);
 	    } else if (e instanceof Mesero) {
-	        Meseros.add((Mesero) e);
+	        meseros.add((Mesero) e);
 	    }
 	}
 
 	public void removerEmpleado(Empleado e) {
 	    if (e instanceof Cocinero) {
-	        Cocineros.remove(e);
+	        cocineros.remove(e);
 	    } else if (e instanceof Mesero) {
-	        Meseros.remove(e);
+	        meseros.remove(e);
 	    }
 	}
 	

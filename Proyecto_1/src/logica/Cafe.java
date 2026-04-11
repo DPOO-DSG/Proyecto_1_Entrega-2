@@ -16,10 +16,11 @@ public class Cafe {
 	private HashMap<String, String> credencialesAdmin;
 	private HashMap<Integer,CambioDeTurno> solicitudesCambioTurno;
 	private HashMap<Integer, Mesa> mesas;
+	private HashMap<String, Turno> turnos;
 	
     private int contadorSolicitudes = 0;
 
-
+ 
 	
 	public Cafe(int capacidad, int cantidadMesas) {
 		this.capacidad = capacidad;
@@ -33,6 +34,7 @@ public class Cafe {
 		this.solicitudesCambioTurno = new HashMap<Integer, CambioDeTurno>();
 		this.mesas =new HashMap<Integer,Mesa>();
 	    this.credencialesAdmin = new HashMap<>();
+	    this.turnos = new HashMap<>();
 		}
 	
 	public int getCapacidad() {
@@ -110,9 +112,20 @@ public class Cafe {
 	public void setSolicitudesCambioTurno(HashMap<Integer, CambioDeTurno> solicitudesCambioTurno) {
 		this.solicitudesCambioTurno = solicitudesCambioTurno;
 	}
+	
+	public HashMap<String, Turno> getTurnos() {
+		return turnos;
+	}
+
+	public void setTurnos(HashMap<String, Turno> turnos) {
+		this.turnos = turnos;
+	}
+	
 
 	//METODOS
 	
+
+
 	public int generarIdSolicitud() {
 	    return contadorSolicitudes++;
 	}//Genera id de solicitud
@@ -126,22 +139,46 @@ public class Cafe {
 	    clientes.put(login, nuevo);
 	    return true;
 	}
-	
-	public boolean crearMesero(String login, String password, ArrayList<Juego> juegosFavoritos,
-	        String codigoDescuento, Turno turno, ArrayList<Juego> juegosConocidos) {
-	    if (existeLogin(login)) return false;
-	    Mesero nuevo = new Mesero(login, password, juegosFavoritos, codigoDescuento, turno, juegosConocidos);
+	//Crea un nuevo mesero
+	public int crearMesero(String login, String password, String codigoDescuento, ArrayList<Juego> juegosFavoritos, 
+			ArrayList<String> dias, ArrayList<Juego> juegosConocidos) {
+
+	    if (existeLogin(login)) return 1;
+	    ArrayList<Turno> turnosAsignar = new ArrayList<>();
+	    for (String dia : dias) {
+	        Turno t = turnos.get(dia.toLowerCase());
+	        if (t == null) return 2;
+	        turnosAsignar.add(t);
+	    }
+	    Mesero nuevo = new Mesero(login, password,  juegosFavoritos, codigoDescuento, new ArrayList<>(),  juegosConocidos);
+	    for (Turno t : turnosAsignar) {
+	        nuevo.getTurnos().add(t);
+	        t.agregarEmpleado(nuevo);
+	    }
 	    empleados.put(login, nuevo);
-	    return true;
-	}//Crea un nuevo mesero
+	    return 0;
+	}
 	
-	public boolean crearCocinero(String login, String password, ArrayList<Juego> juegosFavoritos,
-	        String codigoDescuento, Turno turno) {
-	    if (existeLogin(login)) return false;
-	    Cocinero nuevo = new Cocinero(login, password, juegosFavoritos, codigoDescuento, turno);
+	
+	public int crearCocinero(String login, String password, String codigoDescuento,
+	        ArrayList<Juego> juegosFavoritos,
+	        ArrayList<String> dias) {
+	    if (existeLogin(login)) return 1;
+	    ArrayList<Turno> turnosAsignar = new ArrayList<>();
+	    for (String dia : dias) {
+	        Turno t = turnos.get(dia.toLowerCase());
+	        if (t == null) return 2;
+	        turnosAsignar.add(t);
+	    }
+	    Cocinero nuevo = new Cocinero(login, password, juegosFavoritos,codigoDescuento,
+	        new ArrayList<>() );
+	    for (Turno t : turnosAsignar) {
+	        nuevo.getTurnos().add(t);
+	        t.agregarEmpleado(nuevo);
+	    }
 	    empleados.put(login, nuevo);
-	    return true;
-	} //Crea un nuevo cocinero
+	    return 0;
+	}//nuevo cocinero
 	
 	public boolean crearAdministrador(String login, String password) {
 	    if (existeLogin(login)) return false;
@@ -173,6 +210,37 @@ public class Cafe {
 
 	    return null;
 	}
+	//Asignacion inicial de turnos
+	public void inicializarTurnos() {
+	    turnos = new HashMap<>();
+	    String[] dias = {
+	        "lunes", "martes", "miercoles",
+	        "jueves", "viernes", "sabado", "domingo"};
+	    for (String dia : dias) {
+	        turnos.put(dia, new Turno(dia, new ArrayList<>(), new ArrayList<>()));
+	    }
+	}
+	
+	public int asignarTurnoEmpleado(String loginEmpleado, String jornada) {
+	    Empleado e = empleados.get(loginEmpleado);
+	    if (e == null) {
+	        return 1; // empleado no existe
+	    }
+	    Turno t = turnos.get(jornada.toLowerCase());
+	    if (t == null) {
+	        return 2; // turno no existe
+	    }
+	    if (e.getTurnos().contains(t)) {
+	        return 3; // ya tiene ese turno
+	    }
+	    // asignación
+	    e.getTurnos().add(t);
+	    t.agregarEmpleado(e);
+
+	    return 0; 
+	}
+	
+
 
 
 // REQUERIMIENTO FUNCIONAL 1: CREAR SOLICITUD DE CAMBIO DE TURNO
