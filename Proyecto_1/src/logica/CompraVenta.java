@@ -24,6 +24,39 @@ public class CompraVenta {
 	    this.propina = propina;
 	    this.fecha = LocalDateTime.now();
 	}
+	
+	public int getNumeroFactura() {
+		return numeroFactura;
+	}
+
+	public LocalDateTime getFecha() {
+		return fecha;
+	}
+
+	public double getIva() {
+		return iva;
+	}
+
+	public double getSubtotal() {
+		return subtotal;
+	}
+
+	public double getPropina() {
+		return propina;
+	}
+
+	public int getPuntosGenerados() {
+		return puntosGenerados;
+	}
+
+	public Reserva getReserva() {
+		return reserva;
+	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
 	public void calcularValores() {
 
 	    double suma = 0;

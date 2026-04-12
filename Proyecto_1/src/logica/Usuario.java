@@ -42,7 +42,7 @@ public abstract class Usuario {
 	}
 	
 	//REQ FUNCIONAL SOLICITAR PRESTAMO 
-	public void solicitarPrestamo(Cafe cafe, Juego juego, Reserva reserva) {
-		cafe.solicitarPrestamo(this, juego,reserva);
+	public boolean solicitarPrestamo(Cafe cafe, Juego juego, Reserva reserva) {
+		return cafe.solicitarPrestamo(this, juego,reserva);
 	}
 }

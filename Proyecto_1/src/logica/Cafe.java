@@ -247,18 +247,16 @@ public class Cafe {
 	public boolean crearSolicitudCambio(Empleado empleado, Turno actual, Turno nuevo) {
 
 	    if (empleado == null || actual == null || nuevo == null) {
-	        return false;
+	        throw new IllegalArgumentException("Datos de solicitud inválidos");
 	    }
 
 	    // Mirar que el empleado tenga ese turno
 	    if (!empleado.getTurnos().contains(actual)) {
-	        System.out.println("El empleado no pertenece al turno indicado.");
-	        return false;
+	        throw new IllegalStateException("El empleado no pertenece al turno indicado");
 	    }
 
 	    if (!puedeSalirDelTurno(empleado, actual)) {
-	        System.out.println("No se puede salir del turno por falta de personal.");
-	        return false;
+	        throw new IllegalStateException("El empleado no puede salir  del turno actual");
 	    }
 
 	    int id = generarIdSolicitud();
