@@ -38,10 +38,7 @@ public abstract class Empleado extends Usuario {
 	    return cafe.crearSolicitudCambio(this, actual, nuevo);
 	}
 	
-	public void cambiarTurno(Turno turnoViejo, Turno turnoNuevo) {
-	    this.turnos.remove(turnoViejo);
-	    this.turnos.add(turnoNuevo);
-	}
+
 	
 	public boolean estaEnTurno() {
 		

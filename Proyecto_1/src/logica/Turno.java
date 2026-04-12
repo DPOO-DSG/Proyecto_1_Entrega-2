@@ -40,4 +40,15 @@ public class Turno {
 	    }
 	}
 	
+	@Override
+	public String toString() {
+	    return "Día: " + jornada +
+	           " | Meseros: " + meseros.size() +
+	           " | Cocineros: " + cocineros.size();
+	}
+	
+	public String mostrarSimple() {
+	    return jornada;
+	}
+	
 }
