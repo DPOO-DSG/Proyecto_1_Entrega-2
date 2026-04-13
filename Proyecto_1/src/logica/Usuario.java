@@ -42,7 +42,8 @@ public abstract class Usuario {
 	}
 	
 	//REQ FUNCIONAL SOLICITAR PRESTAMO 
-	public boolean solicitarPrestamo(Cafe cafe, Juego juego, Reserva reserva) {
-		return cafe.solicitarPrestamo(this, juego,reserva);
+	public boolean solicitarPrestamo(Cafe cafe, Juego juego, Reserva reserva, String jornada) {
+		return cafe.solicitarPrestamo(login, juego, reserva, jornada);
+		
 	}
 }

@@ -588,7 +588,7 @@ public class Cafe {
 	
 	//Requerimiento funcional gestion de inventario
 	
-	public boolean solicitarPrestamo(Usuario usuario, Juego juego, Reserva reserva) {
+	public boolean solicitarPrestamo(Usuario usuario, Juego juego, Reserva reserva, String jornada) {
 	
 	    // 1. validar disponibilidad
 	    if (!inventarioPrestamo.estaDisponible(juego)) {
@@ -598,13 +598,15 @@ public class Cafe {
 	    // 2. validar restricciones según tipo
 	    if (usuario instanceof Cliente) {
 	        if (reserva == null) return false;
+
 	        if (!validarPrestamoCliente((Cliente) usuario, juego, reserva)) {
 	            return false;
 	        }
 	    }
-	
+
+	    // 3. validar empleado
 	    if (usuario instanceof Empleado) {
-	        if (!validarPrestamoEmpleado((Empleado) usuario)) {
+	        if (!validarPrestamoEmpleado((Empleado) usuario, jornada)) {
 	            return false;
 	        }
 	    }
@@ -622,10 +624,10 @@ public class Cafe {
 	
 	    return true;
 	}
+
 	
-	private boolean validarPrestamoEmpleado(Empleado usuario) {
-		// TODO Auto-generated method stub
-		if (usuario.estaEnTurno()) {
+	private boolean validarPrestamoEmpleado(Empleado usuario, String jornada) {
+		if(usuario.estaEnTurno(jornada)) {
 	        return false;
 	    }
 	
@@ -678,6 +680,47 @@ public class Cafe {
 	    return true;
 	}
 	
+	//Requerimiento de mesero tiene juego conocidos y
+	
+	public void anadirJuegoAMesero(String login, Juego juego) {
+
+	    if (login == null || juego == null) {
+	        return;
+	    }
+
+	    Empleado e = empleados.get(login);
+
+	    if (e instanceof Mesero) {
+	        Mesero m = (Mesero) e;
+	        m.anadirJuegosConocidos(juego);
+	       
+	    }
+	    
+	    else {
+	        System.out.println("El empleado no es un mesero.");
+	    }
+	}
+	
+	public Mesero hayMeseroParaJuego(Juego juego, String jornada) {
+
+	    if (juego == null) {
+	        return null;
+	    }
+
+	    for (Empleado e : empleados.values()) {
+	        if (e instanceof Mesero) {
+	            Mesero mesero = (Mesero) e;
+
+	            if (mesero.getJuegosConocidos().contains(juego)) {
+	            	if(mesero.estaEnTurno(jornada))
+	                return mesero;
+	            }
+	        }
+	    }
+
+	    return null;
+	}
+
 }
 	
 	

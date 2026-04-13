@@ -40,8 +40,19 @@ public abstract class Empleado extends Usuario {
 	
 
 	
-	public boolean estaEnTurno() {
+	public boolean estaEnTurno(String jornada) {
 		
+		if(jornada == null) {
+			return false;
+		}
+		
+		else {
+			for(Turno turno : this.turnos) {
+				if(turno.getJornada().equalsIgnoreCase(jornada)) {
+					return true;
+				}
+			}
+		}
 		
 		return false;
 	}
