@@ -30,6 +30,7 @@ public class Cliente extends Usuario {
 	public void pagar(Cafe cafe,Reserva reserva,double propina,boolean usarPuntos, String codigoDescuento) {
 		cafe.crearFactura(this, propina, usarPuntos, codigoDescuento, reserva);
 }
+	@Override
 	public boolean solicitarPrestamo(Cafe cafe, Juego juego, Reserva reserva) {
 	    return cafe.solicitarPrestamo(this, juego, reserva);
 	}

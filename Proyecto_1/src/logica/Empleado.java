@@ -1,5 +1,6 @@
 package logica;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public abstract class Empleado extends Usuario {
@@ -40,24 +41,24 @@ public abstract class Empleado extends Usuario {
 	
 
 	
-	public boolean estaEnTurno(String jornada) {
-		
-		if(jornada == null) {
-			return false;
-		}
-		
-		else {
-			for(Turno turno : this.turnos) {
-				if(turno.getJornada().equalsIgnoreCase(jornada)) {
-					return true;
-				}
-			}
-		}
-		
-		return false;
+	public boolean estaEnTurnoAhora() {
+	    String hoy = LocalDateTime.now().getDayOfWeek().toString().toLowerCase();
+
+	    for (Turno t : turnos) {
+	        if (t.getJornada().equals(hoy)) {
+	            return true;
+	        }
+	    }
+
+	    return false;
 	}
 	
 	public ArrayList<Turno> consultarTurnos(Cafe cafe) {
 	    return cafe.consultarTurnosEmpleado(this);
+	}
+	@Override
+	
+	public boolean solicitarPrestamo(Cafe cafe, Juego juego, Reserva reserva) {
+	    return cafe.solicitarPrestamo(this, juego, null);
 	}
 }

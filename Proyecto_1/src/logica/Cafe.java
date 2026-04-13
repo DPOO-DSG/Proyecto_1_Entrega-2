@@ -588,7 +588,7 @@ public class Cafe {
 	
 	//Requerimiento funcional gestion de inventario
 	
-	public boolean solicitarPrestamo(Usuario usuario, Juego juego, Reserva reserva, String jornada) {
+	public boolean solicitarPrestamo(Usuario usuario, Juego juego, Reserva reserva) {
 	
 	    // 1. validar disponibilidad
 	    if (!inventarioPrestamo.estaDisponible(juego)) {
@@ -606,7 +606,7 @@ public class Cafe {
 
 	    // 3. validar empleado
 	    if (usuario instanceof Empleado) {
-	        if (!validarPrestamoEmpleado((Empleado) usuario, jornada)) {
+	        if (!validarPrestamoEmpleado((Empleado) usuario)) {
 	            return false;
 	        }
 	    }
@@ -626,8 +626,8 @@ public class Cafe {
 	}
 
 	
-	private boolean validarPrestamoEmpleado(Empleado usuario, String jornada) {
-		if(usuario.estaEnTurno(jornada)) {
+	private boolean validarPrestamoEmpleado(Empleado usuario) {
+		if(usuario.estaEnTurnoAhora()) {
 	        return false;
 	    }
 	
@@ -712,7 +712,7 @@ public class Cafe {
 	            Mesero mesero = (Mesero) e;
 
 	            if (mesero.getJuegosConocidos().contains(juego)) {
-	            	if(mesero.estaEnTurno(jornada))
+	            	if(mesero.estaEnTurnoAhora())
 	                return mesero;
 	            }
 	        }

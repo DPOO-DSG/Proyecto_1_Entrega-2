@@ -67,52 +67,67 @@ public class Principal {
 	        System.out.println("5. Consultar puntos");
 	        System.out.println("6. Guardar juego favorito");
 	        System.out.println("7. Devolver juego prestado");
+	        //TODO ACEPTAR RESERVA (INDICAR QUE LLEGÓ)
 	        System.out.println("0. Salir");
 
 	        option = sc.nextInt();
 	        sc.nextLine();
 
 	        if (option == 1) {
-	            reservarMesa(c); // TODO
+	            reservarMesa(c); // TODO sebastian 
 	        } else if (option == 2) {
-	            consultarCatalogo(); // TODO
+	            consultarCatalogo(); // TODO daniel 
 	        } else if (option == 3) {
 	            prestamoJuego(c); // TODO
 	        } else if (option == 4) {
 	            verPedidos(c); // TODO
 	        } else if (option == 5) {
-	            consultarPuntos(c); // TODO
+	            consultarPuntos(c);
 	        } else if (option == 6) {
-	            guardarJuegoFav(c); // TODO
+	            guardarJuegoFav(c); 
+	        }
+	        else if (option == 7) {
+	            devolverprestamo(c); // TODO
 	        }
 
 	    } while (option != 0);
 	}
-
+	
+	private void reservarMesa(Cliente c) {
+		// TODO Auto-generated method stub		
+	}
+	
 	private void consultarPuntos(Cliente c) {
-		// TODO Auto-generated method stub
 		System.out.println("Cuentas con "+ c.consultarPuntosFidelidad(cafe)+ " puntos");
 		
 	}
 	private void verPedidos(Cliente c) {
 		// TODO Auto-generated method stub
+		System.out.println("TUS RESERVAS:\n");
+		for ()
+
+		 
 		
 	}
 	private void consultarCatalogo() {
 		// TODO Auto-generated method stub
-		InventarioPrestamo juegos = cafe.getInventarioPrestamo().keyset();
+		System.out.println("===CATALOGO===");
+		
+		InventarioPrestamo inventario = cafe.getInventarioPrestamo();
+		HashMap<Juego,Integer> stock = inventario.getStock();
+		Set<Juego> juegos = stock.keySet();
+		for (int i = 0 ; i<juegos.size(); i++) {
+			System.out.println((i+1) + juegos[i]);
+			
+		}
+		
 		
 		
 		
 	}
-	private void reservarMesa(Cliente c) {
-		// TODO Auto-generated method stub
-		
-		
-		
-		
-		
-		
+	
+	private void devolverprestamo(Cliente c) {
+		// TODO Auto-generated method stub	
 	}
 	private void loginEmpleado() {
 	    System.out.print("Login: ");
