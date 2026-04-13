@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import  excepciones.*;
+
+
 public class Cafe {
 	private int capacidad;
 	private HashMap<Integer,CompraVenta> registroVentas;
@@ -36,95 +39,68 @@ public class Cafe {
 	    this.credencialesAdmin = new HashMap<>();
 	    this.turnos = new HashMap<>();
 		}
-	
 	public int getCapacidad() {
 		return capacidad;
 	}
-
 	public void setCapacidad(int capacidad) {
 		this.capacidad = capacidad;
 	}
-
 	public HashMap<Integer, CompraVenta> getRegistroVentas() {
 		return registroVentas;
 	}
-
-
 	public HashMap<String, Prestamo> getRegistroPrestamos() {
 		return registroPrestamos;
 	}
-
 	public InventarioVenta getInventarioVentas() {
 		return inventarioVentas;
 	}
-	
-
 	public HashMap<Integer, Mesa> getMesas() {
 		return mesas;
 	}
-
 	public void setMesas(HashMap<Integer, Mesa> mesas) {
 		this.mesas = mesas;
 	}
-
 	public void setInventarioVentas(InventarioVenta inventarioVentas) {
 		this.inventarioVentas = inventarioVentas;
 	}
-
 	public InventarioPrestamo getInventarioPrestamo() {
 		return inventarioPrestamo;
 	}
-
 	public void setInventarioPrestamo(InventarioPrestamo inventarioPrestamo) {
 		this.inventarioPrestamo = inventarioPrestamo;
 	}
-
 	public HashMap<String, Empleado> getEmpleados() {
 		return empleados;
 	}
-
 	public void setEmpleados(HashMap<String, Empleado> empleados) {
 		this.empleados = empleados;
 	}
-
 	public HashMap<String, Cliente> getClientes() {
 		return clientes;
 	}
-
-
 	public void setClientes(HashMap<String, Cliente> clientes) {
 		this.clientes = clientes;
 	}
-
 	public HashMap<String, Administrador> getAdministradores() {
 		return administradores;
 	}
-
-
 	public void setAdministradores(HashMap<String, Administrador> administradores) {
 		this.administradores = administradores;
 	}
-
 	public HashMap<Integer, CambioDeTurno> getSolicitudesCambioTurno() {
 		return solicitudesCambioTurno;
 	}
-
 	public void setSolicitudesCambioTurno(HashMap<Integer, CambioDeTurno> solicitudesCambioTurno) {
 		this.solicitudesCambioTurno = solicitudesCambioTurno;
 	}
-	
 	public HashMap<String, Turno> getTurnos() {
 		return turnos;
 	}
-
 	public void setTurnos(HashMap<String, Turno> turnos) {
 		this.turnos = turnos;
 	}
 	
-
 	//METODOS
-	
-
 
 	public int generarIdSolicitud() {
 	    return contadorSolicitudes++;
@@ -588,27 +564,28 @@ public class Cafe {
 	
 	//Requerimiento funcional gestion de inventario
 	
-	public boolean solicitarPrestamo(Usuario usuario, Juego juego, Reserva reserva) {
+	public boolean solicitarPrestamo(Usuario usuario, Juego juego, Reserva reserva)throws EmpleadoEnTurnoException,
+    JuegoNoDisponibleException,
+    LimitePrestamosException,
+    BebidaCalienteConAccionException,
+    RestriccionEdadException,
+    CapacidadJuegoException {
 	
 	    // 1. validar disponibilidad
 	    if (!inventarioPrestamo.estaDisponible(juego)) {
-	        return false;
+	    	throw new JuegoNoDisponibleException("El juego no está disponible");
 	    }
 	    
 	    // 2. validar restricciones según tipo
 	    if (usuario instanceof Cliente) {
-	        if (reserva == null) return false;
-
-	        if (!validarPrestamoCliente((Cliente) usuario, juego, reserva)) {
-	            return false;
+	        if (reserva == null) {
+	            throw new IllegalArgumentException("El cliente necesita reserva");
 	        }
+	        validarPrestamoCliente((Cliente) usuario, juego, reserva);
 	    }
 
-	    // 3. validar empleado
 	    if (usuario instanceof Empleado) {
-	        if (!validarPrestamoEmpleado((Empleado) usuario)) {
-	            return false;
-	        }
+	        validarPrestamoEmpleado((Empleado) usuario);
 	    }
 	
 	    // 3. crear préstamo
@@ -626,15 +603,17 @@ public class Cafe {
 	}
 
 	
-	private boolean validarPrestamoEmpleado(Empleado usuario) {
-		if(usuario.estaEnTurnoAhora()) {
-	        return false;
+	private void validarPrestamoEmpleado(Empleado usuario) throws EmpleadoEnTurnoException {
+	    if (usuario.estaEnTurnoAhora()) {
+	        throw new EmpleadoEnTurnoException("No puedes pedir préstamo en turno");
 	    }
-	
-		return true;
 	}
 	
-	private boolean validarPrestamoCliente(Cliente cliente, Juego juego, Reserva reserva) {
+	private void validarPrestamoCliente(Cliente cliente, Juego juego, Reserva reserva)
+	        throws LimitePrestamosException,
+	               BebidaCalienteConAccionException,
+	               RestriccionEdadException,
+	               CapacidadJuegoException {
 	
 	    // 1. máximo 2 préstamos activos
 	    int activos = 0;
@@ -645,7 +624,9 @@ public class Cafe {
 	        }
 	    }
 	
-	    if (activos >= 2) return false;
+	    if (activos >= 2) {
+	        throw new LimitePrestamosException("Máximo 2 préstamos activos");
+	    }
 	
 	    // 2. bebidas calientes + acción
 	    boolean hayCaliente = false;
@@ -664,20 +645,20 @@ public class Cafe {
 	    }
 	
 	    if (hayCaliente && juego.getCategoria().equals("accion")) {
-	        return false;
+	        throw new BebidaCalienteConAccionException("No puedes usar juegos de acción con bebidas calientes");
 	    }
 	
 	    // 3. edad mínima
 	    if (reserva.isTieneNinos() && juego.getEdadMinima() > 0) {
-	        return false;
+	        throw new RestriccionEdadException("El juego no es apto para menores");
 	    }
 	
 	    // 4. capacidad
 	    if (reserva.getCantidadPersonas() > juego.getMaxJugadores()) {
-	        return false;
+	        throw new CapacidadJuegoException("Se excede la capacidad del juego");
 	    }
 	
-	    return true;
+	    
 	}
 	
 	//Requerimiento de mesero tiene juego conocidos y

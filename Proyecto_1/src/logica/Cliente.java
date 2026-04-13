@@ -31,7 +31,7 @@ public class Cliente extends Usuario {
 		cafe.crearFactura(this, propina, usarPuntos, codigoDescuento, reserva);
 }
 	@Override
-	public boolean solicitarPrestamo(Cafe cafe, Juego juego, Reserva reserva) {
+	public boolean solicitarPrestamo(Cafe cafe, Juego juego, Reserva reserva) throws Exception{
 	    return cafe.solicitarPrestamo(this, juego, reserva);
 	}
 	public double consultarPuntosFidelidad(Cafe cafe) {

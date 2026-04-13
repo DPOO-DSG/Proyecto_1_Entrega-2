@@ -42,5 +42,5 @@ public abstract class Usuario {
 	}
 	
 	//REQ FUNCIONAL SOLICITAR PRESTAMO 
-	public abstract boolean solicitarPrestamo(Cafe cafe, Juego juego, Reserva reserva);
+	public abstract boolean solicitarPrestamo(Cafe cafe, Juego juego, Reserva reserva)throws Exception;
 }
