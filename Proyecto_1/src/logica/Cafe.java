@@ -21,6 +21,7 @@ public class Cafe {
 	private ArrayList<Platillo> menu;
     private int contadorSolicitudes = 0;
     private HashMap<Integer, Platillo> solicitudesAnadirPlatillo;
+    private HashMap<String, Reserva> reservas;
 
  
 	
@@ -39,6 +40,7 @@ public class Cafe {
 	    this.turnos = new HashMap<>();
 	    this.menu = new ArrayList<Platillo>();
 	    this.solicitudesAnadirPlatillo = new HashMap<>();
+	    this.reservas = new HashMap<>();
 		}
 	
 	public int getCapacidad() {
@@ -483,19 +485,53 @@ public class Cafe {
 	
 	//REQUERIMIENTO DE SOLCITUD DE MESA
 	//Reservar mesa
-	public boolean agendarReserva(Cliente cliente, int cantidadPersonas, boolean ninos, boolean jovenes, LocalDateTime fechaDeseada) {
-	    // Buscamos una mesa libre para la fecha solicitada
-	    for (Mesa mesa : mesas.values()) {
-	        if (mesa.getCapacidad() >= cantidadPersonas && mesa.estaDisponibleEnFecha(fechaDeseada)) {
-	            Reserva nueva = new Reserva(fechaDeseada, cliente, cantidadPersonas, ninos, jovenes);
-	            mesa.agregarReserva(nueva);
-	            
-	            System.out.println("Reserva para la mesa #" + mesa.getIdMesa() + " para la fecha: " + fechaDeseada);
-	            return true;
+	public void inicializarMesas(int cantidadMesas, int capacidadPorMesa) {
+
+	    for (int i = 1; i <= cantidadMesas; i++) {
+	        Mesa mesa = new Mesa(i, capacidadPorMesa,
+	                new ArrayList<>(),
+	                new ArrayList<>(),
+	                null);
+
+	        mesas.put(i, mesa);
+	    }
+	}
+	
+	public Reserva agendarReserva(Cliente cliente, int cantidadPersonas,
+			boolean ninos, boolean jovenes,
+			LocalDateTime fechaDeseada)
+					throws NoHayMesasDisponiblesException, DatosReservaInvalidosException {
+
+		if (cliente == null || fechaDeseada == null || cantidadPersonas <= 0) {
+			throw new DatosReservaInvalidosException();
+		}
+
+		for (Mesa mesa : mesas.values()) {
+
+			if (mesa.getCapacidad() >= cantidadPersonas &&
+					mesa.estaDisponibleEnFecha(fechaDeseada)) {
+				String id = "R" + (reservas.size() + 1);
+				Reserva nueva = new Reserva(id, fechaDeseada, cliente,
+						cantidadPersonas, ninos, jovenes);
+				nueva.setPedidos(new ArrayList<>());
+				mesa.agregarReserva(nueva);
+				reservas.put(id, nueva);
+				return nueva;
+			}
+		}
+
+		throw new NoHayMesasDisponiblesException();
+	}
+	
+	public ArrayList<Reserva> getReservasCliente(Cliente c) {
+	    ArrayList<Reserva> lista = new ArrayList<>();
+
+	    for (Reserva r : reservas.values()) {
+	        if (r.getCliente().equals(c)) {
+	            lista.add(r);
 	        }
 	    }
-	    System.out.println("No hay mesas disponibles para esa cantidad de personas en esa fecha.");
-	    return false;
+	    return lista;
 	}
 	
 	
@@ -825,17 +861,14 @@ public class Cafe {
 	}
 	    
 
-	public Reserva buscarReservaPorId(String id) {
-		if (id == null || id.isEmpty()) {
-	        throw new ReservaNoEncontradaException("ID de reserva inválido");
+	public Reserva buscarReservaPorId(String id) throws ReservaNoEncontradaException {
+	    if (id == null || id.isEmpty()) {
+	        throw new ReservaNoEncontradaException("ID inválido");
 	    }
-
-	    Reserva r = reserva.get(id);
-
+	    Reserva r = reservas.get(id);
 	    if (r == null) {
 	        throw new ReservaNoEncontradaException("Reserva no encontrada");
 	    }
-
 	    return r;
 	}
 

@@ -1,6 +1,8 @@
 package presentacion;
 
 import logica.*;
+
+import java.time.LocalDateTime;
 import java.util.*;
 import  excepciones.*;
 
@@ -11,6 +13,7 @@ public class Principal {
 	public Principal() {
 		this.cafe = new Cafe(50,10);
 		this.cafe.inicializarTurnos(); 
+		this.cafe.inicializarMesas(10, 4); 
 		this.sc = new Scanner (System.in);
 		this.cafe.crearAdministrador("admin", "admin");
 		this.menu();
@@ -124,7 +127,43 @@ public class Principal {
 	}
 	
 	private void reservarMesa(Cliente c) {
-		// TODO Auto-generated method stub		
+
+	    try {
+	        System.out.print("Cantidad de personas: ");
+	        int personas = sc.nextInt();
+
+	        System.out.print("¿Hay niños? (true/false): ");
+	        boolean ninos = sc.nextBoolean();
+
+	        System.out.print("¿Hay jovenes? (true/false): ");
+	        boolean jovenes = sc.nextBoolean();
+
+	        System.out.print("Año: ");
+	        int anio = sc.nextInt();
+
+	        System.out.print("Mes: ");
+	        int mes = sc.nextInt();
+
+	        System.out.print("Día: ");
+	        int dia = sc.nextInt();
+
+	        System.out.print("Hora (0-23): ");
+	        int hora = sc.nextInt();
+
+	        System.out.print("Minutos: ");
+	        int minutos = sc.nextInt();
+	        sc.nextLine();
+
+	        LocalDateTime fecha = LocalDateTime.of(anio, mes, dia, hora, minutos);
+
+	        Reserva r = cafe.agendarReserva(c, personas, ninos, jovenes, fecha);
+
+	        System.out.println("Reserva creada con exito");
+	        System.out.println("ID: " + r.getId());
+
+	    } catch (Exception e) {
+	        System.out.println("Error en los datos ingresados");
+	    }
 	}
 	
 	private void consultarPuntos(Cliente c) {
@@ -132,20 +171,29 @@ public class Principal {
 		
 	}
 	private void verPedidos(Cliente c) {
-		// TODO sebastian
-		System.out.println("TUS RESERVAS:\n");
-		for() {
+	    ArrayList<Reserva> reservas = cafe.getReservasCliente(c);
+	    if (reservas.isEmpty()) {
+	        System.out.println("No tienes reservas");
+	        return;
+	    }
+	    for (Reserva r : reservas) {
+	        System.out.println("Reserva ID: " + r.getId());
+	        System.out.println("Fecha: " + r.getFechaReserva());
+
+	        for (Pedido p : r.getPedidos()) {
+	            System.out.println("Pedido: " + p);
+	        }
+
+	        System.out.println("-------------------");
+	    }
+	}
 			
 
 		 
 		
-	}
+	
 	
 		
-		
-		
-		
-	}
 	
 	private void devolverprestamo(Cliente c) {
 
