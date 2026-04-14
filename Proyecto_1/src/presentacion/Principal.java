@@ -2,6 +2,8 @@ package presentacion;
 
 import logica.*;
 import java.util.*;
+import  excepciones.*;
+
 
 public class Principal {
 	private Cafe cafe;
@@ -271,58 +273,71 @@ public class Principal {
 				
 	}
 	private void pedirCambioTurno(Empleado emp) {
+
 	    ArrayList<Turno> turnosEmpleado = emp.getTurnos();
+
 	    if (turnosEmpleado.isEmpty()) {
 	        System.out.println("No tienes turnos asignados.");
 	        return;
 	    }
+
 	    System.out.println("=== TUS TURNOS ===");
 	    for (int i = 0; i < turnosEmpleado.size(); i++) {
 	        System.out.println(i + ". " + turnosEmpleado.get(i).getJornada());
 	    }
-	    System.out.print("Seleccione el índice del turno que quiere cambiar: ");
+
+	    System.out.print("Seleccione el turno que quiere cambiar: ");
 	    int indexOrigen = sc.nextInt();
 	    sc.nextLine();
+
 	    if (indexOrigen < 0 || indexOrigen >= turnosEmpleado.size()) {
-	        System.out.println("Índice inválido.");
+	        System.out.println("Indice invalido.");
 	        return;
 	    }
+
 	    Turno turnoOrigen = turnosEmpleado.get(indexOrigen);
-	    String[] ordenDias = {
-	        "lunes", "martes", "miercoles",
-	        "jueves", "viernes", "sabado", "domingo"
-	    };
+
+	    String[] dias = {"lunes","martes","miercoles","jueves","viernes","sabado","domingo"};
 	    ArrayList<Turno> todosTurnos = new ArrayList<>();
-	    for (String dia : ordenDias) {
-	        Turno t = cafe.getTurnos().get(dia);
+
+	    for (String d : dias) {
+	        Turno t = cafe.getTurnos().get(d);
 	        if (t != null) {
 	            todosTurnos.add(t);
 	        }
 	    }
+
 	    System.out.println("=== TURNOS DISPONIBLES ===");
 	    for (int i = 0; i < todosTurnos.size(); i++) {
 	        System.out.println(i + ". " + todosTurnos.get(i).getJornada());
 	    }
-	    System.out.print("Seleccione el índice del turno al que quiere cambiar: ");
+
+	    System.out.print("Seleccione el turno destino: ");
 	    int indexDestino = sc.nextInt();
 	    sc.nextLine();
+
 	    if (indexDestino < 0 || indexDestino >= todosTurnos.size()) {
 	        System.out.println("Índice inválido.");
 	        return;
 	    }
+
 	    Turno turnoDestino = todosTurnos.get(indexDestino);
-	    if (turnoOrigen.equals(turnoDestino)) {
-	        System.out.println("No puedes cambiar al mismo turno.");
-	        return;
-	    }
-	    boolean resultado = emp.solicitarCambioTurno(cafe, turnoOrigen, turnoDestino);
-	    if (resultado) {
-	        System.out.println("Solicitud de cambio enviada correctamente.");
-	    } else {
-	        System.out.println("No se pudo crear la solicitud.");
+
+	    try {
+	        emp.solicitarCambioTurno(cafe, turnoOrigen, turnoDestino);
+	        System.out.println("Solicitud enviada correctamente ✅");
+
+	    } catch (SolicitudInvalidaException e) {
+	        System.out.println(e.getMessage());
+
+	    } catch (NoPerteneceTurnoException e) {
+	        System.out.println(e.getMessage());
+
+	    } catch (PersonalInsuficienteException e) {
+	        System.out.println(e.getMessage());
 	    }
 	}
-	
+
 
 	private void consultarTurnos(Empleado emp) {
 
@@ -390,8 +405,6 @@ public class Principal {
 
 	    } while (option != 0);
 	}
-
-
 
 
 	private void verTurnosAdmin() {
@@ -483,14 +496,17 @@ public class Principal {
 	    for (String d : partes) {
 	        dias.add(d.trim().toLowerCase());
 	    }
-	    int resultado = cafe.crearMesero(login, pass, cod, new ArrayList<>(), dias, new ArrayList<>());
-	    if (resultado == 0) {
+	    try {
+	        cafe.crearMesero(login, pass, cod, new ArrayList<>(), dias, new ArrayList<>());
 	        System.out.println("Mesero creado correctamente");
-	    } else if (resultado == 1) {
-	        System.out.println("Ya existe ese login");
-	    } else if (resultado == 2) {
-	        System.out.println("Algún dia no existe");
+
+	    } catch (UsuarioYaExisteException e) {
+	        System.out.println(e.getMessage());
+
+	    } catch (TurnoNoExisteException e) {
+	        System.out.println(e.getMessage());
 	    }
+
 	}
 
 	private void crearCocinero() {
@@ -499,7 +515,7 @@ public class Principal {
 	    String login = sc.nextLine();
 	    System.out.print("Password: ");
 	    String pass = sc.nextLine();
-	    System.out.print("Código: ");
+	    System.out.print("Codigo: ");
 	    String cod = sc.nextLine();
 	    System.out.print("Ingrese los días separados por coma (ej: lunes,martes): ");
 	    String entrada = sc.nextLine();
@@ -508,14 +524,17 @@ public class Principal {
 	    for (String d : partes) {
 	        dias.add(d.trim().toLowerCase());
 	    }
-	    int resultado = cafe.crearCocinero(login,pass, cod, new ArrayList<>(),dias);
-	    if (resultado == 0) {
+	    try {
+	        cafe.crearCocinero(login, pass, cod, new ArrayList<>(), dias);
 	        System.out.println("Cocinero creado correctamente");
-	    } else if (resultado == 1) {
-	        System.out.println("Ya existe ese login");
-	    } else if (resultado == 2) {
-	        System.out.println("Algún día no existe");
+
+	    } catch (UsuarioYaExisteException e) {
+	        System.out.println(e.getMessage());
+
+	    } catch (TurnoNoExisteException e) {
+	        System.out.println(e.getMessage());
 	    }
+	
 	}
 
 
@@ -530,9 +549,6 @@ public class Principal {
             System.out.println("Ya existe");
         }
     }
-    
-    
-    
     
     
 	public static void main(String[] args) {

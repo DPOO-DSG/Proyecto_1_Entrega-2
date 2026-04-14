@@ -116,14 +116,18 @@ public class Cafe {
 	    return true;
 	}
 	//Crea un nuevo mesero
-	public int crearMesero(String login, String password, String codigoDescuento, ArrayList<Juego> juegosFavoritos, 
-			ArrayList<String> dias, ArrayList<Juego> juegosConocidos) {
-
-	    if (existeLogin(login)) return 1;
+	public void crearMesero(String login, String password, String codigoDescuento, ArrayList<Juego> juegosFavoritos, 
+			ArrayList<String> dias, ArrayList<Juego> juegosConocidos) 
+			        throws UsuarioYaExisteException, TurnoNoExisteException {
+	    if (existeLogin(login)) {
+	    throw new UsuarioYaExisteException(login);
+	    }
 	    ArrayList<Turno> turnosAsignar = new ArrayList<>();
 	    for (String dia : dias) {
 	        Turno t = turnos.get(dia.toLowerCase());
-	        if (t == null) return 2;
+	        if (t == null)  {
+	            throw new TurnoNoExisteException(dia);
+	        }
 	        turnosAsignar.add(t);
 	    }
 	    Mesero nuevo = new Mesero(login, password,  juegosFavoritos, codigoDescuento, new ArrayList<>(),  juegosConocidos);
@@ -132,18 +136,22 @@ public class Cafe {
 	        t.agregarEmpleado(nuevo);
 	    }
 	    empleados.put(login, nuevo);
-	    return 0;
 	}
 	
 	
-	public int crearCocinero(String login, String password, String codigoDescuento,
-	        ArrayList<Juego> juegosFavoritos,
-	        ArrayList<String> dias) {
-	    if (existeLogin(login)) return 1;
+	public void crearCocinero(String login, String password, String codigoDescuento,
+	        ArrayList<Juego> juegosFavoritos, ArrayList<String> dias)
+	        		throws UsuarioYaExisteException, TurnoNoExisteException {
+ 
+	    if (existeLogin(login)) {
+		    throw new UsuarioYaExisteException(login);
+		    };
 	    ArrayList<Turno> turnosAsignar = new ArrayList<>();
 	    for (String dia : dias) {
 	        Turno t = turnos.get(dia.toLowerCase());
-	        if (t == null) return 2;
+	        if (t == null) {
+	            throw new TurnoNoExisteException(dia);
+	        };
 	        turnosAsignar.add(t);
 	    }
 	    Cocinero nuevo = new Cocinero(login, password, juegosFavoritos,codigoDescuento,
@@ -153,7 +161,6 @@ public class Cafe {
 	        t.agregarEmpleado(nuevo);
 	    }
 	    empleados.put(login, nuevo);
-	    return 0;
 	}//nuevo cocinero
 	
 	public boolean crearAdministrador(String login, String password) {
@@ -197,42 +204,43 @@ public class Cafe {
 	    }
 	}
 	
-	public int asignarTurnoEmpleado(String loginEmpleado, String jornada) {
+	public void asignarTurnoEmpleado(String loginEmpleado, String jornada)
+	        throws EmpleadoNoExisteException, TurnoNoExisteException, TurnoYaAsignadoException {
 	    Empleado e = empleados.get(loginEmpleado);
 	    if (e == null) {
-	        return 1; // empleado no existe
+	        throw new EmpleadoNoExisteException(loginEmpleado);
 	    }
 	    Turno t = turnos.get(jornada.toLowerCase());
 	    if (t == null) {
-	        return 2; // turno no existe
+	        throw new TurnoNoExisteException(jornada);
 	    }
 	    if (e.getTurnos().contains(t)) {
-	        return 3; // ya tiene ese turno
+	        throw new TurnoYaAsignadoException(jornada);
 	    }
-	    // asignación
 	    e.getTurnos().add(t);
 	    t.agregarEmpleado(e);
-
-	    return 0; 
 	}
 	
 
 
 
 // REQUERIMIENTO FUNCIONAL 1: CREAR SOLICITUD DE CAMBIO DE TURNO
-	public boolean crearSolicitudCambio(Empleado empleado, Turno actual, Turno nuevo) {
+	public void crearSolicitudCambio(Empleado empleado, Turno actual, Turno nuevo) 
+	        throws SolicitudInvalidaException, NoPerteneceTurnoException, PersonalInsuficienteException {
+
 
 	    if (empleado == null || actual == null || nuevo == null) {
-	        throw new IllegalArgumentException("Datos de solicitud inválidos");
+	        throw new SolicitudInvalidaException("Datos inválidos para la solicitud");
 	    }
 
 	    // Mirar que el empleado tenga ese turno
 	    if (!empleado.getTurnos().contains(actual)) {
-	        throw new IllegalStateException("El empleado no pertenece al turno indicado");
+	        throw new NoPerteneceTurnoException("El empleado no pertenece al turno seleccionado");
+
 	    }
 
 	    if (!puedeSalirDelTurno(empleado, actual)) {
-	        throw new IllegalStateException("El empleado no puede salir  del turno actual");
+	        throw new PersonalInsuficienteException("No hay suficiente personal en el turno");
 	    }
 
 	    int id = generarIdSolicitud();
@@ -241,7 +249,7 @@ public class Cafe {
 
 	    solicitudesCambioTurno.put(id, solicitud);
 
-	    return true;
+	   
 	}
 
 	private boolean puedeSalirDelTurno(Empleado empleado, Turno turno) {

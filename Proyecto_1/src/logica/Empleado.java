@@ -1,6 +1,7 @@
 package logica;
 
 import java.time.LocalDateTime;
+import  excepciones.*;
 import java.util.ArrayList;
 
 public abstract class Empleado extends Usuario {
@@ -35,8 +36,10 @@ public abstract class Empleado extends Usuario {
 	
 	//Metodo en el que el empleado crea la solicitud de cambio
 	
-	public boolean solicitarCambioTurno(Cafe cafe, Turno actual, Turno nuevo) {
-	    return cafe.crearSolicitudCambio(this, actual, nuevo);
+	public void solicitarCambioTurno(Cafe cafe, Turno actual, Turno nuevo)
+	        throws SolicitudInvalidaException, NoPerteneceTurnoException, PersonalInsuficienteException {
+
+	    cafe.crearSolicitudCambio(this, actual, nuevo);
 	}
 	
 
