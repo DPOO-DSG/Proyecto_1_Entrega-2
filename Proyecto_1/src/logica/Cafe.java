@@ -838,6 +838,11 @@ public class Cafe {
 
 	    return r;
 	}
+
+	public boolean crearJuego(Juego juego, String tipoInventario) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
 
 	
