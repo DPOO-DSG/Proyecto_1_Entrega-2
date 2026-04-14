@@ -144,14 +144,18 @@ public class Cafe {
 	    return true;
 	}
 	//Crea un nuevo mesero
-	public int crearMesero(String login, String password, String codigoDescuento, ArrayList<Juego> juegosFavoritos, 
-			ArrayList<String> dias, ArrayList<Juego> juegosConocidos) {
-
-	    if (existeLogin(login)) return 1;
+	public void crearMesero(String login, String password, String codigoDescuento, ArrayList<Juego> juegosFavoritos, 
+			ArrayList<String> dias, ArrayList<Juego> juegosConocidos) 
+			        throws UsuarioYaExisteException, TurnoNoExisteException {
+	    if (existeLogin(login)) {
+	    throw new UsuarioYaExisteException(login);
+	    }
 	    ArrayList<Turno> turnosAsignar = new ArrayList<>();
 	    for (String dia : dias) {
 	        Turno t = turnos.get(dia.toLowerCase());
-	        if (t == null) return 2;
+	        if (t == null)  {
+	            throw new TurnoNoExisteException(dia);
+	        }
 	        turnosAsignar.add(t);
 	    }
 	    Mesero nuevo = new Mesero(login, password,  juegosFavoritos, codigoDescuento, new ArrayList<>(),  juegosConocidos);
@@ -160,18 +164,22 @@ public class Cafe {
 	        t.agregarEmpleado(nuevo);
 	    }
 	    empleados.put(login, nuevo);
-	    return 0;
 	}
 	
 	
-	public int crearCocinero(String login, String password, String codigoDescuento,
-	        ArrayList<Juego> juegosFavoritos,
-	        ArrayList<String> dias) {
-	    if (existeLogin(login)) return 1;
+	public void crearCocinero(String login, String password, String codigoDescuento,
+	        ArrayList<Juego> juegosFavoritos, ArrayList<String> dias)
+	        		throws UsuarioYaExisteException, TurnoNoExisteException {
+ 
+	    if (existeLogin(login)) {
+		    throw new UsuarioYaExisteException(login);
+		    };
 	    ArrayList<Turno> turnosAsignar = new ArrayList<>();
 	    for (String dia : dias) {
 	        Turno t = turnos.get(dia.toLowerCase());
-	        if (t == null) return 2;
+	        if (t == null) {
+	            throw new TurnoNoExisteException(dia);
+	        };
 	        turnosAsignar.add(t);
 	    }
 	    Cocinero nuevo = new Cocinero(login, password, juegosFavoritos,codigoDescuento,
@@ -181,7 +189,6 @@ public class Cafe {
 	        t.agregarEmpleado(nuevo);
 	    }
 	    empleados.put(login, nuevo);
-	    return 0;
 	}//nuevo cocinero
 	
 	public boolean crearAdministrador(String login, String password) {
@@ -292,24 +299,23 @@ public class Cafe {
 	    }
 	}
 	
-	public int asignarTurnoEmpleado(String loginEmpleado, String jornada) {
+	public void asignarTurnoEmpleado(String loginEmpleado, String jornada)
+	        throws EmpleadoNoExisteException, TurnoNoExisteException, TurnoYaAsignadoException {
 	    Empleado e = empleados.get(loginEmpleado);
 	    if (e == null) {
-	        return 1; // empleado no existe
+	        throw new EmpleadoNoExisteException(loginEmpleado);
 	    }
 	    Turno t = turnos.get(jornada.toLowerCase());
 	    if (t == null) {
-	        return 2; // turno no existe
+	        throw new TurnoNoExisteException(jornada);
 	    }
 	    if (e.getTurnos().contains(t)) {
-	        return 3; // ya tiene ese turno
+	        throw new TurnoYaAsignadoException(jornada);
 	    }
-	    // asignación
 	    e.getTurnos().add(t);
 	    t.agregarEmpleado(e);
-
-	    return 0; 
 	}
+	
 	
 
 
