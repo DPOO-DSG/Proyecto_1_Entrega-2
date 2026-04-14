@@ -61,7 +61,7 @@ public abstract class Empleado extends Usuario {
 	}
 	@Override
 	
-	public boolean solicitarPrestamo(Cafe cafe, Juego juego, Reserva reserva)throws Exception {
-	    return cafe.solicitarPrestamo(this, juego, null);
+	public void solicitarPrestamo(Cafe cafe, Juego juego, Reserva reserva)throws Exception {
+	     cafe.solicitarPrestamo(this, juego, null);
 	}
 }

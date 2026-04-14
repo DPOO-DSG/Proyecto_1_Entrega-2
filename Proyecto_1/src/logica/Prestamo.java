@@ -9,17 +9,27 @@ public class Prestamo {
     private LocalDateTime fechaInicio;
     private LocalDateTime fechaFin;
     private boolean devuelto;
+    private Reserva reserva;
 
     // Constructor
-    public Prestamo(String id, Usuario usuario, Juego juego) {
+    public Prestamo(String id, Usuario usuario, Juego juego, Reserva reserva) {
         this.id = id;
         this.usuario = usuario;
         this.juego = juego;
         this.fechaInicio = LocalDateTime.now();
         this.devuelto = false;
+        this.reserva = reserva;
     }
 
-    public void devolver() {
+    public Reserva getReserva() {
+		return reserva;
+	}
+
+	public void setReserva(Reserva reserva) {
+		this.reserva = reserva;
+	}
+
+	public void devolver() {
         this.devuelto = true;
         this.fechaFin = LocalDateTime.now();
     }

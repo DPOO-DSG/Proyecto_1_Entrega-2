@@ -116,18 +116,14 @@ public class Cafe {
 	    return true;
 	}
 	//Crea un nuevo mesero
-	public void crearMesero(String login, String password, String codigoDescuento, ArrayList<Juego> juegosFavoritos, 
-			ArrayList<String> dias, ArrayList<Juego> juegosConocidos) 
-			        throws UsuarioYaExisteException, TurnoNoExisteException {
-	    if (existeLogin(login)) {
-	    throw new UsuarioYaExisteException(login);
-	    }
+	public int crearMesero(String login, String password, String codigoDescuento, ArrayList<Juego> juegosFavoritos, 
+			ArrayList<String> dias, ArrayList<Juego> juegosConocidos) {
+
+	    if (existeLogin(login)) return 1;
 	    ArrayList<Turno> turnosAsignar = new ArrayList<>();
 	    for (String dia : dias) {
 	        Turno t = turnos.get(dia.toLowerCase());
-	        if (t == null)  {
-	            throw new TurnoNoExisteException(dia);
-	        }
+	        if (t == null) return 2;
 	        turnosAsignar.add(t);
 	    }
 	    Mesero nuevo = new Mesero(login, password,  juegosFavoritos, codigoDescuento, new ArrayList<>(),  juegosConocidos);
@@ -136,22 +132,18 @@ public class Cafe {
 	        t.agregarEmpleado(nuevo);
 	    }
 	    empleados.put(login, nuevo);
+	    return 0;
 	}
 	
 	
-	public void crearCocinero(String login, String password, String codigoDescuento,
-	        ArrayList<Juego> juegosFavoritos, ArrayList<String> dias)
-	        		throws UsuarioYaExisteException, TurnoNoExisteException {
- 
-	    if (existeLogin(login)) {
-		    throw new UsuarioYaExisteException(login);
-		    };
+	public int crearCocinero(String login, String password, String codigoDescuento,
+	        ArrayList<Juego> juegosFavoritos,
+	        ArrayList<String> dias) {
+	    if (existeLogin(login)) return 1;
 	    ArrayList<Turno> turnosAsignar = new ArrayList<>();
 	    for (String dia : dias) {
 	        Turno t = turnos.get(dia.toLowerCase());
-	        if (t == null) {
-	            throw new TurnoNoExisteException(dia);
-	        };
+	        if (t == null) return 2;
 	        turnosAsignar.add(t);
 	    }
 	    Cocinero nuevo = new Cocinero(login, password, juegosFavoritos,codigoDescuento,
@@ -161,6 +153,7 @@ public class Cafe {
 	        t.agregarEmpleado(nuevo);
 	    }
 	    empleados.put(login, nuevo);
+	    return 0;
 	}//nuevo cocinero
 	
 	public boolean crearAdministrador(String login, String password) {
@@ -204,43 +197,42 @@ public class Cafe {
 	    }
 	}
 	
-	public void asignarTurnoEmpleado(String loginEmpleado, String jornada)
-	        throws EmpleadoNoExisteException, TurnoNoExisteException, TurnoYaAsignadoException {
+	public int asignarTurnoEmpleado(String loginEmpleado, String jornada) {
 	    Empleado e = empleados.get(loginEmpleado);
 	    if (e == null) {
-	        throw new EmpleadoNoExisteException(loginEmpleado);
+	        return 1; // empleado no existe
 	    }
 	    Turno t = turnos.get(jornada.toLowerCase());
 	    if (t == null) {
-	        throw new TurnoNoExisteException(jornada);
+	        return 2; // turno no existe
 	    }
 	    if (e.getTurnos().contains(t)) {
-	        throw new TurnoYaAsignadoException(jornada);
+	        return 3; // ya tiene ese turno
 	    }
+	    // asignación
 	    e.getTurnos().add(t);
 	    t.agregarEmpleado(e);
+
+	    return 0; 
 	}
 	
 
 
 
 // REQUERIMIENTO FUNCIONAL 1: CREAR SOLICITUD DE CAMBIO DE TURNO
-	public void crearSolicitudCambio(Empleado empleado, Turno actual, Turno nuevo) 
-	        throws SolicitudInvalidaException, NoPerteneceTurnoException, PersonalInsuficienteException {
-
+	public boolean crearSolicitudCambio(Empleado empleado, Turno actual, Turno nuevo) {
 
 	    if (empleado == null || actual == null || nuevo == null) {
-	        throw new SolicitudInvalidaException("Datos inválidos para la solicitud");
+	        throw new IllegalArgumentException("Datos de solicitud inválidos");
 	    }
 
 	    // Mirar que el empleado tenga ese turno
 	    if (!empleado.getTurnos().contains(actual)) {
-	        throw new NoPerteneceTurnoException("El empleado no pertenece al turno seleccionado");
-
+	        throw new IllegalStateException("El empleado no pertenece al turno indicado");
 	    }
 
 	    if (!puedeSalirDelTurno(empleado, actual)) {
-	        throw new PersonalInsuficienteException("No hay suficiente personal en el turno");
+	        throw new IllegalStateException("El empleado no puede salir  del turno actual");
 	    }
 
 	    int id = generarIdSolicitud();
@@ -249,7 +241,7 @@ public class Cafe {
 
 	    solicitudesCambioTurno.put(id, solicitud);
 
-	   
+	    return true;
 	}
 
 	private boolean puedeSalirDelTurno(Empleado empleado, Turno turno) {
@@ -572,22 +564,24 @@ public class Cafe {
 	
 	//Requerimiento funcional gestion de inventario
 	
-	public boolean solicitarPrestamo(Usuario usuario, Juego juego, Reserva reserva)throws EmpleadoEnTurnoException,
-    JuegoNoDisponibleException,
-    LimitePrestamosException,
-    BebidaCalienteConAccionException,
-    RestriccionEdadException,
-    CapacidadJuegoException {
-	
+	public void solicitarPrestamo(Usuario usuario, Juego juego, Reserva reserva)
+	        throws EmpleadoEnTurnoException,
+	               JuegoNoDisponibleException,
+	               LimitePrestamosException,
+	               BebidaCalienteConAccionException,
+	               RestriccionEdadException,
+	               CapacidadJuegoException,
+	               ReservaRequeridaException, JuegoNoEncontradoException {
+
 	    // 1. validar disponibilidad
 	    if (!inventarioPrestamo.estaDisponible(juego)) {
-	    	throw new JuegoNoDisponibleException("El juego no está disponible");
+	        throw new JuegoNoDisponibleException("El juego no está disponible");
 	    }
-	    
+
 	    // 2. validar restricciones según tipo
 	    if (usuario instanceof Cliente) {
 	        if (reserva == null) {
-	            throw new IllegalArgumentException("El cliente necesita reserva");
+	            throw new ReservaRequeridaException("El cliente necesita reserva");
 	        }
 	        validarPrestamoCliente((Cliente) usuario, juego, reserva);
 	    }
@@ -595,19 +589,16 @@ public class Cafe {
 	    if (usuario instanceof Empleado) {
 	        validarPrestamoEmpleado((Empleado) usuario);
 	    }
-	
-	    // 3. crear préstamo
-	    String id = "P" + (registroPrestamos.size() + 1);
-	
-	    Prestamo prestamo = new Prestamo(id, usuario, juego);
-	
-	    // 4. registrar en el historial que puede ser visualizado por el administrador 
-	    registroPrestamos.put(id, prestamo);
-	
-	    // 5. actualizar inventario
+
+	    // 3. actualizar inventario PRIMERO
 	    inventarioPrestamo.registrarPrestamo(juego);
-	
-	    return true;
+
+	    // 4. crear préstamo
+	    String id = "P" + (registroPrestamos.size() + 1);
+	    Prestamo prestamo = new Prestamo(id, usuario, juego, reserva);
+
+	    // 5. registrar en el historial
+	    registroPrestamos.put(id, prestamo);
 	}
 
 	
@@ -651,6 +642,7 @@ public class Cafe {
 	            }
 	        }
 	    }
+	    
 	
 	    if (hayCaliente && juego.getCategoria().equals("accion")) {
 	        throw new BebidaCalienteConAccionException("No puedes usar juegos de acción con bebidas calientes");
@@ -667,6 +659,33 @@ public class Cafe {
 	    }
 	
 	    
+	}
+	public ArrayList<Prestamo> getPrestamosClienteEnReserva(Cliente cliente, Reserva reserva) {
+	    
+	    ArrayList<Prestamo> lista = new ArrayList<>();
+
+	    for (Prestamo p : registroPrestamos.values()) {
+	        if (p.getUsuario().equals(cliente) 
+	            && p.getReserva().equals(reserva) 
+	            && !p.isDevuelto()) {
+
+	            lista.add(p);
+	        }
+	    }
+
+	    return lista;
+	}
+	public void devolverPrestamo(String idPrestamo) throws PrestamoNoEncontradoException, JuegoNoEncontradoException {
+
+	    Prestamo p = registroPrestamos.get(idPrestamo);
+
+	    if (p == null || p.isDevuelto()) {
+	        throw new PrestamoNoEncontradoException("El préstamo no existe o ya fue devuelto");
+	    }
+
+	    p.setDevuelto(true);
+
+	    inventarioPrestamo.registrarDevolucion(p.getJuego());
 	}
 	
 	//Requerimiento de mesero tiene juego conocidos y
@@ -708,9 +727,24 @@ public class Cafe {
 	    }
 
 	    return null;
-	}
+	
 
 }
+	public Reserva buscarReservaPorId(String id) {
+		if (id == null || id.isEmpty()) {
+	        throw new ReservaNoEncontradaException("ID de reserva inválido");
+	    }
+
+	    Reserva r = reserva.get(id);
+
+	    if (r == null) {
+	        throw new ReservaNoEncontradaException("Reserva no encontrada");
+	    }
+
+	    return r;
+	}
+}
+
 	
 	
 		

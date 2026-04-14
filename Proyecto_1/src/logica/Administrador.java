@@ -16,5 +16,13 @@ public class Administrador {
 	public boolean rechazarSolicitud(Cafe cafe, int idSolicitud) {
 	    return cafe.rechazarSolicitud(idSolicitud);
 	}
+	public boolean crearPlatillo(Cafe cafe, Platillo platillo) {
+		return cafe.añadirAMenu(platillo);
+	}
+	public boolean crearJuego(Cafe cafe, Juego juego,String tipoInventario) {
+		return cafe.crearJuego(juego, tipoInventario );
+	}
+		
+	
 }
 

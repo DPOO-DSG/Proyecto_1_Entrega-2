@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import excepciones.JuegoNoEncontradoException;
+
 public class InventarioPrestamo {
 	private HashMap<Juego,Integer> stock;
 	
@@ -28,35 +30,37 @@ public class InventarioPrestamo {
 		    return stock.containsKey(juego) && stock.get(juego) > 0;
 		}
 
-		public boolean registrarPrestamo(Juego juego) {
-			
+		public void registrarPrestamo(Juego juego) throws JuegoNoEncontradoException {
+
+		    if (juego == null || !stock.containsKey(juego)) {
+		        throw new JuegoNoEncontradoException("El juego no existe en el inventario");
+		    }
+
 		    int cantidad = stock.get(juego);
 
-		    if (cantidad == 1) {
-		        stock.remove(juego); //  llave juego desaparece
-		    } else {
-		        stock.put(juego, cantidad - 1);
+		    if (cantidad <= 0) {
+		        throw new JuegoNoEncontradoException("No hay unidades disponibles");
 		    }
-		    
-		    if (!stock.containsKey(juego)) { 
-		        return false;
-		    } 
 
-		    return true;
-		    }
+		    stock.put(juego, cantidad - 1);
+		}
 		
-		public void devolverJuego(Juego juego) {
+		public void registrarDevolucion(Juego juego) throws JuegoNoEncontradoException {
 
-		    if (stock.containsKey(juego)) {
-		        int cantidad = stock.get(juego);
-		        stock.put(juego, cantidad + 1);
-		    } else {
-		        stock.put(juego, 1); //  recrear la llave
+		    if (juego == null) {
+		        throw new JuegoNoEncontradoException("Juego inválido");
 		    }
+
+		    if (!stock.containsKey(juego)) {
+		        throw new JuegoNoEncontradoException("El juego no pertenece al inventario");
+		    }
+
+		    stock.put(juego, stock.get(juego) + 1);
+		}
 		}
 
 		
-		
-		
 
-}
+		
+		
+		

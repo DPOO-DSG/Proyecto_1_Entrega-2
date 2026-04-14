@@ -63,12 +63,13 @@ public class Principal {
 	    do {
 	        System.out.println("\n=== MENU CLIENTE ===");
 	        System.out.println("1. Reservar mesa");
-	        System.out.println("2. Consultar catálogo de juegos");
+	        System.out.println("2. Consultar catálogo de juegos (prestamo)");
 	        System.out.println("3. Solicitar préstamo de juego");
 	        System.out.println("4. Ver pedidos");
 	        System.out.println("5. Consultar puntos");
 	        System.out.println("6. Guardar juego favorito");
 	        System.out.println("7. Devolver juego prestado");
+	        System.out.println("8. Consultar catálogo de juegos(ventas)");
 	        //TODO ACEPTAR RESERVA (INDICAR QUE LLEGÓ)
 	        System.out.println("0. Salir");
 
@@ -91,8 +92,24 @@ public class Principal {
 	        else if (option == 7) {
 	            devolverprestamo(c); // TODO
 	        }
+	        else if (option == 7) {
+	            consultarcatalogoventas(c); // TODO
+	        }
 
 	    } while (option != 0);
+	}
+	
+	private void consultarcatalogoventas(Cliente c) {
+		System.out.println("===CATALOGO===");
+		
+		InventarioVenta inventario = cafe.getInventarioVentas();
+		HashMap<Juego,Integer> stock = inventario.getStock();
+		Set<Juego> juegos = stock.keySet();
+		for (Juego juego: juegos) {
+			System.out.println( juego.getNombre()+"\n");
+			
+		}
+
 	}
 	
 	private void reservarMesa(Cliente c) {
@@ -104,24 +121,15 @@ public class Principal {
 		
 	}
 	private void verPedidos(Cliente c) {
-		// TODO Auto-generated method stub
+		// TODO sebastian
 		System.out.println("TUS RESERVAS:\n");
-		for ()
+		for() {
+			
 
 		 
 		
 	}
-	private void consultarCatalogo() {
-		// TODO Auto-generated method stub
-		System.out.println("===CATALOGO===");
-		
-		InventarioPrestamo inventario = cafe.getInventarioPrestamo();
-		HashMap<Juego,Integer> stock = inventario.getStock();
-		Set<Juego> juegos = stock.keySet();
-		for (int i = 0 ; i<juegos.size(); i++) {
-			System.out.println((i+1) + juegos[i]);
-			
-		}
+	
 		
 		
 		
@@ -129,7 +137,51 @@ public class Principal {
 	}
 	
 	private void devolverprestamo(Cliente c) {
-		// TODO Auto-generated method stub	
+
+	    try {
+	        // 1. pedir reserva (ejemplo simple)
+	        System.out.println("Ingrese el id de la reserva:");
+	        String idReserva = sc.nextLine();
+
+	        Reserva reserva = cafe.buscarReservaPorId(idReserva); // necesitas este método
+
+	        if (reserva == null) {
+	            System.out.println("Reserva no encontrada");
+	            return;
+	        }
+
+	        // 2. obtener préstamos
+	        ArrayList<Prestamo> prestamos = cafe.getPrestamosClienteEnReserva(c, reserva);
+
+	        if (prestamos.isEmpty()) {
+	            System.out.println("No tienes préstamos activos en esta reserva");
+	            return;
+	        }
+
+	        // 3. mostrar préstamos
+	        System.out.println("Préstamos activos:");
+	        for (Prestamo p : prestamos) {
+	            System.out.println(p.getId() + " - " + p.getJuego().getNombre());
+	        }
+
+	        // 4. elegir cuál devolver
+	        System.out.println("Ingrese el ID del préstamo a devolver:");
+	        String idPrestamo = sc.nextLine();
+
+	        // 5. devolver
+	        cafe.devolverPrestamo(idPrestamo);
+
+	        System.out.println("Juego devuelto correctamente");
+
+	    } catch (PrestamoNoEncontradoException e) {
+	        System.out.println(e.getMessage());
+
+	    } catch (JuegoNoEncontradoException e) {
+	        System.out.println(e.getMessage());
+
+	    } catch (Exception e) {
+	        System.out.println("Error inesperado: " + e.getMessage());
+	    }
 	}
 	private void loginEmpleado() {
 	    System.out.print("Login: ");
