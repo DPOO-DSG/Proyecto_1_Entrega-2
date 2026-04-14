@@ -73,20 +73,20 @@ public class Principal {
 	        System.out.println("6. Guardar juego favorito");
 	        System.out.println("7. Devolver juego prestado");
 	        System.out.println("8. Consultar catálogo de juegos(ventas)");
-	        //TODO ACEPTAR RESERVA (INDICAR QUE LLEGÓ)
+	        
 	        System.out.println("0. Salir");
 
 	        option = sc.nextInt();
 	        sc.nextLine();
 
 	        if (option == 1) {
-	            reservarMesa(c); // TODO sebastian 
+	            reservarMesa(c); 
 	        } else if (option == 2) {
-	            consultarCatalogo(); // 
+	            consultarCatalogo(); 
 	        } else if (option == 3) {
-	            prestamoJuego(c); // TODO
+	            prestamoJuego(c); 
 	        } else if (option == 4) {
-	            verPedidos(c); // TODO
+	            verPedidos(c); 
 	        } else if (option == 5) {
 	            consultarPuntos(c);
 	        } else if (option == 6) {
@@ -96,7 +96,7 @@ public class Principal {
 	            devolverprestamo(c); // TODO
 	        }
 	        else if (option == 7) {
-	            consultarcatalogoventas(c); // TODO
+	            consultarcatalogoventas(c); 
 	        }
 
 	    } while (option != 0);
@@ -279,9 +279,9 @@ public class Principal {
 	        sc.nextLine();
 
 	        if (option == 1) {
-	            consultarTurnos(e); // TODO
+	            consultarTurnos(e); 
 	        } else if (option == 2) {
-	            consultarJuegosFav(e); // TODO
+	            consultarJuegosFav(e); 
 	        } else if (option == 3) {
 	            prestamoJuego(e); // TODO
 	        } else if (option == 4) {
@@ -289,9 +289,9 @@ public class Principal {
 	        } else if (option == 5) {
 	            solicitarPlatillo(e); // TODO
 	        } else if (option == 6) {
-	            pedirCambioTurno(e); // TODO
+	            pedirCambioTurno(e); 
 	        } else if (option == 7) {
-	            guardarJuegoFav(e); // TODO
+	            guardarJuegoFav(e); 
 	        } else if (option == 8) {
 	            devolverJuegoPrestado(e); // TODO
 	        }
@@ -306,7 +306,7 @@ public class Principal {
 		
 	}
 	private void guardarJuegoFav(Usuario u) {
-		// TODO Auto-generated method stub
+		
 		System.out.println("Qué juego desea guardar como favorito?: ");
 		ArrayList<Juego> juegosFav = u.getJuegosFavoritos();
 		ArrayList<Juego> juegos = u.consultarCatalogoPrestamo(cafe);
@@ -360,7 +360,6 @@ public class Principal {
 
 	            Juego juegoElegido = juegos.get(seleccion - 1);
 
-	            // 🔥 AQUÍ ESTÁ EL CAMBIO IMPORTANTE
 	            c.solicitarPrestamo(cafe, juegoElegido, null);
 
 	            System.out.println("Juego " + juegoElegido.getNombre() + " añadido a tus préstamos");
@@ -377,7 +376,6 @@ public class Principal {
 	             CapacidadJuegoException |
 	             ReservaRequeridaException e) {
 
-	        // 🔥 cada excepción ya trae su mensaje
 	        System.out.println(e.getMessage());
 
 	    } catch (Exception ex) {
@@ -386,7 +384,7 @@ public class Principal {
 	    }
 	}
 	private void consultarJuegosFav(Empleado e) {
-		// TODO Auto-generated method stub
+		
 		System.out.println("===TUS JUEGOS FAVORITOS ===");
 		ArrayList<Juego> juegosFavoritos = e.getJuegosFavoritos();
 		for (Juego juego: juegosFavoritos) {
@@ -575,7 +573,6 @@ public class Principal {
 		
 	}
 	private void verHistorialVentas() {
-		// TODO Auto-generated method stub
 		HashMap<Integer,CompraVenta> ventas = cafe.getRegistroVentas();
 		for (int id : ventas.keySet()) {
 			CompraVenta factura = ventas.get(id);
