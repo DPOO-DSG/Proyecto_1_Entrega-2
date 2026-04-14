@@ -4,9 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import  excepciones.*;
-
-
+import excepciones.*;
 public class Cafe {
 	private int capacidad;
 	private HashMap<Integer,CompraVenta> registroVentas;
@@ -20,8 +18,9 @@ public class Cafe {
 	private HashMap<Integer,CambioDeTurno> solicitudesCambioTurno;
 	private HashMap<Integer, Mesa> mesas;
 	private HashMap<String, Turno> turnos;
-	
+	private ArrayList<Platillo> menu;
     private int contadorSolicitudes = 0;
+    private HashMap<Integer, Platillo> solicitudesAnadirPlatillo;
 
  
 	
@@ -38,69 +37,98 @@ public class Cafe {
 		this.mesas =new HashMap<Integer,Mesa>();
 	    this.credencialesAdmin = new HashMap<>();
 	    this.turnos = new HashMap<>();
+	    this.menu = new ArrayList<Platillo>();
+	    this.solicitudesAnadirPlatillo = new HashMap<>();
 		}
+	
 	public int getCapacidad() {
 		return capacidad;
 	}
+
 	public void setCapacidad(int capacidad) {
 		this.capacidad = capacidad;
 	}
+
 	public HashMap<Integer, CompraVenta> getRegistroVentas() {
 		return registroVentas;
 	}
+
+
 	public HashMap<String, Prestamo> getRegistroPrestamos() {
 		return registroPrestamos;
 	}
+
 	public InventarioVenta getInventarioVentas() {
 		return inventarioVentas;
 	}
+	
+
 	public HashMap<Integer, Mesa> getMesas() {
 		return mesas;
 	}
+
 	public void setMesas(HashMap<Integer, Mesa> mesas) {
 		this.mesas = mesas;
 	}
+
 	public void setInventarioVentas(InventarioVenta inventarioVentas) {
 		this.inventarioVentas = inventarioVentas;
 	}
+
 	public InventarioPrestamo getInventarioPrestamo() {
 		return inventarioPrestamo;
 	}
+
 	public void setInventarioPrestamo(InventarioPrestamo inventarioPrestamo) {
 		this.inventarioPrestamo = inventarioPrestamo;
 	}
+
 	public HashMap<String, Empleado> getEmpleados() {
 		return empleados;
 	}
+
 	public void setEmpleados(HashMap<String, Empleado> empleados) {
 		this.empleados = empleados;
 	}
+
 	public HashMap<String, Cliente> getClientes() {
 		return clientes;
 	}
+
+
 	public void setClientes(HashMap<String, Cliente> clientes) {
 		this.clientes = clientes;
 	}
+
 	public HashMap<String, Administrador> getAdministradores() {
 		return administradores;
 	}
+
+
 	public void setAdministradores(HashMap<String, Administrador> administradores) {
 		this.administradores = administradores;
 	}
+
 	public HashMap<Integer, CambioDeTurno> getSolicitudesCambioTurno() {
 		return solicitudesCambioTurno;
 	}
+
 	public void setSolicitudesCambioTurno(HashMap<Integer, CambioDeTurno> solicitudesCambioTurno) {
 		this.solicitudesCambioTurno = solicitudesCambioTurno;
 	}
+	
 	public HashMap<String, Turno> getTurnos() {
 		return turnos;
 	}
+
 	public void setTurnos(HashMap<String, Turno> turnos) {
 		this.turnos = turnos;
 	}
 	
+
 	//METODOS
+	
+
 
 	public int generarIdSolicitud() {
 	    return contadorSolicitudes++;
@@ -186,6 +214,73 @@ public class Cafe {
 
 	    return null;
 	}
+	
+	//REQUERIMIENTO AÑADIR PLATILLO A MENU
+	
+	public boolean anadirAMenu(Platillo platillo) {
+
+	    if (platillo == null) {
+	        return false;
+	    }
+
+	    // evitar platos duplicados con el mismo nombre
+	    for (Platillo p : menu) {
+	        if (p.getnombre().equals(platillo.getnombre())) {
+	            return false;
+	        }
+	    }
+
+	    menu.add(platillo);
+	    return true;
+	}
+	
+	public void crearSolicitudSugerencia(Platillo platillo) {
+
+	    if (platillo == null) {
+	        return;
+	    }
+
+	    int id = generarIdSolicitud();
+
+	    solicitudesAnadirPlatillo.put(id, platillo);
+	}
+
+
+	// APROBAR SOLICITUD
+	public boolean aprobarSolicitudPlatillo(int idSolicitud) {
+
+	    if (!solicitudesAnadirPlatillo.containsKey(idSolicitud)) {
+	        return false;
+	    }
+
+	    Platillo platillo = solicitudesAnadirPlatillo.get(idSolicitud);
+
+	    anadirAMenu(platillo);
+
+	    solicitudesAnadirPlatillo.remove(idSolicitud);
+
+	    return true;
+	}
+
+
+	// RECHAZAR SOLICITUD
+	public boolean rechazarSolicitudPlatillo(int idSolicitud) {
+
+	    if (!solicitudesAnadirPlatillo.containsKey(idSolicitud)) {
+	        return false;
+	    }
+
+	    solicitudesAnadirPlatillo.remove(idSolicitud);
+
+	    return true;
+	}
+
+
+	// VER SOLICITUDES PENDIENTES
+	public HashMap<Integer, Platillo> getSolicitudesPendientesPlatillos() {
+	    return solicitudesAnadirPlatillo;
+	}
+	
 	//Asignacion inicial de turnos
 	public void inicializarTurnos() {
 	    turnos = new HashMap<>();
@@ -409,6 +504,7 @@ public class Cafe {
 	reserva.getPedidos().add(pedido);
 	}
 	public boolean crearFactura(Usuario usuario,
+			
 	        double propina,
 	        boolean usarPuntos,
 	        String codigo,
@@ -564,6 +660,7 @@ public class Cafe {
 	
 	//Requerimiento funcional gestion de inventario
 	
+
 	public void solicitarPrestamo(Usuario usuario, Juego juego, Reserva reserva)
 	        throws EmpleadoEnTurnoException,
 	               JuegoNoDisponibleException,
@@ -571,14 +668,15 @@ public class Cafe {
 	               BebidaCalienteConAccionException,
 	               RestriccionEdadException,
 	               CapacidadJuegoException,
-	               ReservaRequeridaException, JuegoNoEncontradoException {
+	               ReservaRequeridaException,
+	               JuegoNoEncontradoException {
 
-	    // 1. validar disponibilidad
+	    // 1. disponibilidad
 	    if (!inventarioPrestamo.estaDisponible(juego)) {
 	        throw new JuegoNoDisponibleException("El juego no está disponible");
 	    }
 
-	    // 2. validar restricciones según tipo
+	    // 2. cliente
 	    if (usuario instanceof Cliente) {
 	        if (reserva == null) {
 	            throw new ReservaRequeridaException("El cliente necesita reserva");
@@ -586,21 +684,20 @@ public class Cafe {
 	        validarPrestamoCliente((Cliente) usuario, juego, reserva);
 	    }
 
+	    // 3. empleado
 	    if (usuario instanceof Empleado) {
 	        validarPrestamoEmpleado((Empleado) usuario);
 	    }
 
-	    // 3. actualizar inventario PRIMERO
+	    // 4. inventario
 	    inventarioPrestamo.registrarPrestamo(juego);
 
-	    // 4. crear préstamo
+	    // 5. crear préstamo
 	    String id = "P" + (registroPrestamos.size() + 1);
 	    Prestamo prestamo = new Prestamo(id, usuario, juego, reserva);
 
-	    // 5. registrar en el historial
 	    registroPrestamos.put(id, prestamo);
 	}
-
 	
 	private void validarPrestamoEmpleado(Empleado usuario) throws EmpleadoEnTurnoException {
 	    if (usuario.estaEnTurnoAhora()) {
@@ -613,28 +710,25 @@ public class Cafe {
 	               BebidaCalienteConAccionException,
 	               RestriccionEdadException,
 	               CapacidadJuegoException {
-	
-	    // 1. máximo 2 préstamos activos
+
 	    int activos = 0;
-	
+
 	    for (Prestamo p : registroPrestamos.values()) {
 	        if (p.getUsuario().equals(cliente) && !p.isDevuelto()) {
 	            activos++;
 	        }
 	    }
-	
+
 	    if (activos >= 2) {
 	        throw new LimitePrestamosException("Máximo 2 préstamos activos");
 	    }
-	
-	    // 2. bebidas calientes + acción
+
 	    boolean hayCaliente = false;
-	
+
 	    for (Pedido ped : reserva.getPedidos()) {
 	        for (Platillo p : ped.getPlatillos()) {
 	            if (p instanceof Bebida) {
 	                Bebida b = (Bebida) p;
-	
 	                if (b.getTipo().equals("caliente")) {
 	                    hayCaliente = true;
 	                    break;
@@ -642,23 +736,18 @@ public class Cafe {
 	            }
 	        }
 	    }
-	    
-	
+
 	    if (hayCaliente && juego.getCategoria().equals("accion")) {
 	        throw new BebidaCalienteConAccionException("No puedes usar juegos de acción con bebidas calientes");
 	    }
-	
-	    // 3. edad mínima
+
 	    if (reserva.isTieneNinos() && juego.getEdadMinima() > 0) {
 	        throw new RestriccionEdadException("El juego no es apto para menores");
 	    }
-	
-	    // 4. capacidad
+
 	    if (reserva.getCantidadPersonas() > juego.getMaxJugadores()) {
 	        throw new CapacidadJuegoException("Se excede la capacidad del juego");
 	    }
-	
-	    
 	}
 	public ArrayList<Prestamo> getPrestamosClienteEnReserva(Cliente cliente, Reserva reserva) {
 	    
@@ -727,9 +816,9 @@ public class Cafe {
 	    }
 
 	    return null;
-	
+	}
+	    
 
-}
 	public Reserva buscarReservaPorId(String id) {
 		if (id == null || id.isEmpty()) {
 	        throw new ReservaNoEncontradaException("ID de reserva inválido");
@@ -747,4 +836,5 @@ public class Cafe {
 
 	
 	
+
 		
