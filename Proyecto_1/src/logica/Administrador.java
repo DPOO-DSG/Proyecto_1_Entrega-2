@@ -17,7 +17,7 @@ public class Administrador {
 	    return cafe.rechazarSolicitud(idSolicitud);
 	}
 	public boolean crearPlatillo(Cafe cafe, Platillo platillo) {
-		return cafe.añadirAMenu(platillo);
+		return cafe.anadirAMenu(platillo);
 	}
 	public boolean crearJuego(Cafe cafe, Juego juego,String tipoInventario) {
 		return cafe.crearJuego(juego, tipoInventario );

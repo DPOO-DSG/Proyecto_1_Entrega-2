@@ -79,7 +79,7 @@ public class Principal {
 	        if (option == 1) {
 	            reservarMesa(c); // TODO sebastian 
 	        } else if (option == 2) {
-	            consultarCatalogo(); // TODO daniel 
+	            consultarCatalogo(); // 
 	        } else if (option == 3) {
 	            prestamoJuego(c); // TODO
 	        } else if (option == 4) {
@@ -99,6 +99,17 @@ public class Principal {
 	    } while (option != 0);
 	}
 	
+	private void consultarCatalogo() {
+		System.out.println("===CATALOGO===");
+		
+		InventarioPrestamo inventario = cafe.getInventarioPrestamo();
+		HashMap<Juego,Integer> stock = inventario.getStock();
+		Set<Juego> juegos = stock.keySet();
+		for (Juego juego: juegos) {
+			System.out.println( juego.getNombre()+"\n");
+		}
+		
+	}
 	private void consultarcatalogoventas(Cliente c) {
 		System.out.println("===CATALOGO===");
 		
@@ -284,34 +295,46 @@ public class Principal {
 		
 	}
 	private void prestamoJuego(Usuario c) {
-		System.out.println("Qué juego desea pedir?: ");
-		ArrayList<Juego> juegos = c.consultarCatalogoPrestamo(cafe);
-		for (int i = 0; i < juegos.size(); i++) {
+
+	    System.out.println("¿Qué juego desea pedir?: ");
+	    
+	    ArrayList<Juego> juegos = c.consultarCatalogoPrestamo(cafe);
+
+	    for (int i = 0; i < juegos.size(); i++) {
 	        System.out.println((i + 1) + ". " + juegos.get(i));
 	    }
 
 	    try {
 	        System.out.print("Seleccione un juego: ");
-	        int seleccion = sc.nextInt(); 
-	        
-	        // 2. Validar que el número esté dentro del rango de la lista
-	        if (seleccion > 0 && seleccion <= juegos.size()) {
-	            Juego juegoElegido = juegos.get(seleccion - 1);
-	             boolean solicitud = c.solicitarPrestamo(cafe, juegoElegido, null);
-	            if (!solicitud) {
-		            System.out.println("No cumples los requisitos de préstamo. ");
-	            }
-	            else {
-		            System.out.println("Juego "+ juegoElegido.getNombre()+ "añadido a tus prestamos ");
+	        int seleccion = sc.nextInt();
 
-	            }
+	        if (seleccion > 0 && seleccion <= juegos.size()) {
+
+	            Juego juegoElegido = juegos.get(seleccion - 1);
+
+	            // 🔥 AQUÍ ESTÁ EL CAMBIO IMPORTANTE
+	            c.solicitarPrestamo(cafe, juegoElegido, null);
+
+	            System.out.println("Juego " + juegoElegido.getNombre() + " añadido a tus préstamos");
+
 	        } else {
 	            System.out.println("Error: El número ingresado no está en la lista.");
 	        }
 
+	    } catch (EmpleadoEnTurnoException |
+	             JuegoNoDisponibleException |
+	             LimitePrestamosException |
+	             BebidaCalienteConAccionException |
+	             RestriccionEdadException |
+	             CapacidadJuegoException |
+	             ReservaRequeridaException e) {
+
+	        // 🔥 cada excepción ya trae su mensaje
+	        System.out.println(e.getMessage());
+
 	    } catch (Exception ex) {
 	        System.out.println("Error: Por favor, ingrese un número válido.");
-	        sc.nextLine(); 
+	        sc.nextLine();
 	    }
 	}
 	private void consultarJuegosFav(Empleado e) {
