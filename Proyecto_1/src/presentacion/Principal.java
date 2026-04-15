@@ -28,7 +28,7 @@ public class Principal {
 	        System.out.println("2. Ingreso de empleado");
 	        System.out.println("3. Ingreso administrador");
 	        System.out.println("4. Registrar cliente");
-	        System.out.println("0. Salir");
+	        System.out.println("0. Salir"); 
 
 	        option = sc.nextInt();
 	        sc.nextLine();
@@ -73,6 +73,7 @@ public class Principal {
 	        System.out.println("6. Guardar juego favorito");
 	        System.out.println("7. Devolver juego prestado");
 	        System.out.println("8. Consultar catálogo de juegos(ventas)");
+	        System.out.println("9. Consultar catálogo de juegos(ventas)");
 	        
 	        System.out.println("0. Salir");
 
@@ -95,13 +96,42 @@ public class Principal {
 	        else if (option == 7) {
 	            devolverprestamo(c); // TODO
 	        }
-	        else if (option == 7) {
+	        else if (option == 8) {
 	            consultarcatalogoventas(c); 
+	        }
+	        else if (option == 9) {
+	            verFactura(c); 
 	        }
 
 	    } while (option != 0);
 	}
 	
+	private void verFactura(Cliente c) {
+		ArrayList<Reserva> reservas = cafe.getReservasCliente(c);
+
+	    if (reservas.isEmpty()) {
+	        System.out.println("No tienes reservas");
+	        return;
+	    }
+
+	    for (int i = 0; i < reservas.size(); i++) {
+	        System.out.println((i+1) + ". ID: " + reservas.get(i).getId());
+	    }
+
+	    System.out.print("Seleccione reserva: ");
+	    int index = sc.nextInt();
+	    sc.nextLine();
+
+	    Reserva r = reservas.get(index - 1);
+
+	    CompraVenta factura = cafe.getFacturaPorReserva(r);
+
+	    if (factura == null) {
+	        System.out.println("Aún no se ha generado factura");
+	    } else {
+	        System.out.println(factura);
+	    }
+	}
 	private void consultarCatalogo() {
 		System.out.println("===CATALOGO===");
 		
@@ -273,6 +303,7 @@ public class Principal {
 	        System.out.println("6. Solicitar cambio de turno");
 	        System.out.println("7. Guardar juego favorito");
 	        System.out.println("8. Devolver juego");
+	        System.out.println("9. Crear factura");
 	        System.out.println("0. Salir");
 
 	        option = sc.nextInt();
@@ -295,11 +326,62 @@ public class Principal {
 	        } else if (option == 8) {
 	            devolverJuegoPrestado(e); // TODO
 	        }
+	        else if (option == 9) {
+	            crearFactura(e); // TODO
+	        }
 	        
 
 	    } while (option != 0);
 	}
 	
+	private void crearFactura(Empleado e) {
+		try {
+	        System.out.print("Login del cliente: ");
+	        String loginCliente = sc.nextLine();
+
+	        Cliente c = cafe.getClientes().get(loginCliente);
+
+	        if (c == null) {
+	            System.out.println("Cliente no existe");
+	            return;
+	        }
+
+	        ArrayList<Reserva> reservas = cafe.getReservasCliente(c);
+
+	        if (reservas.isEmpty()) {
+	            System.out.println("No tiene reservas");
+	            return;
+	        }
+
+	        for (int i = 0; i < reservas.size(); i++) {
+	            System.out.println((i+1) + ". ID: " + reservas.get(i).getId());
+	        }
+
+	        System.out.print("Seleccione reserva: ");
+	        int index = sc.nextInt();
+	        sc.nextLine();
+
+	        Reserva r = reservas.get(index - 1);
+
+	        System.out.print("Propina: ");
+	        double propina = sc.nextDouble();
+
+	        System.out.print("¿Usar puntos? (true/false): ");
+	        boolean usarPuntos = sc.nextBoolean();
+	        sc.nextLine();
+
+	        System.out.print("Código descuento: ");
+	        String codigo = sc.nextLine();
+
+	        cafe.crearFactura( propina, usarPuntos, codigo,r);
+
+	        System.out.println("Factura generada correctamente ");
+
+	    } catch (Exception e1) {
+	        System.out.println(e1.getMessage());
+	    }
+		
+	}
 	private void devolverJuegoPrestado(Empleado e) {
 		// TODO Auto-generated method stub
 		
@@ -396,8 +478,88 @@ public class Principal {
 	    }
 	}
 	private void hacerPedido(Empleado e) {
-		// TODO Auto-generated method stub
-		
+
+	    try {
+	        // 1. buscar cliente
+	        System.out.print("Login del cliente: ");
+	        String loginCliente = sc.nextLine();
+
+	        Cliente c = cafe.getClientes().get(loginCliente);
+
+	        if (c == null) {
+	            System.out.println("Cliente no existe");
+	            return;
+	        }
+
+	        // 2. mostrar reservas del cliente
+	        ArrayList<Reserva> reservas = cafe.getReservasCliente(c);
+
+	        if (reservas.isEmpty()) {
+	            System.out.println("El cliente no tiene reservas");
+	            return;
+	        }
+
+	        System.out.println("=== RESERVAS ===");
+	        for (int i = 0; i < reservas.size(); i++) {
+	            System.out.println((i+1) + ". ID: " + reservas.get(i).getId());
+	        }
+
+	        System.out.print("Seleccione reserva: ");
+	        int rIndex = sc.nextInt();
+	        sc.nextLine();
+
+	        if (rIndex < 1 || rIndex > reservas.size()) {
+	            System.out.println("Selección inválida");
+	            return;
+	        }
+
+	        Reserva reserva = reservas.get(rIndex - 1);
+
+	        // 3. elegir platillos
+	        ArrayList<Platillo> platillos = new ArrayList<>();
+
+	        System.out.print("¿Cuántos platillos?: ");
+	        int nPlatillos = sc.nextInt();
+	        sc.nextLine();
+
+	        for (int i = 0; i < nPlatillos; i++) {
+	            System.out.print("Nombre del platillo: ");
+	            String nombre = sc.nextLine();
+
+	            // aquí puedes mejorar buscando en menú real
+	            Platillo p = new Bebida(nombre, 10000, "fria", false); 
+	            platillos.add(p);
+	        }
+
+	        // 4. elegir juegos
+	        ArrayList<Juego> juegos = new ArrayList<>();
+	        ArrayList<Juego> catalogo = cafe.consultarCatalogoVenta();
+
+	        for (int i = 0; i < catalogo.size(); i++) {
+	            System.out.println((i+1) + ". " + catalogo.get(i).getNombre());
+	        }
+
+	        System.out.print("¿Cuántos juegos?: ");
+	        int nJuegos = sc.nextInt();
+
+	        for (int i = 0; i < nJuegos; i++) {
+	            System.out.print("Seleccione juego: ");
+	            int j = sc.nextInt();
+	            if (j >= 1 && j <= catalogo.size()) {
+	                juegos.add(catalogo.get(j - 1));
+	            }
+	        }
+
+	        sc.nextLine();
+
+	        // 5. crear pedido
+	        cafe.crearPedido(reserva, e, platillos, juegos);
+
+	        System.out.println("Pedido creado correctamente ✅");
+
+	    } catch (Exception ex) {
+	        System.out.println("Error: " + ex.getMessage());
+	    }
 	}
 	private void prestamoJuego(Usuario c) {
 
