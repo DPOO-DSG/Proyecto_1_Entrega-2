@@ -106,7 +106,7 @@ public class Principal {
 	    } while (option != 0);
 	}
 	
-	private void verFactura(Cliente c) {
+	private void verFactura(Cliente c) {.
 		ArrayList<Reserva> reservas = cafe.getReservasCliente(c);
 
 	    if (reservas.isEmpty()) {
@@ -122,7 +122,7 @@ public class Principal {
 	    int index = sc.nextInt();
 	    sc.nextLine();
 
-	    Reserva r = reservas.get(index - 1);
+	    Reserva r = reservas.get(index - 1);S
 
 	    CompraVenta factura = cafe.getFacturaPorReserva(r);
 
