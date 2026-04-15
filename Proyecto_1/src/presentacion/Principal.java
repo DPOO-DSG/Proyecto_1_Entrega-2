@@ -731,8 +731,7 @@ public class Principal {
 	    }
 	}
 
-  
-	
+ 
 	//MENU ADMINISTRADOR
 	private void loginAdmin() {
 	    System.out.print("Login: ");
@@ -788,11 +787,11 @@ public class Principal {
 	            añadirPlatilloAmenu();
 	        }
 	        else if (option == 9) {
-	            verSolicitudesPlatillo(); //
+	            verSolicitudesPlatillo(); 
 	        }else if (option == 10) {
-	            gestionarSolicitudesPlatillo(); //
+	            gestionarSolicitudesPlatillo();
 	        }else if (option == 11) {
-	            añadirJuego(); //
+	            añadirJuego();
 	        }
 
 	    } while (option != 0);
@@ -835,37 +834,40 @@ public class Principal {
 	        sc.nextLine();
 
 	        // Crear objeto juego
-	        Juego juego = new Juego(
-	            categoria,
-	            nombre,
-	            cantidad, 
-	            precio,
-	            anio,
-	            empresa,
-	            minJug,
-	            maxJug,
-	            restriccion,
-	            dificil
-	        );
 
 	        // Elegir inventario
-	        System.out.println("¿Dónde desea agregarlo?");
+	        System.out.println("Elija el inventario donde va a agregar el juego");
 	        System.out.println("1. Inventario de venta");
 	        System.out.println("2. Inventario de préstamo");
 
 	        int opcion = sc.nextInt();
 	        sc.nextLine();
+	        
+	        String tipoInventario;
 
 	        if (opcion == 1) {
-	            cafe.getInventarioVentas().agregarJuego(juego, cantidad);
-	            System.out.println("Juego añadido a inventario de ventas ✅");
-
+	            tipoInventario = "VENTA";
 	        } else if (opcion == 2) {
-	            cafe.getInventarioPrestamo().agregarJuego(juego, cantidad);
-	            System.out.println("Juego añadido a inventario de préstamos ✅");
-
+	            tipoInventario = "PRESTAMO";
 	        } else {
 	            System.out.println("Opción inválida");
+	            return;
+	        }
+
+	        // UNA sola llamada
+	        
+	        
+	        boolean creado = cafe.crearJuego(categoria, nombre, cantidad, precio, anio, empresa, minJug, maxJug, restriccion, dificil, tipoInventario);
+
+	        // Mensaje según resultado
+	        if (creado) {
+	            if (tipoInventario.equals("VENTA")) {
+	                System.out.println("Juego añadido a inventario de ventas");
+	            } else {
+	                System.out.println("Juego añadido a inventario de préstamos");
+	            }
+	        } else {
+	            System.out.println("No se pudo añadir el juego");
 	        }
 
 	    } catch (Exception e) {
@@ -893,9 +895,9 @@ public class Principal {
 	    }
 
 	    if (resultado) {
-	        System.out.println("Operación realizada correctamente ✅");
+	        System.out.println("Solicitud realizada correctamente");
 	    } else {
-	        System.out.println("No se pudo realizar la operación ❌");
+	        System.out.println("No se pudo realizar la solicitud");
 	    }
 	}
 	private void verSolicitudesPlatillo() {
@@ -1019,6 +1021,7 @@ public class Principal {
 	        System.out.println("No se pudo realizar la operación.");
 	    }
 	}
+	
 	private void gestionarInventario() {
 
 	    int opcion;

@@ -683,7 +683,7 @@ public class Cafe {
 	    return subtotal * 0.9; // 10%
 	}
 	private Empleado buscarEmpleadoPorCodigo(String codigo) {
-		// TODO Auto-generated method stub
+
 		for(String code: empleados.keySet()) {
 			if(code.equals(codigo)) {
 				return empleados.get(code);
@@ -951,8 +951,6 @@ public class Cafe {
 		}
 		
 		Juego juego = new Juego(categoria, nombre, cantidad, precio, añoPublicacion, empresaMatriz, minJugadores, maxJugadores, restriccionEdad, dificil);
-		
-		juego.setprecio(precio);
 		
 		// AGREGAR AL INVENTARIO
 		return agregarJuego(juego, tipoInventario);

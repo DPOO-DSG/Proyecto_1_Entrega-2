@@ -19,8 +19,9 @@ public class Administrador {
 	public boolean crearPlatillo(Cafe cafe, Platillo platillo) {
 		return cafe.anadirAMenu(platillo);
 	}
-	public boolean crearJuego(Cafe cafe, Juego juego,String tipoInventario) {
-		return cafe.crearJuego(juego, tipoInventario );
+	public boolean crearJuego(Cafe cafe, String categoria, String nombre, int cantidad, int precio, int añoPublicacion, String empresaMatriz, int minJugadores, int maxJugadores, String restriccionEdad, boolean dificil, String tipoInventario) {	
+		return cafe.crearJuego(categoria, nombre, cantidad, precio, añoPublicacion, empresaMatriz, minJugadores, maxJugadores, restriccionEdad, dificil, tipoInventario);
+		
 	}
 		
 	
