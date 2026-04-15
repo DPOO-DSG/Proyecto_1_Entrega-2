@@ -763,6 +763,8 @@ public class Principal {
 	        System.out.println("8. Añadir platillo a menu");
 	        System.out.println("9. Ver solicitudes de platillo");
 	        System.out.println("10. Aprobar/rechazar solicitudes de platillo");
+	        System.out.println("11.  Añadir juego ");
+	        System.out.println("12. Ver historial de prestamos");
 	        System.out.println("0. Salir");
 
 	        option = sc.nextInt();
@@ -786,22 +788,131 @@ public class Principal {
 	            añadirPlatilloAmenu();
 	        }
 	        else if (option == 9) {
-	            verSolicitudesPlatillo(); //TODO
+	            verSolicitudesPlatillo(); //
 	        }else if (option == 10) {
-	            gestionarSolicitudesPlatillo(); //TODO
+	            gestionarSolicitudesPlatillo(); //
+	        }else if (option == 11) {
+	            añadirJuego(); //
 	        }
 
 	    } while (option != 0);
 	}
 
 
+	private void añadirJuego() {
+
+	    try {
+	        System.out.print("Nombre del juego: ");
+	        String nombre = sc.nextLine();
+
+	        System.out.print("Categoría: ");
+	        String categoria = sc.nextLine();
+
+	        System.out.print("Precio: ");
+	        int precio = sc.nextInt();
+
+	        System.out.print("Año de publicación: ");
+	        int anio = sc.nextInt();
+
+	        System.out.print("Cantidad inicial: ");
+	        int cantidad = sc.nextInt();
+
+	        System.out.print("Mínimo de jugadores: ");
+	        int minJug = sc.nextInt();
+
+	        System.out.print("Máximo de jugadores: ");
+	        int maxJug = sc.nextInt();
+	        sc.nextLine();
+
+	        System.out.print("Empresa matriz: ");
+	        String empresa = sc.nextLine();
+
+	        System.out.print("Restricción de edad: ");
+	        String restriccion = sc.nextLine();
+
+	        System.out.print("¿Es difícil? (true/false): ");
+	        boolean dificil = sc.nextBoolean();
+	        sc.nextLine();
+
+	        // Crear objeto juego
+	        Juego juego = new Juego(
+	            categoria,
+	            nombre,
+	            cantidad, 
+	            precio,
+	            anio,
+	            empresa,
+	            minJug,
+	            maxJug,
+	            restriccion,
+	            dificil
+	        );
+
+	        // Elegir inventario
+	        System.out.println("¿Dónde desea agregarlo?");
+	        System.out.println("1. Inventario de venta");
+	        System.out.println("2. Inventario de préstamo");
+
+	        int opcion = sc.nextInt();
+	        sc.nextLine();
+
+	        if (opcion == 1) {
+	            cafe.getInventarioVentas().agregarJuego(juego, cantidad);
+	            System.out.println("Juego añadido a inventario de ventas ✅");
+
+	        } else if (opcion == 2) {
+	            cafe.getInventarioPrestamo().agregarJuego(juego, cantidad);
+	            System.out.println("Juego añadido a inventario de préstamos ✅");
+
+	        } else {
+	            System.out.println("Opción inválida");
+	        }
+
+	    } catch (Exception e) {
+	        System.out.println("Error: " + e.getMessage());
+	    }
+	}
 	private void gestionarSolicitudesPlatillo() {
-		// TODO Auto-generated method stub
-		
+
+	    System.out.print("Ingrese ID de la solicitud: ");
+	    int id = sc.nextInt();
+	    sc.nextLine();
+
+	    System.out.println("1. Aprobar");
+	    System.out.println("2. Rechazar");
+
+	    int opcion = sc.nextInt();
+	    sc.nextLine();
+
+	    boolean resultado = false;
+
+	    if (opcion == 1) {
+	        resultado = cafe.aprobarSolicitudPlatillo(id);
+	    } else if (opcion == 2) {
+	        resultado = cafe.rechazarSolicitudPlatillo(id);
+	    }
+
+	    if (resultado) {
+	        System.out.println("Operación realizada correctamente ✅");
+	    } else {
+	        System.out.println("No se pudo realizar la operación ❌");
+	    }
 	}
 	private void verSolicitudesPlatillo() {
-		// TODO Auto-generated method stub
-		
+
+	    HashMap<Integer, Platillo> solicitudes = cafe.getSolicitudesPendientesPlatillos();
+
+	    if (solicitudes.isEmpty()) {
+	        System.out.println("No hay solicitudes de platillos pendientes");
+	        return;
+	    }
+
+	    System.out.println("=== SOLICITUDES DE PLATILLO ===");
+
+	    for (Integer id : solicitudes.keySet()) {
+	        Platillo p = solicitudes.get(id);
+	        System.out.println("ID: " + id + " | " + p);
+	    }
 	}
 	private void añadirPlatilloAmenu() {
 		try {
@@ -909,8 +1020,69 @@ public class Principal {
 	    }
 	}
 	private void gestionarInventario() {
-		// TODO Auto-generated method stub
-		
+
+	    int opcion;
+
+	    do {
+	        System.out.println("\n=== GESTIÓN INVENTARIO ===");
+	        System.out.println("1. Ver inventario de préstamos");
+	        System.out.println("2. Ver inventario de ventas");
+	        System.out.println("3. Agregar stock a préstamo");
+	        System.out.println("4. Agregar stock a venta");
+	        System.out.println("0. Volver");
+
+	        opcion = sc.nextInt();
+	        sc.nextLine();
+
+	        if (opcion == 1) {
+
+	            HashMap<Juego, Integer> stock = cafe.getInventarioPrestamo().getStock();
+
+	            for (Juego j : stock.keySet()) {
+	                System.out.println(j.getNombre() + " -> " + stock.get(j));
+	            }
+
+	        } else if (opcion == 2) {
+
+	            HashMap<Juego, Integer> stock = cafe.getInventarioVentas().getStock();
+
+	            for (Juego j : stock.keySet()) {
+	                System.out.println(j.getNombre() + " -> " + stock.get(j));
+	            }
+
+	        } else if (opcion == 3 || opcion == 4) {
+
+	            System.out.print("Nombre del juego: ");
+	            String nombre = sc.nextLine();
+
+	            System.out.print("Cantidad a agregar: ");
+	            int cantidad = sc.nextInt();
+	            sc.nextLine();
+
+	            Juego juegoEncontrado = null;
+
+	            HashMap<Juego, Integer> stock = 
+	                (opcion == 3) ? cafe.getInventarioPrestamo().getStock()
+	                              : cafe.getInventarioVentas().getStock();
+
+	            for (Juego j : stock.keySet()) {
+	                if (j.getNombre().equalsIgnoreCase(nombre)) {
+	                    juegoEncontrado = j;
+	                    break;
+	                }
+	            }
+
+	            if (juegoEncontrado == null) {
+	                System.out.println("Juego no encontrado ❌");
+	            } else {
+	                int actual = stock.get(juegoEncontrado);
+	                stock.put(juegoEncontrado, actual + cantidad);
+	                System.out.println("Stock actualizado ✅");
+	            }
+
+	        }
+
+	    } while (opcion != 0);
 	}
 	private void verHistorialVentas() {
 		HashMap<Integer,CompraVenta> ventas = cafe.getRegistroVentas();

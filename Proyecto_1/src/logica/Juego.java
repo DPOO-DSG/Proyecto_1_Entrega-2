@@ -16,19 +16,22 @@ public class Juego {
 
 	//Constructo
 	
-	public Juego(String categoria, String nombre, int cantidad, int añoPublicacion, String empresaMatriz,
-			int minJugadores, int maxJugadores, String restriccionEdad, boolean dificl) {
-		super();
-		this.categoria = categoria;
-		this.nombre = nombre;
-		this.cantidad = cantidad;
-		this.añoPublicacion = añoPublicacion;
-		this.empresaMatriz = empresaMatriz;
-		this.minJugadores = minJugadores;
-		this.maxJugadores = maxJugadores;
-		this.restriccionEdad = restriccionEdad;
-		this.dificl = dificl;
-	}
+	public Juego(String categoria, String nombre, int cantidad, int precio,
+            int añoPublicacion, String empresaMatriz,
+            int minJugadores, int maxJugadores,
+            String restriccionEdad, boolean dificil) {
+
+   this.categoria = categoria;
+   this.nombre = nombre;
+   this.cantidad = cantidad;
+   this.precio = precio;
+   this.añoPublicacion = añoPublicacion;
+   this.empresaMatriz = empresaMatriz;
+   this.minJugadores = minJugadores;
+   this.maxJugadores = maxJugadores;
+   this.restriccionEdad = restriccionEdad;
+   this.dificl = dificil;
+}
 
 
 	//getters y setters
