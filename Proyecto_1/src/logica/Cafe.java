@@ -792,14 +792,23 @@ public class Cafe {
 	        throw new BebidaCalienteConAccionException("No puedes usar juegos de acción con bebidas calientes");
 	    }
 
-	    if (reserva.isTieneNinos() && juego.getEdadMinima() > 0) {
+	    if (reserva.isTieneNinos() && juego.getEdadMinima().equals("+12")) {
 	        throw new RestriccionEdadException("El juego no es apto para menores");
 	    }
-
+	    
+	    else if (reserva.isTieneJovenes() && juego.getEdadMinima().equals("+18")) {
+	        throw new RestriccionEdadException("El juego no es apto para menores");
+	    }
+	    
+	    else if((reserva.isTieneJovenes() && reserva.isTieneJovenes()) && juego.getEdadMinima().equals("+0")) {
+	        System.out.println("El juego es apto para todas las edades y puede ser prestado");
+	    }
+	    
 	    if (reserva.getCantidadPersonas() > juego.getMaxJugadores()) {
 	        throw new CapacidadJuegoException("Se excede la capacidad del juego");
 	    }
 	}
+	
 	public ArrayList<Prestamo> getPrestamosClienteEnReserva(Cliente cliente, Reserva reserva) {
 	    
 	    ArrayList<Prestamo> lista = new ArrayList<>();

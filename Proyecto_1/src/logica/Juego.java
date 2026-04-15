@@ -140,7 +140,9 @@ public class Juego {
 	}
 
 
-	
+	public String getEdadMinima() {
+		return restriccionEdad;
+	}
 
 	@Override
 	public String toString() {
