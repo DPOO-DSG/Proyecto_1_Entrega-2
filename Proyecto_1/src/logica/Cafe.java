@@ -537,75 +537,96 @@ public class Cafe {
 	
 	//REQUERIMIENTO DE REALIZAR COMPRA
 	public void crearPedido(Reserva reserva,
-	        Usuario usuario,
+	        Empleado empleado,
 	        ArrayList<Platillo> platillos,
-	        ArrayList<Juego> juegos) {
+	        ArrayList<Juego> juegos) throws ReservaNoEncontradaException, EmpleadoNoExisteException {
+
+	    if (reserva == null) {
+	        throw new ReservaNoEncontradaException("La reserva no existe");
+	    }
+
+	    if (empleado == null) {
+	        throw new EmpleadoNoExisteException("Empleado inválido");
+	    }
+
+	    Pedido pedido = new Pedido(empleado, platillos, juegos);
+
+	    reserva.getPedidos().add(pedido);
 	
-	Pedido pedido = new Pedido(usuario, platillos, juegos);
-	
-	reserva.getPedidos().add(pedido);
 	}
-	public boolean crearFactura(Usuario usuario,
-			
+	public boolean crearFactura(
 	        double propina,
 	        boolean usarPuntos,
 	        String codigo,
-	        Reserva reserva) {
-	
-	// VALIDACIONES (ahora con reserva)
-	if (!validarAlcoholReserva(reserva)) return false;
-	if (!validarCalienteConAccionReserva(reserva, usuario)) return false;
-	
-	// validar juegos en TODOS los pedidos
-	for (Pedido ped : reserva.getPedidos()) {
-	for (Juego j : ped.getJuegos()) {
-	if (!inventarioVentas.estaDisponible(j)) return false;
+	        Reserva reserva) 
+	        throws NoHayMesasDisponiblesException,
+	               BebidaCalienteConAccionException,
+	               JuegoNoDisponibleException, ReservaNoEncontradaException, DatosReservaInvalidosException {
+
+	    if (reserva == null) {
+	        throw new ReservaNoEncontradaException("Reserva inválida");
+	    }
+
+	    // 1. validar alcohol
+	    validarAlcoholReserva(reserva);
+
+	    // 2. validar bebida caliente + acción
+	    validarCalienteConAccionReserva(reserva);
+
+	    // 3. validar juegos disponibles
+	    for (Pedido ped : reserva.getPedidos()) {
+	        for (Juego j : ped.getJuegos()) {
+	            if (!inventarioVentas.estaDisponible(j)) {
+	                throw new JuegoNoDisponibleException("Juego no disponible: " + j.getNombre());
+	            }
+	        }
+	    }
+
+	    int id = registroVentas.size() + 1;
+
+	    // 🔥 IMPORTANTE: el usuario ahora es el CLIENTE de la reserva
+	    Usuario usuario = reserva.getCliente();
+
+	    CompraVenta compra = new CompraVenta(id, usuario, propina, reserva);
+
+	    compra.calcularValores();
+
+	    double total = compra.getTotal();
+
+	    // descuento
+	    total = aplicarDescuento(usuario, total, codigo);
+
+	    // puntos SOLO cliente
+	    if (usuario instanceof Cliente) {
+	        Cliente c = (Cliente) usuario;
+	        total = aplicarPuntos(c, total, usarPuntos);
+	        asignarPuntos(c, total);
+	    }
+
+	    compra.setTotal(total);
+
+	    // descontar inventario
+	    for (Pedido ped : reserva.getPedidos()) {
+	        for (Juego j : ped.getJuegos()) {
+	            inventarioVentas.registrarVenta(j);
+	        }
+	    }
+
+	    registroVentas.put(id, compra);
+
+	    return true;
 	}
-	}
-	
-	int id = registroVentas.size() + 1;
-	
-	CompraVenta compra = new CompraVenta(id, usuario, propina, reserva);
-	
-	// calcular base
-	compra.calcularValores();
-	
-	double total = compra.getTotal();
-	
-	// descuento
-	total = aplicarDescuento(usuario, total, codigo);
-	
-	// puntos
-	if (usuario instanceof Cliente) {
-	Cliente c = (Cliente) usuario;
-	
-	total = aplicarPuntos(c, total, usarPuntos);
-	asignarPuntos(c, total);
-	}
-	
-	compra.setTotal(total);
-	
-	// descontar inventario
-	for (Pedido ped : reserva.getPedidos()) {
-	for (Juego j : ped.getJuegos()) {
-	inventarioVentas.registrarVenta(j);
-	}
-	}
-	
-	registroVentas.put(id, compra);
-	
-	return true;
-	}
-	private boolean validarAlcoholReserva(Reserva reserva) {
-		boolean hayAlcohol = false;
-	
-	    // Revisar todos los pedidos
+	private void validarAlcoholReserva(Reserva reserva) 
+	        throws DatosReservaInvalidosException {
+
+	    boolean hayAlcohol = false;
+
 	    for (Pedido ped : reserva.getPedidos()) {
 	        for (Platillo p : ped.getPlatillos()) {
-	
+
 	            if (p instanceof Bebida) {
 	                Bebida b = (Bebida) p;
-	
+
 	                if (b.isAlcoholico()) {
 	                    hayAlcohol = true;
 	                    break;
@@ -613,28 +634,22 @@ public class Cafe {
 	            }
 	        }
 	    }
-	
-	    if (!hayAlcohol) return true;
-	
-	    // Revisar si hay menores
-	    if(reserva.isTieneNinos()) {
-	    	return false;
+
+	    if (hayAlcohol && reserva.isTieneNinos()) {
+	        throw new DatosReservaInvalidosException();
 	    }
-	
-	    return true;
-	
-	    
 	}
-	private boolean validarCalienteConAccionReserva(Reserva reserva, Usuario usuario) {
-		boolean hayCaliente = false;
-	
-	    // Revisar pedidos
+	private void validarCalienteConAccionReserva(Reserva reserva) 
+	        throws BebidaCalienteConAccionException {
+
+	    boolean hayCaliente = false;
+
 	    for (Pedido ped : reserva.getPedidos()) {
 	        for (Platillo p : ped.getPlatillos()) {
-	
+
 	            if (p instanceof Bebida) {
 	                Bebida b = (Bebida) p;
-	
+
 	                if (b.getTipo().equals("caliente")) {
 	                    hayCaliente = true;
 	                    break;
@@ -642,20 +657,21 @@ public class Cafe {
 	            }
 	        }
 	    }
-	
-	    if (!hayCaliente) return true;
-	
-	    // Revisar préstamos activos del usuario
+
+	    if (!hayCaliente) return;
+
+	    // revisa TODOS los préstamos de la reserva
 	    for (Prestamo pr : registroPrestamos.values()) {
-	        if (pr.getUsuario().equals(usuario) && !pr.isDevuelto()) {
-	
+
+	        if (pr.getReserva().equals(reserva) && !pr.isDevuelto()) {
+
 	            if (pr.getJuego().getCategoria().equals("accion")) {
-	                return false;
+	                throw new BebidaCalienteConAccionException(
+	                    "No puedes tener juegos de acción con bebidas calientes"
+	                );
 	            }
 	        }
 	    }
-	
-	    return true;
 	}
 	private double aplicarDescuento(Usuario usuario, double subtotal, String codigo) {
 	

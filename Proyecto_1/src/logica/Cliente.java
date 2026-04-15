@@ -2,6 +2,12 @@ package logica;
 
 import java.util.ArrayList;
 
+import excepciones.BebidaCalienteConAccionException;
+import excepciones.DatosReservaInvalidosException;
+import excepciones.JuegoNoDisponibleException;
+import excepciones.NoHayMesasDisponiblesException;
+import excepciones.ReservaNoEncontradaException;
+
 public class Cliente extends Usuario {
 	private double puntosFidelidad;
 
@@ -24,11 +30,9 @@ public class Cliente extends Usuario {
 
 
  
-	public void hacerPedido(Cafe cafe, Reserva reserva,ArrayList<Platillo> platillos,ArrayList<Juego> juegos) {
-		cafe.crearPedido(reserva, this, platillos, juegos);
-	}
-	public void pagar(Cafe cafe,Reserva reserva,double propina,boolean usarPuntos, String codigoDescuento) {
-		cafe.crearFactura(this, propina, usarPuntos, codigoDescuento, reserva);
+	
+	public void pagar(Cafe cafe,Reserva reserva,double propina,boolean usarPuntos, String codigoDescuento) throws NoHayMesasDisponiblesException, BebidaCalienteConAccionException, JuegoNoDisponibleException, ReservaNoEncontradaException, DatosReservaInvalidosException {
+		cafe.crearFactura(propina, usarPuntos, codigoDescuento, reserva);
 }
 	@Override
 	public void solicitarPrestamo(Cafe cafe, Juego juego, Reserva reserva) throws Exception{

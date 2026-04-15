@@ -42,7 +42,7 @@ public abstract class Empleado extends Usuario {
 	    cafe.crearSolicitudCambio(this, actual, nuevo);
 	}
 	
-
+	
 	
 	public boolean estaEnTurnoAhora() {
 	    String hoy = LocalDateTime.now().getDayOfWeek().toString().toLowerCase();
@@ -63,5 +63,12 @@ public abstract class Empleado extends Usuario {
 	
 	public void solicitarPrestamo(Cafe cafe, Juego juego, Reserva reserva)throws Exception {
 	     cafe.solicitarPrestamo(this, juego, null);
+	}
+	public void hacerPedido(Cafe cafe,
+	        Reserva reserva,
+	        ArrayList<Platillo> platillos,
+	        ArrayList<Juego> juegos) throws ReservaNoEncontradaException, EmpleadoNoExisteException {
+
+	    cafe.crearPedido(reserva, this, platillos, juegos);
 	}
 }

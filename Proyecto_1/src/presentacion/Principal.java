@@ -287,7 +287,7 @@ public class Principal {
 	        } else if (option == 4) {
 	            hacerPedido(e); // TODO
 	        } else if (option == 5) {
-	            solicitarPlatillo(e); // TODO
+	            solicitarPlatilloEmpleado(); // TODO
 	        } else if (option == 6) {
 	            pedirCambioTurno(e); 
 	        } else if (option == 7) {
@@ -334,9 +334,66 @@ public class Principal {
 		
 	}
 	
-	private void solicitarPlatillo(Empleado e) {
-		// TODO Auto-generated method stub
-		
+	private void solicitarPlatilloEmpleado() {
+
+	    try {
+	        System.out.println("Tipo de platillo:");
+	        System.out.println("1. Bebida");
+	        System.out.println("2. Pastelería");
+
+	        int tipo = sc.nextInt();
+	        sc.nextLine();
+
+	        System.out.print("Nombre: ");
+	        String nombre = sc.nextLine();
+
+	        System.out.print("Precio: ");
+	        int precio = sc.nextInt();
+	        sc.nextLine();
+
+	        Platillo p = null;
+
+	        // BEBIDA
+	        if (tipo == 1) {
+	            System.out.print("Tipo de bebida (fria/caliente): ");
+	            String tipoBebida = sc.nextLine();
+
+	            System.out.print("¿Es alcohólica? (true/false): ");
+	            boolean alcohol = sc.nextBoolean();
+	            sc.nextLine();
+
+	            p = new Bebida(nombre, precio, tipoBebida, alcohol);
+	        }
+
+	        // PASTELERÍA
+	        else if (tipo == 2) {
+
+	            ArrayList<String> alergenos = new ArrayList<>();
+
+	            System.out.print("¿Cuántos alérgenos?: ");
+	            int n = sc.nextInt();
+	            sc.nextLine();
+
+	            for (int i = 0; i < n; i++) {
+	                System.out.print("Alérgeno " + (i+1) + ": ");
+	                alergenos.add(sc.nextLine());
+	            }
+
+	            p = new Pasteleria(nombre, precio, alergenos);
+	        }
+
+	        else {
+	            System.out.println("Tipo inválido");
+	            return;
+	        }
+
+	        cafe.crearSolicitudSugerencia(p);
+
+	        System.out.println("Solicitud enviada correctamente");
+
+	    } catch (Exception e) {
+	        System.out.println("Error: " + e.getMessage());
+	    }
 	}
 	private void hacerPedido(Empleado e) {
 		// TODO Auto-generated method stub
