@@ -22,6 +22,11 @@ public abstract class Platillo {
 		this.precio = precio;
 	}
 
+	@Override
+	public String toString() {
+		return  nombre + ": " + precio; 
+	}
+
 	
 	
 	

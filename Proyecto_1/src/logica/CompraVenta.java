@@ -85,6 +85,26 @@ public class CompraVenta {
 	public void setTotal(double total) {
 		this.total = total;
 	}
+	@Override
+	public String toString() {
+
+	    StringBuilder sb = new StringBuilder();
+
+	    sb.append("===== FACTURA =====\n");
+	    sb.append("ID: ").append(numeroFactura).append("\n");
+	    sb.append("Cliente: ").append(usuario.getLogin()).append("\n");
+	    sb.append("Propina: ").append(propina).append("\n");
+
+	    sb.append("\n--- PEDIDOS ---\n");
+
+	    for (Pedido p : reserva.getPedidos()) {
+	        sb.append(p.toString()).append("\n");
+	    }
+
+	    sb.append("\nTotal: ").append(total).append("\n");
+
+	    return sb.toString();
+	}
 	
 	
 	

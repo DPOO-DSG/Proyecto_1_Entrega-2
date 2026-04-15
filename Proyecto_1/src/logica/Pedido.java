@@ -60,6 +60,38 @@ public class Pedido {
 
 
 
+
+	@Override
+	public String toString() {
+
+	    StringBuilder sb = new StringBuilder();
+
+	    sb.append("Comprador: ").append(comprador.getLogin());
+
+	    sb.append("\nPlatillos: ");
+	    if (platillos.isEmpty()) {
+	        sb.append("Ninguno");
+	    } else {
+	        for (Platillo p : platillos) {
+	            sb.append(p.toString()).append(", ");
+	        }
+	    }
+
+	    sb.append("\nJuegos: ");
+	    if (juegos.isEmpty()) {
+	        sb.append("Ninguno");
+	    } else {
+	        for (Juego j : juegos) {
+	            sb.append(j.toString()).append(", ");
+	        }
+	    }
+
+	    return sb.toString();
+	}
+	
+
+
+
 	
 	
 	

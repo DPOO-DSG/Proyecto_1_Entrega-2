@@ -137,10 +137,16 @@ public class Juego {
 	}
 
 
-	public int getEdadMinima() {
-		// TODO Auto-generated method stub
-		return 0;
+	
+
+	@Override
+	public String toString() {
+		return  nombre +  ": " + precio;
 	}
+
+
+	
+	
 	
 
 }
