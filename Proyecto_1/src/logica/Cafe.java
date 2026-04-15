@@ -892,6 +892,15 @@ public class Cafe {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	public CompraVenta getFacturaPorReserva(Reserva reserva) {
+	    for (CompraVenta c : registroVentas.values()) {
+	        if (c.getReserva().equals(reserva)) {
+	            return c;
+	        }
+	    }
+	    return null;
+	}
 }
 
 	
