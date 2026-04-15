@@ -290,6 +290,17 @@ public class Cafe {
 	    return solicitudesAnadirPlatillo;
 	}
 	
+	
+	public ArrayList<Platillo> getMenu() {
+		return menu;
+	}
+
+	public void setMenu(ArrayList<Platillo> menu) {
+		this.menu = menu;
+	}
+
+	
+	
 	//Asignacion inicial de turnos
 	public void inicializarTurnos() {
 	    turnos = new HashMap<>();
@@ -318,8 +329,6 @@ public class Cafe {
 	    t.agregarEmpleado(e);
 	}
 	
-	
-
 
 
 // REQUERIMIENTO FUNCIONAL 1: CREAR SOLICITUD DE CAMBIO DE TURNO
@@ -537,96 +546,75 @@ public class Cafe {
 	
 	//REQUERIMIENTO DE REALIZAR COMPRA
 	public void crearPedido(Reserva reserva,
-	        Empleado empleado,
+	        Usuario usuario,
 	        ArrayList<Platillo> platillos,
-	        ArrayList<Juego> juegos) throws ReservaNoEncontradaException, EmpleadoNoExisteException {
-
-	    if (reserva == null) {
-	        throw new ReservaNoEncontradaException("La reserva no existe");
-	    }
-
-	    if (empleado == null) {
-	        throw new EmpleadoNoExisteException("Empleado inválido");
-	    }
-
-	    Pedido pedido = new Pedido(empleado, platillos, juegos);
-
-	    reserva.getPedidos().add(pedido);
+	        ArrayList<Juego> juegos) {
 	
+	Pedido pedido = new Pedido(usuario, platillos, juegos);
+	
+	reserva.getPedidos().add(pedido);
 	}
-	public boolean crearFactura(
+	public boolean crearFactura(Usuario usuario,
+			
 	        double propina,
 	        boolean usarPuntos,
 	        String codigo,
-	        Reserva reserva) 
-	        throws NoHayMesasDisponiblesException,
-	               BebidaCalienteConAccionException,
-	               JuegoNoDisponibleException, ReservaNoEncontradaException, DatosReservaInvalidosException {
-
-	    if (reserva == null) {
-	        throw new ReservaNoEncontradaException("Reserva inválida");
-	    }
-
-	    // 1. validar alcohol
-	    validarAlcoholReserva(reserva);
-
-	    // 2. validar bebida caliente + acción
-	    validarCalienteConAccionReserva(reserva);
-
-	    // 3. validar juegos disponibles
-	    for (Pedido ped : reserva.getPedidos()) {
-	        for (Juego j : ped.getJuegos()) {
-	            if (!inventarioVentas.estaDisponible(j)) {
-	                throw new JuegoNoDisponibleException("Juego no disponible: " + j.getNombre());
-	            }
-	        }
-	    }
-
-	    int id = registroVentas.size() + 1;
-
-	    // 🔥 IMPORTANTE: el usuario ahora es el CLIENTE de la reserva
-	    Usuario usuario = reserva.getCliente();
-
-	    CompraVenta compra = new CompraVenta(id, usuario, propina, reserva);
-
-	    compra.calcularValores();
-
-	    double total = compra.getTotal();
-
-	    // descuento
-	    total = aplicarDescuento(usuario, total, codigo);
-
-	    // puntos SOLO cliente
-	    if (usuario instanceof Cliente) {
-	        Cliente c = (Cliente) usuario;
-	        total = aplicarPuntos(c, total, usarPuntos);
-	        asignarPuntos(c, total);
-	    }
-
-	    compra.setTotal(total);
-
-	    // descontar inventario
-	    for (Pedido ped : reserva.getPedidos()) {
-	        for (Juego j : ped.getJuegos()) {
-	            inventarioVentas.registrarVenta(j);
-	        }
-	    }
-
-	    registroVentas.put(id, compra);
-
-	    return true;
+	        Reserva reserva) {
+	
+	// VALIDACIONES (ahora con reserva)
+	if (!validarAlcoholReserva(reserva)) return false;
+	if (!validarCalienteConAccionReserva(reserva, usuario)) return false;
+	
+	// validar juegos en TODOS los pedidos
+	for (Pedido ped : reserva.getPedidos()) {
+	for (Juego j : ped.getJuegos()) {
+	if (!inventarioVentas.estaDisponible(j)) return false;
 	}
-	private void validarAlcoholReserva(Reserva reserva) 
-	        throws DatosReservaInvalidosException {
-
-	    boolean hayAlcohol = false;
-
+	}
+	
+	int id = registroVentas.size() + 1;
+	
+	CompraVenta compra = new CompraVenta(id, usuario, propina, reserva);
+	
+	// calcular base
+	compra.calcularValores();
+	
+	double total = compra.getTotal();
+	
+	// descuento
+	total = aplicarDescuento(usuario, total, codigo);
+	
+	// puntos
+	if (usuario instanceof Cliente) {
+	Cliente c = (Cliente) usuario;
+	
+	total = aplicarPuntos(c, total, usarPuntos);
+	asignarPuntos(c, total);
+	}
+	
+	compra.setTotal(total);
+	
+	// descontar inventario
+	for (Pedido ped : reserva.getPedidos()) {
+	for (Juego j : ped.getJuegos()) {
+	inventarioVentas.registrarVenta(j);
+	}
+	}
+	
+	registroVentas.put(id, compra);
+	
+	return true;
+	}
+	private boolean validarAlcoholReserva(Reserva reserva) {
+		boolean hayAlcohol = false;
+	
+	    // Revisar todos los pedidos
 	    for (Pedido ped : reserva.getPedidos()) {
 	        for (Platillo p : ped.getPlatillos()) {
-
+	
 	            if (p instanceof Bebida) {
 	                Bebida b = (Bebida) p;
-
+	
 	                if (b.isAlcoholico()) {
 	                    hayAlcohol = true;
 	                    break;
@@ -634,22 +622,28 @@ public class Cafe {
 	            }
 	        }
 	    }
-
-	    if (hayAlcohol && reserva.isTieneNinos()) {
-	        throw new DatosReservaInvalidosException();
+	
+	    if (!hayAlcohol) return true;
+	
+	    // Revisar si hay menores
+	    if(reserva.isTieneNinos()) {
+	    	return false;
 	    }
+	
+	    return true;
+	
+	    
 	}
-	private void validarCalienteConAccionReserva(Reserva reserva) 
-	        throws BebidaCalienteConAccionException {
-
-	    boolean hayCaliente = false;
-
+	private boolean validarCalienteConAccionReserva(Reserva reserva, Usuario usuario) {
+		boolean hayCaliente = false;
+	
+	    // Revisar pedidos
 	    for (Pedido ped : reserva.getPedidos()) {
 	        for (Platillo p : ped.getPlatillos()) {
-
+	
 	            if (p instanceof Bebida) {
 	                Bebida b = (Bebida) p;
-
+	
 	                if (b.getTipo().equals("caliente")) {
 	                    hayCaliente = true;
 	                    break;
@@ -657,21 +651,20 @@ public class Cafe {
 	            }
 	        }
 	    }
-
-	    if (!hayCaliente) return;
-
-	    // revisa TODOS los préstamos de la reserva
+	
+	    if (!hayCaliente) return true;
+	
+	    // Revisar préstamos activos del usuario
 	    for (Prestamo pr : registroPrestamos.values()) {
-
-	        if (pr.getReserva().equals(reserva) && !pr.isDevuelto()) {
-
+	        if (pr.getUsuario().equals(usuario) && !pr.isDevuelto()) {
+	
 	            if (pr.getJuego().getCategoria().equals("accion")) {
-	                throw new BebidaCalienteConAccionException(
-	                    "No puedes tener juegos de acción con bebidas calientes"
-	                );
+	                return false;
 	            }
 	        }
 	    }
+	
+	    return true;
 	}
 	private double aplicarDescuento(Usuario usuario, double subtotal, String codigo) {
 	
@@ -887,23 +880,78 @@ public class Cafe {
 	    }
 	    return r;
 	}
+	
+	
+	public boolean agregarJuego(Juego juego, String tipoInventario) {
 
-	public boolean crearJuego(Juego juego, String tipoInventario) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	public CompraVenta getFacturaPorReserva(Reserva reserva) {
-	    for (CompraVenta c : registroVentas.values()) {
-	        if (c.getReserva().equals(reserva)) {
-	            return c;
-	        }
+	    if (juego == null || tipoInventario == null) {
+	        return false;
 	    }
-	    return null;
+
+	    // mirar el tipo de inventario ingresado por el usuario y verificar si es uno de los qu existen
+	    if (!tipoInventario.equals("PRESTAMO") && !tipoInventario.equals("VENTA")) {
+	        return false;
+	    }
+	    
+	    //mirar cual es el tipo de inventario ingresado y agregar el juego al respectivo
+
+	    if (tipoInventario.equals("PRESTAMO")) {
+
+	        HashMap<Juego, Integer> inventario = inventarioPrestamo.getStock();
+
+	        // evitar duplicados por nombre pues no se puede crear un nombre que tenga el mismo nombre
+	        for (Juego j : inventario.keySet()) {
+	            if (j.getNombre().equals(juego.getNombre())) {
+	                return false;
+	            }
+	        }
+
+	        inventario.put(juego, juego.getCantidad());
+
+	    } else {
+
+	        HashMap<Juego, Integer> inventario = inventarioVentas.getStock();
+
+	        for (Juego j : inventario.keySet()) {
+	            if (j.getNombre().equals(juego.getNombre())) {
+	                return false;
+	            }
+	        }
+
+	        inventario.put(juego, juego.getCantidad());
+	    }
+
+	    return true;
 	}
+	
+
+	public boolean crearJuego(String categoria, String nombre, int cantidad, int precio, int añoPublicacion, String empresaMatriz, int minJugadores, int maxJugadores, String restriccionEdad, boolean dificil, String tipoInventario) {
+		
+		// Mirar si no se ingresa un valor que no es valido
+		
+		if (nombre == null || categoria == null || empresaMatriz == null) {
+		return false;
+		}
+		
+		if (minJugadores > maxJugadores) {
+		return false;
+		}
+		
+		if (cantidad <= 0 || precio < 0) {
+		return false;
+		}
+		
+		Juego juego = new Juego(categoria, nombre, cantidad, precio, añoPublicacion, empresaMatriz, minJugadores, maxJugadores, restriccionEdad, dificil);
+		
+		juego.setprecio(precio);
+		
+		// AGREGAR AL INVENTARIO
+		return agregarJuego(juego, tipoInventario);
+		
+		}	
 }
 
-	
+
 	
 
 		
