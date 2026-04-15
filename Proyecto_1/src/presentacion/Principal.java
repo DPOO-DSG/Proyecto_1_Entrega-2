@@ -106,7 +106,7 @@ public class Principal {
 	    } while (option != 0);
 	}
 	
-	private void verFactura(Cliente c) {.
+	private void verFactura(Cliente c) {
 		ArrayList<Reserva> reservas = cafe.getReservasCliente(c);
 
 	    if (reservas.isEmpty()) {
