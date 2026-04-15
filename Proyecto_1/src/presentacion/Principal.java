@@ -522,12 +522,35 @@ public class Principal {
 	        int nPlatillos = sc.nextInt();
 	        sc.nextLine();
 
-	        for (int i = 0; i < nPlatillos; i++) {
-	            System.out.print("Nombre del platillo: ");
-	            String nombre = sc.nextLine();
+	        ArrayList<Platillo> menu = cafe.getMenu();
 
-	            // aquí puedes mejorar buscando en menú real
-	            Platillo p = new Bebida(nombre, 10000, "fria", false); 
+	        if (menu.isEmpty()) {
+	            System.out.println("No hay platillos en el menú");
+	            return;
+	        }
+
+	        System.out.println("=== MENÚ ===");
+	        for (int i = 0; i < menu.size(); i++) {
+	            System.out.println((i+1) + ". " + menu.get(i));
+	        }
+
+	        System.out.print("¿Cuántos platillos desea agregar?: ");
+	        int nPlatillos1 = sc.nextInt();
+	        sc.nextLine();
+
+	        for (int i = 0; i < nPlatillos1; i++) {
+
+	            System.out.print("Seleccione platillo #" + (i+1) + ": ");
+	            int seleccion = sc.nextInt();
+	            sc.nextLine();
+
+	            if (seleccion < 1 || seleccion > menu.size()) {
+	                System.out.println("Selección inválida");
+	                i--; // repetir esta iteración
+	                continue;
+	            }
+
+	            Platillo p = menu.get(seleccion - 1);
 	            platillos.add(p);
 	        }
 
@@ -535,20 +558,35 @@ public class Principal {
 	        ArrayList<Juego> juegos = new ArrayList<>();
 	        ArrayList<Juego> catalogo = cafe.consultarCatalogoVenta();
 
+	        if (catalogo.isEmpty()) {
+	            System.out.println("No hay juegos disponibles para venta");
+	            return;
+	        }
+
+	        System.out.println("=== CATÁLOGO DE JUEGOS ===");
 	        for (int i = 0; i < catalogo.size(); i++) {
-	            System.out.println((i+1) + ". " + catalogo.get(i).getNombre());
+	            System.out.println((i+1) + ". " + catalogo.get(i));
 	        }
 
 	        System.out.print("¿Cuántos juegos?: ");
 	        int nJuegos = sc.nextInt();
+	        sc.nextLine();
 
 	        for (int i = 0; i < nJuegos; i++) {
-	            System.out.print("Seleccione juego: ");
-	            int j = sc.nextInt();
-	            if (j >= 1 && j <= catalogo.size()) {
-	                juegos.add(catalogo.get(j - 1));
+
+	            System.out.print("Seleccione juego #" + (i+1) + ": ");
+	            int seleccion = sc.nextInt();
+	            sc.nextLine();
+
+	            if (seleccion < 1 || seleccion > catalogo.size()) {
+	                System.out.println("Selección inválida");
+	                i--; // repetir intento
+	                continue;
 	            }
+
+	            juegos.add(catalogo.get(seleccion - 1));
 	        }
+	        
 
 	        sc.nextLine();
 
@@ -722,6 +760,7 @@ public class Principal {
 	        System.out.println("5. Ver historial de ventas");
 	        System.out.println("6. Gestionar inventario");
 	        System.out.println("7. Ver turnos del cafe");
+	        System.out.println("8. Añadir platillo a menu");
 	        System.out.println("0. Salir");
 
 	        option = sc.nextInt();
@@ -741,12 +780,18 @@ public class Principal {
 	            gestionarInventario(); // TODO
 	        }else if (option == 7) {
 	            verTurnosAdmin();
+	        }else if (option == 8) {
+	            añadirPlatilloAmenu();
 	        }
 
 	    } while (option != 0);
 	}
 
 
+	private void añadirPlatilloAmenu() {
+		// TODO Auto-generated method stub
+		
+	}
 	private void verTurnosAdmin() {
 
 	    System.out.println("\n=== TURNOS DEL CAFE ===");
