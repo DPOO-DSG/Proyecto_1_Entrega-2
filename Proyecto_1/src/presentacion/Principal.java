@@ -832,9 +832,8 @@ public class Principal {
 	        System.out.print("¿Es difícil? (true/false): ");
 	        boolean dificil = sc.nextBoolean();
 	        sc.nextLine();
-
-	        // Crear objeto juego
-
+	        
+	        
 	        // Elegir inventario
 	        System.out.println("Elija el inventario donde va a agregar el juego");
 	        System.out.println("1. Inventario de venta");
@@ -853,14 +852,10 @@ public class Principal {
 	            System.out.println("Opción inválida");
 	            return;
 	        }
-
-	        // UNA sola llamada
 	        
-	        
-	        boolean creado = cafe.crearJuego(categoria, nombre, cantidad, precio, anio, empresa, minJug, maxJug, restriccion, dificil, tipoInventario);
+	        boolean fueCreado = cafe.crearJuego(categoria, nombre, cantidad, precio, anio, empresa, minJug, maxJug, restriccion, dificil, tipoInventario);
 
-	        // Mensaje según resultado
-	        if (creado) {
+	        if (fueCreado) {
 	            if (tipoInventario.equals("VENTA")) {
 	                System.out.println("Juego añadido a inventario de ventas");
 	            } else {
