@@ -554,57 +554,67 @@ public class Cafe {
 	
 	reserva.getPedidos().add(pedido);
 	}
-	public boolean crearFactura(Usuario usuario,
-			
-	        double propina,
-	        boolean usarPuntos,
-	        String codigo,
-	        Reserva reserva) {
 	
-	// VALIDACIONES (ahora con reserva)
-	if (!validarAlcoholReserva(reserva)) return false;
-	if (!validarCalienteConAccionReserva(reserva, usuario)) return false;
-	
-	// validar juegos en TODOS los pedidos
-	for (Pedido ped : reserva.getPedidos()) {
-	for (Juego j : ped.getJuegos()) {
-	if (!inventarioVentas.estaDisponible(j)) return false;
+	public void crearFactura(Usuario usuario,
+			double propina,
+			boolean usarPuntos,
+			String codigo,
+			Reserva reserva) throws BebidaCalienteConAccionException, AlcoholReservaException, DatosFacturaInvalidosException, JuegoNoDisponibleException {
+
+		if (usuario == null || reserva == null) {
+			throw new DatosFacturaInvalidosException("Datos inválidos para la factura");
+		}
+		// VALIDACIONES
+		if (!validarAlcoholReserva(reserva)) {
+			throw new AlcoholReservaException("No se puede facturar: restricción de alcohol");
+		}
+		if (!validarCalienteConAccionReserva(reserva, usuario)) {
+			throw new BebidaCalienteConAccionException("No se puede facturar: bebida caliente con juego de acción");
+		}
+
+		// validar juegos en pedidos
+		for (Pedido ped : reserva.getPedidos()) {
+			for (Juego j : ped.getJuegos()) {
+				if (!inventarioVentas.estaDisponible(j)) {
+					throw new JuegoNoDisponibleException("Juego no disponible en inventario: " + j.getNombre());
+				}
+			}
+		}
+
+		int id = registroVentas.size() + 1;
+
+		CompraVenta compra = new CompraVenta(id, usuario, propina, reserva);
+
+		// calcular base
+		compra.calcularValores();
+
+		double total = compra.getTotal();
+
+		// descuento
+		total = aplicarDescuento(usuario, total, codigo);
+
+		// puntos
+		if (usuario instanceof Cliente) {
+			Cliente c = (Cliente) usuario;
+
+			total = aplicarPuntos(c, total, usarPuntos);
+			asignarPuntos(c, total);
+		}
+
+		compra.setTotal(total);
+
+		// descontar inventario
+		for (Pedido ped : reserva.getPedidos()) {
+			for (Juego j : ped.getJuegos()) {
+				inventarioVentas.registrarVenta(j);
+			}
+		}
+
+		registroVentas.put(id, compra);
 	}
-	}
+
 	
-	int id = registroVentas.size() + 1;
 	
-	CompraVenta compra = new CompraVenta(id, usuario, propina, reserva);
-	
-	// calcular base
-	compra.calcularValores();
-	
-	double total = compra.getTotal();
-	
-	// descuento
-	total = aplicarDescuento(usuario, total, codigo);
-	
-	// puntos
-	if (usuario instanceof Cliente) {
-	Cliente c = (Cliente) usuario;
-	
-	total = aplicarPuntos(c, total, usarPuntos);
-	asignarPuntos(c, total);
-	}
-	
-	compra.setTotal(total);
-	
-	// descontar inventario
-	for (Pedido ped : reserva.getPedidos()) {
-	for (Juego j : ped.getJuegos()) {
-	inventarioVentas.registrarVenta(j);
-	}
-	}
-	
-	registroVentas.put(id, compra);
-	
-	return true;
-	}
 	private boolean validarAlcoholReserva(Reserva reserva) {
 		boolean hayAlcohol = false;
 	
@@ -955,7 +965,16 @@ public class Cafe {
 		// AGREGAR AL INVENTARIO
 		return agregarJuego(juego, tipoInventario);
 		
-		}	
+		}
+	
+	public CompraVenta getFacturaPorReserva(Reserva reserva) {
+	    for (CompraVenta c : registroVentas.values()) {
+	        if (c.getReserva().equals(reserva)) {
+	            return c;
+	        }
+	    }
+	    return null;
+	}
 }
 
 

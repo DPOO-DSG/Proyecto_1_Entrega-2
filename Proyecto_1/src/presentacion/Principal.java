@@ -122,7 +122,7 @@ public class Principal {
 	    int index = sc.nextInt();
 	    sc.nextLine();
 
-	    Reserva r = reservas.get(index - 1);S
+	    Reserva r = reservas.get(index - 1);
 
 	    CompraVenta factura = cafe.getFacturaPorReserva(r);
 
@@ -335,7 +335,7 @@ public class Principal {
 	}
 	
 	private void crearFactura(Empleado e) {
-		try {
+	    try {
 	        System.out.print("Login del cliente: ");
 	        String loginCliente = sc.nextLine();
 
@@ -361,6 +361,11 @@ public class Principal {
 	        int index = sc.nextInt();
 	        sc.nextLine();
 
+	        if (index < 1 || index > reservas.size()) {
+	            System.out.println("Selección inválida");
+	            return;
+	        }
+
 	        Reserva r = reservas.get(index - 1);
 
 	        System.out.print("Propina: ");
@@ -373,14 +378,26 @@ public class Principal {
 	        System.out.print("Código descuento: ");
 	        String codigo = sc.nextLine();
 
-	        cafe.crearFactura( propina, usarPuntos, codigo,r);
+	        cafe.crearFactura(c, propina, usarPuntos, codigo, r);
 
-	        System.out.println("Factura generada correctamente ");
+	        System.out.println("Factura generada correctamente ✅");
 
-	    } catch (Exception e1) {
-	        System.out.println(e1.getMessage());
+	    } 
+	    catch (DatosFacturaInvalidosException ex) {
+	        System.out.println("Error de datos: " + ex.getMessage());
+	    } 
+	    catch (AlcoholReservaException ex) {
+	        System.out.println("Restricción: " + ex.getMessage());
+	    } 
+	    catch (BebidaCalienteConAccionException ex) {
+	        System.out.println("Restricción: " + ex.getMessage());
+	    } 
+	    catch (JuegoNoDisponibleException ex) {
+	        System.out.println("Inventario: " + ex.getMessage());
+	    } 
+	    catch (Exception ex) {
+	        System.out.println("Error inesperado: " + ex.getMessage());
 	    }
-		
 	}
 	private void devolverJuegoPrestado(Empleado e) {
 		// TODO Auto-generated method stub
@@ -588,12 +605,11 @@ public class Principal {
 	        }
 	        
 
-	        sc.nextLine();
 
 	        // 5. crear pedido
 	        cafe.crearPedido(reserva, e, platillos, juegos);
 
-	        System.out.println("Pedido creado correctamente ✅");
+	        System.out.println("Pedido creado correctamente ");
 
 	    } catch (Exception ex) {
 	        System.out.println("Error: " + ex.getMessage());
@@ -703,7 +719,7 @@ public class Principal {
 
 	    try {
 	        emp.solicitarCambioTurno(cafe, turnoOrigen, turnoDestino);
-	        System.out.println("Solicitud enviada correctamente ✅");
+	        System.out.println("Solicitud enviada correctamente ");
 
 	    } catch (SolicitudInvalidaException e) {
 	        System.out.println(e.getMessage());
@@ -967,9 +983,9 @@ public class Principal {
 	        boolean agregado = cafe.anadirAMenu(p);
 
 	        if (agregado) {
-	            System.out.println("Platillo añadido correctamente al menú ✅");
+	            System.out.println("Platillo añadido correctamente al menú ");
 	        } else {
-	            System.out.println("No se pudo añadir (posible duplicado) ❌");
+	            System.out.println("No se pudo añadir (posible duplicado) ");
 	        }
 
 	    } catch (Exception e) {
