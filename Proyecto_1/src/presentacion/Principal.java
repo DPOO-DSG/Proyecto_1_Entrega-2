@@ -3,6 +3,7 @@ package presentacion;
 import logica.*;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import  excepciones.*;
 
@@ -205,9 +206,20 @@ public class Principal {
 	        boolean jovenes = sc.nextBoolean();
 	        sc.nextLine();
 
-	        System.out.print("Fecha (YYYY-MM-DDTHH:MM): ");
-	        String fechaStr = sc.nextLine();
-	        LocalDateTime fecha = LocalDateTime.parse(fechaStr);
+	        LocalDateTime fecha = null;
+	        while (fecha == null) {
+	            try {
+	                System.out.print("Fecha (dd/MM/yyyy HH:mm): ");
+	                String fechaStr = sc.nextLine();
+
+	                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+	                fecha = LocalDateTime.parse(fechaStr, formatter);
+
+	            } catch (Exception e) {
+	                System.out.println("Formato inválido. Intente de nuevo.");
+	            }
+	        }
 
 	        cafe.agendarReserva(c, cantidadPersonas, ninos, jovenes, fecha);
 
@@ -640,7 +652,7 @@ public class Principal {
 
 	            if (seleccion < 1 || seleccion > menu.size()) {
 	                System.out.println("Selección inválida");
-	                i--; // repetir esta iteración
+	                i--; 
 	                continue;
 	            }
 
@@ -1006,7 +1018,7 @@ public class Principal {
 	        System.out.print("Nombre del juego: ");
 	        String nombre = sc.nextLine();
 
-	        System.out.print("Categoría (tablero, cartas ya accion): ");
+	        System.out.print("Categoría (Tablero, Cartas o Accion): ");
 	        String categoria = sc.nextLine();
 
 	        System.out.print("Precio: ");
@@ -1273,11 +1285,11 @@ public class Principal {
 	            }
 
 	            if (juegoEncontrado == null) {
-	                System.out.println("Juego no encontrado ❌");
+	                System.out.println("Juego no encontrado ");
 	            } else {
 	                int actual = stock.get(juegoEncontrado);
 	                stock.put(juegoEncontrado, actual + cantidad);
-	                System.out.println("Stock actualizado ✅");
+	                System.out.println("Stock actualizado ");
 	            }
 
 	        }
