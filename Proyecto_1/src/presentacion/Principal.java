@@ -66,15 +66,16 @@ public class Principal {
 	    do {
 	        System.out.println("\n=== MENU CLIENTE ===");
 	        System.out.println("1. Reservar mesa");
-	        System.out.println("2. Consultar catálogo de juegos (prestamo)");
-	        System.out.println("3. Solicitar préstamo de juego");
-	        System.out.println("4. Ver pedidos");
-	        System.out.println("5. Consultar puntos");
-	        System.out.println("6. Guardar juego favorito");
-	        System.out.println("7. Devolver juego prestado");
-	        System.out.println("8. Consultar catálogo de juegos(ventas)");
-	        System.out.println("9. Consultar catálogo de juegos(ventas)");
-	        
+	        System.out.println("2. Consultar puntos");
+	        System.out.println("3. Ver pedidos");
+	        System.out.println("4. Consultar facturas");
+	        System.out.println("5. Consultar menu");
+	        System.out.println("6. Solicitar préstamo de juego");
+	        System.out.println("7. Consultar catálogo de juegos (prestamo)");
+	        System.out.println("8. Guardar juego favorito");
+	        System.out.println("9. Devolver juego prestado");
+	        System.out.println("10. Consultar catálogo de juegos(ventas)");
+	        System.out.println("11. Consultar juegos favoritos");
 	        System.out.println("0. Salir");
 
 	        option = sc.nextInt();
@@ -82,30 +83,51 @@ public class Principal {
 
 	        if (option == 1) {
 	            reservarMesa(c); 
-	        } else if (option == 2) {
+	        } else if (option == 7) {
 	            consultarCatalogo(); 
-	        } else if (option == 3) {
-	            prestamoJuego(c); 
-	        } else if (option == 4) {
-	            verPedidos(c); 
-	        } else if (option == 5) {
-	            consultarPuntos(c);
 	        } else if (option == 6) {
+	            prestamoJuego(c); 
+	        } else if (option == 3) {
+	            verPedidos(c); 
+	        } else if (option == 2) {
+	            consultarPuntos(c);
+	        } else if (option == 8) {
 	            guardarJuegoFav(c); 
 	        }
-	        else if (option == 7) {
-	            devolverprestamo(c); // TODO
+	        else if (option == 9) {
+	            devolverPrestamo(c); 
 	        }
-	        else if (option == 8) {
+	        else if (option == 10) {
 	            consultarcatalogoventas(c); 
 	        }
-	        else if (option == 9) {
+	        else if (option == 4) {
 	            verFactura(c); 
+	        }
+	        else if (option == 5) {
+	            verMenu(); 
+	        }
+	        else if (option == 11) {
+	        	consultarJuegosFav(c);
 	        }
 
 	    } while (option != 0);
 	}
 	
+	private void verMenu() {
+
+	    ArrayList<Platillo> menu = cafe.consultarMenu();
+
+	    if (menu.isEmpty()) {
+	        System.out.println("No hay platillos disponibles en el menú");
+	        return;
+	    }
+
+	    System.out.println("\n=== MENÚ DEL CAFÉ ===");
+
+	    for (int i = 0; i < menu.size(); i++) {
+	        System.out.println((i+1) + ". " + menu.get(i));
+	    }
+	}
 	private void verFactura(Cliente c) {
 		ArrayList<Reserva> reservas = cafe.getReservasCliente(c);
 
@@ -160,39 +182,45 @@ public class Principal {
 
 	    try {
 	        System.out.print("Cantidad de personas: ");
-	        int personas = sc.nextInt();
+	        int cantidadPersonas = sc.nextInt();
+	        sc.nextLine();
+
+	        int capacidadMaxMesa = 0;
+
+	        for (Mesa m : cafe.getMesas().values()) {
+	            if (m.getCapacidad() > capacidadMaxMesa) {
+	                capacidadMaxMesa = m.getCapacidad();
+	            }
+	        }
+
+	        if (cantidadPersonas > capacidadMaxMesa) {
+	            System.out.println("No se puede hacer la reserva: ninguna mesa soporta esa cantidad de personas.");
+	            return;
+	        }
 
 	        System.out.print("¿Hay niños? (true/false): ");
 	        boolean ninos = sc.nextBoolean();
 
-	        System.out.print("¿Hay jovenes? (true/false): ");
+	        System.out.print("¿Hay jóvenes? (true/false): ");
 	        boolean jovenes = sc.nextBoolean();
-
-	        System.out.print("Año: ");
-	        int anio = sc.nextInt();
-
-	        System.out.print("Mes: ");
-	        int mes = sc.nextInt();
-
-	        System.out.print("Día: ");
-	        int dia = sc.nextInt();
-
-	        System.out.print("Hora (0-23): ");
-	        int hora = sc.nextInt();
-
-	        System.out.print("Minutos: ");
-	        int minutos = sc.nextInt();
 	        sc.nextLine();
 
-	        LocalDateTime fecha = LocalDateTime.of(anio, mes, dia, hora, minutos);
+	        System.out.print("Fecha (YYYY-MM-DDTHH:MM): ");
+	        String fechaStr = sc.nextLine();
+	        LocalDateTime fecha = LocalDateTime.parse(fechaStr);
 
-	        Reserva r = cafe.agendarReserva(c, personas, ninos, jovenes, fecha);
+	        cafe.agendarReserva(c, cantidadPersonas, ninos, jovenes, fecha);
 
-	        System.out.println("Reserva creada con exito");
-	        System.out.println("ID: " + r.getId());
+	        System.out.println("Reserva creada correctamente ");
+
+	    } catch (NoHayMesasDisponiblesException e) {
+	        System.out.println("No hay mesas disponibles en esa fecha.");
+
+	    } catch (DatosReservaInvalidosException e) {
+	        System.out.println(e.getMessage());
 
 	    } catch (Exception e) {
-	        System.out.println("Error en los datos ingresados");
+	        System.out.println("Error: formato inválido.");
 	    }
 	}
 	
@@ -217,59 +245,78 @@ public class Principal {
 	        System.out.println("-------------------");
 	    }
 	}
-			
+	
+	private void consultarJuegosFav(Usuario c) {
+	    ArrayList<Juego> juegosFavoritos = c.getJuegosFavoritos();
+	    if (juegosFavoritos == null || juegosFavoritos.isEmpty()) {
+	        System.out.println("No tienes juegos favoritos guardados.");
+	        return;
+	    }
+	    System.out.println("=== TUS JUEGOS FAVORITOS ===");
 
-		 
-		
-	
-	
-		
-	
-	private void devolverprestamo(Cliente c) {
+	    for (Juego juego : juegosFavoritos) {
+	        System.out.println(juego);
+	    }
+	}
+			
+	private void devolverPrestamo(Usuario u) {
 
 	    try {
-	        // 1. pedir reserva (ejemplo simple)
-	        System.out.println("Ingrese el id de la reserva:");
-	        String idReserva = sc.nextLine();
+	        ArrayList<Prestamo> prestamosUsuario = new ArrayList<>();
 
-	        Reserva reserva = cafe.buscarReservaPorId(idReserva); // necesitas este método
+	        if (u instanceof Cliente) {
 
-	        if (reserva == null) {
-	            System.out.println("Reserva no encontrada");
+	            Cliente c = (Cliente) u;
+	            ArrayList<Reserva> reservas = cafe.getReservasCliente(c);
+
+	            for (Reserva r : reservas) {
+	                prestamosUsuario.addAll(
+	                    cafe.getPrestamosClienteEnReserva(c, r)
+	                );
+	            }
+	        }
+
+	        else if (u instanceof Empleado) {
+
+	            for (Prestamo p : cafe.getRegistroPrestamos().values()) {
+	                if (p.getUsuario().equals(u) && !p.isDevuelto()) {
+	                    prestamosUsuario.add(p);
+	                }
+	            }
+	        }
+
+	        if (prestamosUsuario.isEmpty()) {
+	            System.out.println("No tienes prestamos");
+	            return;
+	        }
+	        System.out.println("=== TUS PRÉSTAMOS ===");
+	        for (int i = 0; i < prestamosUsuario.size(); i++) {
+	            Prestamo p = prestamosUsuario.get(i);
+	            System.out.println((i+1) + ". ID: " + p.getId() +
+	                               " | Juego: " + p.getJuego().getNombre());
+	        }
+
+	        System.out.print("Seleccione préstamo a devolver: ");
+	        int seleccion = sc.nextInt();
+	        sc.nextLine();
+
+	        if (seleccion < 1 || seleccion > prestamosUsuario.size()) {
+	            System.out.println("Selección inválida.");
 	            return;
 	        }
 
-	        // 2. obtener préstamos
-	        ArrayList<Prestamo> prestamos = cafe.getPrestamosClienteEnReserva(c, reserva);
+	        Prestamo p = prestamosUsuario.get(seleccion - 1);
 
-	        if (prestamos.isEmpty()) {
-	            System.out.println("No tienes préstamos activos en esta reserva");
-	            return;
-	        }
+	        cafe.devolverPrestamo(p.getId());
 
-	        // 3. mostrar préstamos
-	        System.out.println("Préstamos activos:");
-	        for (Prestamo p : prestamos) {
-	            System.out.println(p.getId() + " - " + p.getJuego().getNombre());
-	        }
+	        System.out.println("Préstamo devuelto correctamente ");
 
-	        // 4. elegir cuál devolver
-	        System.out.println("Ingrese el ID del préstamo a devolver:");
-	        String idPrestamo = sc.nextLine();
-
-	        // 5. devolver
-	        cafe.devolverPrestamo(idPrestamo);
-
-	        System.out.println("Juego devuelto correctamente");
-
-	    } catch (PrestamoNoEncontradoException e) {
-	        System.out.println(e.getMessage());
-
-	    } catch (JuegoNoEncontradoException e) {
+	    } catch (PrestamoNoEncontradoException | JuegoNoEncontradoException e) {
 	        System.out.println(e.getMessage());
 
 	    } catch (Exception e) {
-	        System.out.println("Error inesperado: " + e.getMessage());
+	        System.out.println("Error en la entrada.");
+	        sc.nextLine();
 	    }
 	}
 	private void loginEmpleado() {
@@ -286,24 +333,21 @@ public class Principal {
 	        System.out.println("Credenciales inválidas");
 	    }
 	}
-
-	
-	
-	
 	
 	private void menuEmpleado(Empleado e) {
 	    int option;
 	    do {
 	        System.out.println("\n=== MENU EMPLEADO ===");
 	        System.out.println("1. Consultar turnos");
-	        System.out.println("2. Consultar juegos favoritos");
-	        System.out.println("3. Solicitar préstamo de juego");
-	        System.out.println("4. Hacer pedido");
+	        System.out.println("2. Solicitar cambio de turno");
+	        System.out.println("3. Hacer pedido");
+	        System.out.println("4. Crear factura");
 	        System.out.println("5. Solicitar platillo nuevo");
-	        System.out.println("6. Solicitar cambio de turno");
-	        System.out.println("7. Guardar juego favorito");
-	        System.out.println("8. Devolver juego");
-	        System.out.println("9. Crear factura");
+	        System.out.println("6. Solicitar préstamo de juego");
+	        System.out.println("7. Devolver juego");
+	        System.out.println("8. Guardar juego favorito");
+	        System.out.println("9. Consultar juegos favoritos");
+	        System.out.println("10. Aprender juego dificil");
 	        System.out.println("0. Salir");
 
 	        option = sc.nextInt();
@@ -311,29 +355,68 @@ public class Principal {
 
 	        if (option == 1) {
 	            consultarTurnos(e); 
-	        } else if (option == 2) {
+	        } else if (option == 9) {
 	            consultarJuegosFav(e); 
-	        } else if (option == 3) {
+	        } else if (option == 6) {
 	            prestamoJuego(e); 
-	        } else if (option == 4) {
+	        } else if (option == 3) {
 	            hacerPedido(e); 
 	        } else if (option == 5) {
 	            solicitarPlatilloEmpleado(); 
-	        } else if (option == 6) {
+	        } else if (option == 2) {
 	            pedirCambioTurno(e); 
-	        } else if (option == 7) {
-	            guardarJuegoFav(e); 
 	        } else if (option == 8) {
-	            devolverJuegoPrestado(e); // TODO 
-	        }
-	        else if (option == 9) {
+	            guardarJuegoFav(e); 
+	        } else if (option == 7) {
+	        	devolverPrestamo(e); 
+	        }else if (option == 4) {
 	            crearFactura(e); 
 	        }
+	        else if (option == 10) {
+	            aprenderJuegoDificil(e); 
+	        }
 	        
-
 	    } while (option != 0);
 	}
 	
+	private void aprenderJuegoDificil(Empleado e) {
+
+	    ArrayList<Juego> juegos = cafe.consultarCatalogoPrestamo();
+
+	    ArrayList<Juego> juegosDificiles = new ArrayList<>();
+
+	    for (Juego j : juegos) {
+	        if (j.isDificl()) {
+	            juegosDificiles.add(j);
+	        }
+	    }
+
+	    if (juegosDificiles.isEmpty()) {
+	        System.out.println("No hay juegos difíciles disponibles para aprender");
+	        return;
+	    }
+
+	    System.out.println("=== JUEGOS DIFÍCILES ===");
+
+	    for (int i = 0; i < juegosDificiles.size(); i++) {
+	        System.out.println((i+1) + ". " + juegosDificiles.get(i));
+	    }
+
+	    System.out.print("Seleccione un juego: ");
+	    int op = sc.nextInt();
+	    sc.nextLine();
+
+	    if (op < 1 || op > juegosDificiles.size()) {
+	        System.out.println("Opción inválida");
+	        return;
+	    }
+
+	    Juego juego = juegosDificiles.get(op - 1);
+
+	    cafe.anadirJuegoAMesero(e.getLogin(), juego);
+	    
+	    System.out.println("Ahora sabes explicar este juego ");
+	}
 	private void crearFactura(Empleado e) {
 	    try {
 	        System.out.print("Login del cliente: ");
@@ -380,7 +463,7 @@ public class Principal {
 
 	        cafe.crearFactura(c, propina, usarPuntos, codigo, r);
 
-	        System.out.println("Factura generada correctamente ✅");
+	        System.out.println("Factura generada correctamente");
 
 	    } 
 	    catch (DatosFacturaInvalidosException ex) {
@@ -399,11 +482,7 @@ public class Principal {
 	        System.out.println("Error inesperado: " + ex.getMessage());
 	    }
 	}
-	private void devolverJuegoPrestado(Empleado e) {
-		// TODO Auto-generated method stub
-		
-		
-	}
+	
 	private void guardarJuegoFav(Usuario u) {
 		
 		System.out.println("Qué juego desea guardar como favorito?: ");
@@ -536,9 +615,7 @@ public class Principal {
 	        ArrayList<Platillo> platillos = new ArrayList<>();
 
 	        System.out.print("¿Cuántos platillos?: ");
-	        int nPlatillos = sc.nextInt();
 	        sc.nextLine();
-
 	        ArrayList<Platillo> menu = cafe.getMenu();
 
 	        if (menu.isEmpty()) {
@@ -615,31 +692,65 @@ public class Principal {
 	        System.out.println("Error: " + ex.getMessage());
 	    }
 	}
-	private void prestamoJuego(Usuario c) {
-
-	    System.out.println("¿Qué juego desea pedir?: ");
-	    
-	    ArrayList<Juego> juegos = c.consultarCatalogoPrestamo(cafe);
-
-	    for (int i = 0; i < juegos.size(); i++) {
-	        System.out.println((i + 1) + ". " + juegos.get(i));
-	    }
+	
+	private void prestamoJuego(Usuario u) {
 
 	    try {
+	        ArrayList<Juego> juegos = cafe.consultarCatalogoPrestamo();
+
+	        if (juegos.isEmpty()) {
+	            System.out.println("No hay juegos disponibles para préstamo.");
+	            return;
+	        }
+
+	        System.out.println("=== CATÁLOGO ===");
+	        for (int i = 0; i < juegos.size(); i++) {
+	            System.out.println((i + 1) + ". " + juegos.get(i));
+	        }
+
 	        System.out.print("Seleccione un juego: ");
 	        int seleccion = sc.nextInt();
+	        sc.nextLine();
 
-	        if (seleccion > 0 && seleccion <= juegos.size()) {
-
-	            Juego juegoElegido = juegos.get(seleccion - 1);
-
-	            c.solicitarPrestamo(cafe, juegoElegido, null);
-
-	            System.out.println("Juego " + juegoElegido.getNombre() + " añadido a tus préstamos");
-
-	        } else {
-	            System.out.println("Error: El número ingresado no está en la lista.");
+	        if (seleccion < 1 || seleccion > juegos.size()) {
+	            System.out.println("Selección inválida.");
+	            return;
 	        }
+
+	        Juego juegoElegido = juegos.get(seleccion - 1);
+
+	        Reserva reservaSeleccionada = null;
+
+	        if (u instanceof Cliente) {
+
+	            Cliente c = (Cliente) u;
+	            ArrayList<Reserva> reservas = cafe.getReservasActivasCliente(c);
+
+	            if (reservas.isEmpty()) {
+	                System.out.println("No tienes reservas activas.");
+	                return;
+	            }
+
+	            System.out.println("=== TUS RESERVAS ===");
+	            for (int i = 0; i < reservas.size(); i++) {
+	                System.out.println((i+1) + ". " + reservas.get(i).getId());
+	            }
+
+	            System.out.print("Seleccione reserva: ");
+	            int index = sc.nextInt();
+	            sc.nextLine();
+
+	            if (index < 1 || index > reservas.size()) {
+	                System.out.println("Selección inválida.");
+	                return;
+	            }
+
+	            reservaSeleccionada = reservas.get(index - 1);
+	        }
+
+	        u.solicitarPrestamo(cafe, juegoElegido, reservaSeleccionada);
+
+	        System.out.println("Préstamo realizado correctamente");
 
 	    } catch (EmpleadoEnTurnoException |
 	             JuegoNoDisponibleException |
@@ -647,26 +758,26 @@ public class Principal {
 	             BebidaCalienteConAccionException |
 	             RestriccionEdadException |
 	             CapacidadJuegoException |
-	             ReservaRequeridaException e) {
+	             ReservaRequeridaException |
+	             JuegoNoEncontradoException e) {
 
 	        System.out.println(e.getMessage());
 
 	    } catch (Exception ex) {
-	        System.out.println("Error: Por favor, ingrese un número válido.");
+	        System.out.println("Error: ingrese un número válido.");
 	        sc.nextLine();
 	    }
 	}
-	private void consultarJuegosFav(Empleado e) {
-		
-		System.out.println("===TUS JUEGOS FAVORITOS ===");
-		ArrayList<Juego> juegosFavoritos = e.getJuegosFavoritos();
-		for (Juego juego: juegosFavoritos) {
-			System.out.println(juego);
-			
-		}
+	
 				
-	}
 	private void pedirCambioTurno(Empleado emp) {
+
+	    System.out.println("\n=== SOLICITUD DE CAMBIO DE TURNO ===");
+	    System.out.println("1. Cambio de turno (mismo empleado)");
+	    System.out.println("2. Intercambio con otro empleado");
+
+	    int opcion = sc.nextInt();
+	    sc.nextLine();
 
 	    ArrayList<Turno> turnosEmpleado = emp.getTurnos();
 
@@ -680,55 +791,105 @@ public class Principal {
 	        System.out.println(i + ". " + turnosEmpleado.get(i).getJornada());
 	    }
 
-	    System.out.print("Seleccione el turno que quiere cambiar: ");
+	    System.out.print("Seleccione el turno origen: ");
 	    int indexOrigen = sc.nextInt();
 	    sc.nextLine();
 
 	    if (indexOrigen < 0 || indexOrigen >= turnosEmpleado.size()) {
-	        System.out.println("Indice invalido.");
-	        return;
-	    }
-
-	    Turno turnoOrigen = turnosEmpleado.get(indexOrigen);
-
-	    String[] dias = {"lunes","martes","miercoles","jueves","viernes","sabado","domingo"};
-	    ArrayList<Turno> todosTurnos = new ArrayList<>();
-
-	    for (String d : dias) {
-	        Turno t = cafe.getTurnos().get(d);
-	        if (t != null) {
-	            todosTurnos.add(t);
-	        }
-	    }
-
-	    System.out.println("=== TURNOS DISPONIBLES ===");
-	    for (int i = 0; i < todosTurnos.size(); i++) {
-	        System.out.println(i + ". " + todosTurnos.get(i).getJornada());
-	    }
-
-	    System.out.print("Seleccione el turno destino: ");
-	    int indexDestino = sc.nextInt();
-	    sc.nextLine();
-
-	    if (indexDestino < 0 || indexDestino >= todosTurnos.size()) {
 	        System.out.println("Índice inválido.");
 	        return;
 	    }
 
-	    Turno turnoDestino = todosTurnos.get(indexDestino);
+	    Turno turnoOrigen = turnosEmpleado.get(indexOrigen);
+	    //CAMBIO NORMAL
+	    if (opcion == 1) {
 
-	    try {
-	        emp.solicitarCambioTurno(cafe, turnoOrigen, turnoDestino);
-	        System.out.println("Solicitud enviada correctamente ");
+	        String[] dias = {"lunes","martes","miercoles","jueves","viernes","sabado","domingo"};
+	        ArrayList<Turno> todosTurnos = new ArrayList<>();
 
-	    } catch (SolicitudInvalidaException e) {
-	        System.out.println(e.getMessage());
+	        for (String d : dias) {
+	            Turno t = cafe.getTurnos().get(d);
+	            if (t != null) {
+	                todosTurnos.add(t);
+	            }
+	        }
 
-	    } catch (NoPerteneceTurnoException e) {
-	        System.out.println(e.getMessage());
+	        System.out.println("=== TURNOS DISPONIBLES ===");
+	        for (int i = 0; i < todosTurnos.size(); i++) {
+	            System.out.println(i + ". " + todosTurnos.get(i).getJornada());
+	        }
 
-	    } catch (PersonalInsuficienteException e) {
-	        System.out.println(e.getMessage());
+	        System.out.print("Seleccione turno destino: ");
+	        int indexDestino = sc.nextInt();
+	        sc.nextLine();
+
+	        if (indexDestino < 0 || indexDestino >= todosTurnos.size()) {
+	            System.out.println("Índice inválido.");
+	            return;
+	        }
+
+	        Turno turnoDestino = todosTurnos.get(indexDestino);
+
+	        try {
+	            emp.solicitarCambioTurno(cafe, turnoOrigen, turnoDestino);
+	            System.out.println("Solicitud enviada correctamente ✅");
+
+	        } catch (SolicitudInvalidaException |
+	                 NoPerteneceTurnoException |
+	                 PersonalInsuficienteException e) {
+
+	            System.out.println(e.getMessage());
+	        } catch (NoPuedeSalirTurnoException e) {
+	            System.out.println(e.getMessage());
+	        }
+	    }
+	    //INTERCAMBIO
+	    else if (opcion == 2) {
+
+	        System.out.print("Login del otro empleado: ");
+	        String login = sc.nextLine();
+
+	        Empleado otro = cafe.getEmpleados().get(login);
+
+	        if (otro == null) {
+	            System.out.println("Empleado no encontrado.");
+	            return;
+	        }
+
+	        ArrayList<Turno> turnosOtro = otro.getTurnos();
+
+	        if (turnosOtro.isEmpty()) {
+	            System.out.println("El otro empleado no tiene turnos.");
+	            return;
+	        }
+
+	        System.out.println("=== TURNOS DEL OTRO EMPLEADO ===");
+	        for (int i = 0; i < turnosOtro.size(); i++) {
+	            System.out.println(i + ". " + turnosOtro.get(i).getJornada());
+	        }
+
+	        System.out.print("Seleccione el turno del otro empleado: ");
+	        int indexOtro = sc.nextInt();
+	        sc.nextLine();
+
+	        if (indexOtro < 0 || indexOtro >= turnosOtro.size()) {
+	            System.out.println("Índice inválido.");
+	            return;
+	        }
+
+	        Turno turnoOtro = turnosOtro.get(indexOtro);
+
+	        try {
+	            cafe.crearSolicitudIntercambio(emp, otro, turnoOrigen, turnoOtro);
+	            System.out.println("Solicitud de intercambio enviada ✅");
+
+	        } catch (Exception e) {
+	            System.out.println("Error: " + e.getMessage());
+	        }
+	    }
+
+	    else {
+	        System.out.println("Opción inválida.");
 	    }
 	}
 
@@ -768,59 +929,84 @@ public class Principal {
 	    int option;
 	    do {
 	        System.out.println("\n=== MENU ADMIN ===");
-	        System.out.println("1. Ver solicitudes de cambio de turno");
-	        System.out.println("2. Aprobar/Rechazar solicitudes");
-	        System.out.println("3. Crear mesero");
-	        System.out.println("4. Crear cocinero");
-	        System.out.println("5. Ver historial de ventas");
-	        System.out.println("6. Gestionar inventario");
-	        System.out.println("7. Ver turnos del cafe");
-	        System.out.println("8. Añadir platillo a menu");
-	        System.out.println("9. Ver solicitudes de platillo");
-	        System.out.println("10. Aprobar/rechazar solicitudes de platillo");
-	        System.out.println("11.  Añadir juego ");
-	        System.out.println("12. Ver historial de prestamos");
+	        System.out.println("1. Crear mesero");
+	        System.out.println("2. Crear cocinero");
+	        System.out.println("3. Ver turnos del cafe");
+	        System.out.println("4. Ver solicitudes de cambio de turno");
+	        System.out.println("5. Aprobar/Rechazar solicitudes");
+	        System.out.println("6. Añadir platillo a menu");
+	        System.out.println("7. Ver solicitudes de platillo");
+	        System.out.println("8. Aprobar/rechazar solicitudes de platillo");
+	        System.out.println("9. Consultar menu");
+	        System.out.println("10.  Añadir juego ");
+	        System.out.println("11. Gestionar inventario");
+	        System.out.println("12. Ver historial de ventas");
+	        System.out.println("13. Ver historial de prestamos");
 	        System.out.println("0. Salir");
 
 	        option = sc.nextInt();
 	        sc.nextLine();
 
-	        if (option == 1) {
+	        if (option == 4) {
 	            verSolicitudesTurno(); 
-	        } else if (option == 2) {
-	            gestionarSolicitudes(); 
-	        } else if (option == 3) {
-	            crearMesero(); 
-	        } else if (option == 4) {
-	            crearCocinero(); 
 	        } else if (option == 5) {
+	            gestionarSolicitudes(); 
+	        } else if (option == 1) {
+	            crearMesero(); 
+	        } else if (option == 2) {
+	            crearCocinero(); 
+	        } else if (option == 12) {
 	            verHistorialVentas();
-	        } else if (option == 6) {
-	            gestionarInventario(); // TODO
-	        }else if (option == 7) {
+	        } else if (option == 11) {
+	            gestionarInventario(); 
+	        }else if (option == 3) {
 	            verTurnosAdmin();
-	        }else if (option == 8) {
+	        }else if (option == 6) {
 	            añadirPlatilloAmenu();
 	        }
-	        else if (option == 9) {
+	        else if (option == 7) {
 	            verSolicitudesPlatillo(); 
-	        }else if (option == 10) {
+	        }else if (option == 8) {
 	            gestionarSolicitudesPlatillo();
-	        }else if (option == 11) {
+	        }else if (option == 10) {
 	            añadirJuego();
+	        }
+	        else if (option == 13) {
+	            historialPrestamos();
+	        }
+	        else if (option == 9) {
+	            verMenu();
 	        }
 
 	    } while (option != 0);
 	}
 
 
+	private void historialPrestamos() {
+
+	    HashMap<String, Prestamo> prestamos = cafe.getRegistroPrestamos();
+	    if (prestamos.isEmpty()) {
+	        System.out.println("No hay préstamos registrados.");
+	        return;
+	    }
+	    System.out.println("\n=== HISTORIAL DE PRÉSTAMOS ===");
+	    for (Prestamo p : prestamos.values()) {
+	        System.out.println(
+	            "ID: " + p.getId() +
+	            " | Usuario: " + p.getUsuario().getLogin() +
+	            " | Juego: " + p.getJuego().getNombre() +
+	            " | Estado: " + (p.isDevuelto() ? "Devuelto" : "Activo")
+	        );
+	    }
+	}
+	
 	private void añadirJuego() {
 
 	    try {
 	        System.out.print("Nombre del juego: ");
 	        String nombre = sc.nextLine();
 
-	        System.out.print("Categoría: ");
+	        System.out.print("Categoría (tablero, cartas ya accion): ");
 	        String categoria = sc.nextLine();
 
 	        System.out.print("Precio: ");
@@ -1114,16 +1300,32 @@ public class Principal {
 	        System.out.println("No hay solicitudes pendientes.");
 	        return;
 	    }
-
 	    System.out.println("=== SOLICITUDES PENDIENTES ===");
-
 	    for (CambioDeTurno s : pendientes.values()) {
-	        System.out.println(
-	            "ID: " + s.getId() +
-	            " | Empleado: " + s.getEmpleado().getLogin() +
-	            " | " + s.getTurnoOriginal().getJornada() +
-	            " -> " + s.getTurnoCambio().getJornada()
-	        );
+	        if (s.getEmpleadoDestino() != null) {
+	            System.out.println(
+	                "ID: " + s.getId() +
+	                " | Intercambio: " +
+	                s.getEmpleado().getLogin() + " <-> " +
+	                s.getEmpleadoDestino().getLogin() +
+	                " | " +
+	                s.getTurnoOriginal().getJornada() +
+	                " <-> " +
+	                s.getTurnoCambio().getJornada()
+	            );
+	        }
+	        else {
+
+	            System.out.println(
+	                "ID: " + s.getId() +
+	                " | Cambio: " +
+	                s.getEmpleado().getLogin() +
+	                " | " +
+	                s.getTurnoOriginal().getJornada() +
+	                " -> " +
+	                s.getTurnoCambio().getJornada()
+	            );
+	        }
 	    }
 	}
 

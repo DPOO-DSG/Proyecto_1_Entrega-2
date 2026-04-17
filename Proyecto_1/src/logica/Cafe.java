@@ -1,5 +1,6 @@
 package logica;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -332,7 +333,8 @@ public class Cafe {
 
 
 // REQUERIMIENTO FUNCIONAL 1: CREAR SOLICITUD DE CAMBIO DE TURNO
-	public boolean crearSolicitudCambio(Empleado empleado, Turno actual, Turno nuevo) {
+	public boolean crearSolicitudCambio(Empleado empleado, Turno actual, Turno nuevo)
+			throws NoPuedeSalirTurnoException{
 
 	    if (empleado == null || actual == null || nuevo == null) {
 	        throw new IllegalArgumentException("Datos de solicitud inválidos");
@@ -344,12 +346,27 @@ public class Cafe {
 	    }
 
 	    if (!puedeSalirDelTurno(empleado, actual)) {
-	        throw new IllegalStateException("El empleado no puede salir  del turno actual");
+	    	throw new NoPuedeSalirTurnoException("El empleado no puede salir del turno actual");
 	    }
 
 	    int id = generarIdSolicitud();
 
-	    CambioDeTurno solicitud = new CambioDeTurno(id, empleado, actual, nuevo);
+	    CambioDeTurno solicitud = new CambioDeTurno(id, empleado, null, actual, nuevo);
+
+	    solicitudesCambioTurno.put(id, solicitud);
+
+	    return true;
+	}
+	
+	public boolean crearSolicitudIntercambio(Empleado e1, Empleado e2, Turno t1, Turno t2) {
+
+	    if (e1 == null || e2 == null || t1 == null || t2 == null) {
+	        throw new IllegalArgumentException("Datos inválidos");
+	    }
+
+	    int id = generarIdSolicitud();
+
+	    CambioDeTurno solicitud = new CambioDeTurno(id, e1, e2, t1, t2);
 
 	    solicitudesCambioTurno.put(id, solicitud);
 
@@ -362,11 +379,11 @@ public class Cafe {
     int numMeseros = turno.getMeseros().size();
 
     if (empleado instanceof Cocinero) {
-        return numCocineros > 1; // mínimo 1 se queda
+        return numCocineros > 1; 
     }
 
     if (empleado instanceof Mesero) {
-        return numMeseros > 1; // mínimo 1 se queda
+        return numMeseros >= 2; 
     }
 
     return true;
@@ -388,25 +405,18 @@ public class Cafe {
 	}
 
 	//Metodo usado por administrador para aprobar una solicitud 
-	public boolean aprobarSolicitud(int idSolicitud) {
-
-    CambioDeTurno solicitud = solicitudesCambioTurno.get(idSolicitud);
-
-    if (solicitud == null || !solicitud.getEstado().equals("PENDIENTE")) {
-        return false;
-    }
-
-    Empleado empleado = solicitud.getEmpleado();
-
-    Turno turnoViejo = solicitud.getTurnoOriginal();
-    Turno turnoNuevo = solicitud.getTurnoCambio();
-
-    // actualizar
-    actualizarTurno(empleado, turnoViejo, turnoNuevo);
-
-    solicitud.aprobar();
-
-    return true;
+	public boolean aprobarSolicitud(int id) {
+	    CambioDeTurno s = solicitudesCambioTurno.get(id);
+	    if (s == null) return false;
+	    if (s.getEmpleadoDestino() != null) {
+	        intercambiarTurnos(s.getEmpleado(),s.getEmpleadoDestino(),
+	            s.getTurnoOriginal(), s.getTurnoCambio());
+	    } else {
+	        actualizarTurno(s.getEmpleado(), s.getTurnoOriginal(),
+	            s.getTurnoCambio());
+	    }
+	    s.aprobar();
+	    return true;
 	}
 
 	public boolean rechazarSolicitud(int idSolicitud) {
@@ -513,6 +523,9 @@ public class Cafe {
 
 		if (cliente == null || fechaDeseada == null || cantidadPersonas <= 0) {
 			throw new DatosReservaInvalidosException();
+		}
+		if (cantidadPersonas > capacidad) {
+		    throw new DatosReservaInvalidosException();
 		}
 
 		for (Mesa mesa : mesas.values()) {
@@ -758,10 +771,21 @@ public class Cafe {
 	    Prestamo prestamo = new Prestamo(id, usuario, juego, reserva);
 
 	    registroPrestamos.put(id, prestamo);
+	    
+	    if (juego.isDificl()) {
+
+	        Mesero mesero = hayMeseroParaJuego(juego);
+
+	        if (mesero == null) {
+	            throw new JuegoNoDisponibleException(
+	                "No hay meseros disponibles para explicar este juego difícil"
+	            );
+	        }
+	    }
 	}
 	
 	private void validarPrestamoEmpleado(Empleado usuario) throws EmpleadoEnTurnoException {
-	    if (usuario.estaEnTurnoAhora()) {
+	    if (usuario.estaEnTurnoAhora(this)) {
 	        throw new EmpleadoEnTurnoException("No puedes pedir préstamo en turno");
 	    }
 	}
@@ -868,18 +892,19 @@ public class Cafe {
 	    }
 	}
 	
-	public Mesero hayMeseroParaJuego(Juego juego, String jornada) {
+	public Mesero hayMeseroParaJuego(Juego juego) {
 
-	    if (juego == null) {
-	        return null;
-	    }
+	    if (juego == null) return null;
 
 	    for (Empleado e : empleados.values()) {
+
 	        if (e instanceof Mesero) {
+
 	            Mesero mesero = (Mesero) e;
 
-	            if (mesero.getJuegosConocidos().contains(juego)) {
-	            	if(mesero.estaEnTurnoAhora())
+	            if (mesero.getJuegosConocidos().contains(juego)
+	                && mesero.estaEnTurnoAhora(this)) {
+
 	                return mesero;
 	            }
 	        }
@@ -975,6 +1000,45 @@ public class Cafe {
 	    }
 	    return null;
 	}
+	
+	//COnsultar menu
+	public ArrayList<Platillo> consultarMenu() {
+	    return new ArrayList<>(menu); 
+	}
+	//VALIDAR TIEMPO
+	public ArrayList<Reserva> getReservasActivasCliente(Cliente c) {
+
+	    ArrayList<Reserva> activas = new ArrayList<>();
+	    LocalDateTime ahora = LocalDateTime.now();
+
+	    for (Reserva r : reservas.values()) {
+
+	        if (r.getCliente().equals(c)) {
+
+	            // Ejemplo: válida si es hoy (puedes ajustar lógica)
+	            if (r.getFechaReserva().toLocalDate().equals(ahora.toLocalDate())) {
+	                activas.add(r);
+	            }
+	        }
+	    }
+
+	    return activas;
+	}
+	
+	public String convertirDia(DayOfWeek dia) {
+	    switch (dia) {
+	        case MONDAY: return "lunes";
+	        case TUESDAY: return "martes";
+	        case WEDNESDAY: return "miercoles";
+	        case THURSDAY: return "jueves";
+	        case FRIDAY: return "viernes";
+	        case SATURDAY: return "sabado";
+	        case SUNDAY: return "domingo";
+	        default: return "";
+	    }
+	}
+	
+
 }
 
 

@@ -93,7 +93,7 @@ public class CompraVenta {
 	    sb.append("===== FACTURA =====\n");
 	    sb.append("ID: ").append(numeroFactura).append("\n");
 	    sb.append("Cliente: ").append(usuario.getLogin()).append("\n");
-	    sb.append("Propina: ").append(propina).append("\n");
+	    sb.append("Fecha: ").append(fecha).append("\n");
 
 	    sb.append("\n--- PEDIDOS ---\n");
 
@@ -101,7 +101,12 @@ public class CompraVenta {
 	        sb.append(p.toString()).append("\n");
 	    }
 
-	    sb.append("\nTotal: ").append(total).append("\n");
+	    sb.append("\nSubtotal: ").append(subtotal).append("\n");
+	    sb.append("IVA (19%): ").append(iva).append("\n");
+	    sb.append("Propina: ").append(propina).append("\n");
+
+	    sb.append("----------------------\n");
+	    sb.append("TOTAL: ").append(total).append("\n");
 
 	    return sb.toString();
 	}

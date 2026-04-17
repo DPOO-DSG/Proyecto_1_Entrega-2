@@ -1,5 +1,6 @@
 package logica;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import  excepciones.*;
 import java.util.ArrayList;
@@ -37,24 +38,27 @@ public abstract class Empleado extends Usuario {
 	//Metodo en el que el empleado crea la solicitud de cambio
 	
 	public void solicitarCambioTurno(Cafe cafe, Turno actual, Turno nuevo)
-	        throws SolicitudInvalidaException, NoPerteneceTurnoException, PersonalInsuficienteException {
+	        throws SolicitudInvalidaException, NoPerteneceTurnoException, PersonalInsuficienteException, NoPuedeSalirTurnoException {
 
 	    cafe.crearSolicitudCambio(this, actual, nuevo);
 	}
 	
 	
 	
-	public boolean estaEnTurnoAhora() {
-	    String hoy = LocalDateTime.now().getDayOfWeek().toString().toLowerCase();
+	public boolean estaEnTurnoAhora(Cafe cafe) {
+
+	    DayOfWeek hoy = LocalDateTime.now().getDayOfWeek();
+	    String diaHoy = cafe.convertirDia(hoy);
 
 	    for (Turno t : turnos) {
-	        if (t.getJornada().equals(hoy)) {
+	        if (t.getJornada().equalsIgnoreCase(diaHoy)) {
 	            return true;
 	        }
 	    }
 
 	    return false;
 	}
+	
 	
 	public ArrayList<Turno> consultarTurnos(Cafe cafe) {
 	    return cafe.consultarTurnosEmpleado(this);
