@@ -16,7 +16,7 @@ public class Juego implements Serializable {
 	private boolean dificl;
 	
 
-	//Constructo
+	//Constructor
 	
 	public Juego(String categoria, String nombre, int cantidad, int precio,
             int añoPublicacion, String empresaMatriz,

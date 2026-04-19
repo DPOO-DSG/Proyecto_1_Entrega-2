@@ -24,10 +24,8 @@ public class Cafe implements Serializable {
     private int contadorSolicitudes = 0;
     private HashMap<Integer, Platillo> solicitudesAnadirPlatillo;
     private HashMap<String, Reserva> reservas;
-    private ArrayList<Pedido> pedidosSinReserva;
 
- 
-	
+    
 	public Cafe(int capacidad, int cantidadMesas) {
 		this.capacidad = capacidad;
 		this.registroVentas = new HashMap<>();
@@ -44,8 +42,6 @@ public class Cafe implements Serializable {
 	    this.menu = new ArrayList<Platillo>();
 	    this.solicitudesAnadirPlatillo = new HashMap<>();
 	    this.reservas = new HashMap<>();
-	    this.pedidosSinReserva = new ArrayList<Pedido>();
-
 		}
 	
 	public int getCapacidad() {
@@ -135,11 +131,10 @@ public class Cafe implements Serializable {
 
 	//METODOS
 	
-
-
 	public int generarIdSolicitud() {
 	    return contadorSolicitudes++;
 	}//Genera id de solicitud
+	
 	private boolean existeLogin(String login) {
 	    return clientes.containsKey(login) || empleados.containsKey(login) ||administradores.containsKey(login);
 	}//Verificar la existencia del usuario
@@ -150,6 +145,7 @@ public class Cafe implements Serializable {
 	    clientes.put(login, nuevo);
 	    return true;
 	}
+	
 	//Crea un nuevo mesero
 	public void crearMesero(String login, String password, String codigoDescuento, ArrayList<Juego> juegosFavoritos, 
 			ArrayList<String> dias, ArrayList<Juego> juegosConocidos) 
@@ -172,7 +168,6 @@ public class Cafe implements Serializable {
 	    }
 	    empleados.put(login, nuevo);
 	}
-	
 	
 	public void crearCocinero(String login, String password, String codigoDescuento,
 	        ArrayList<Juego> juegosFavoritos, ArrayList<String> dias)
@@ -237,7 +232,6 @@ public class Cafe implements Serializable {
 	        return false;
 	    }
 
-	    // evitar platos duplicados con el mismo nombre
 	    for (Platillo p : menu) {
 	        if (p.getnombre().equals(platillo.getnombre())) {
 	            return false;
@@ -259,8 +253,6 @@ public class Cafe implements Serializable {
 	    solicitudesAnadirPlatillo.put(id, platillo);
 	}
 
-
-	// APROBAR SOLICITUD
 	public boolean aprobarSolicitudPlatillo(int idSolicitud) {
 
 	    if (!solicitudesAnadirPlatillo.containsKey(idSolicitud)) {
@@ -289,12 +281,10 @@ public class Cafe implements Serializable {
 	    return true;
 	}
 
-
 	// VER SOLICITUDES PENDIENTES
 	public HashMap<Integer, Platillo> getSolicitudesPendientesPlatillos() {
 	    return solicitudesAnadirPlatillo;
 	}
-	
 	
 	public ArrayList<Platillo> getMenu() {
 		return menu;
@@ -304,8 +294,6 @@ public class Cafe implements Serializable {
 		this.menu = menu;
 	}
 
-	
-	
 	//Asignacion inicial de turnos
 	public void inicializarTurnos() {
 	    turnos = new HashMap<>();
@@ -334,7 +322,6 @@ public class Cafe implements Serializable {
 	    t.agregarEmpleado(e);
 	}
 	
-
 
 // REQUERIMIENTO FUNCIONAL 1: CREAR SOLICITUD DE CAMBIO DE TURNO
 	public boolean crearSolicitudCambio(Empleado empleado, Turno actual, Turno nuevo)
@@ -486,14 +473,10 @@ public class Cafe implements Serializable {
 	}
 	
 	
-	
-	
 	//REQUERIMIENTO CONSULTAR PUNTOS DE FIDELIDAD 
 	public double consultarPuntosFidelidad(Cliente cliente) {
 	    return cliente.getPuntosFidelidad();
 	}
-	
-	
 	
 	
 	//REQUERIMIENTO CONSULTAR TURNOS EMPLEADO 
@@ -502,10 +485,7 @@ public class Cafe implements Serializable {
 	    return empleado.getTurnos();
 	}
 	
-	
-	
-	
-	
+
 	//REQUERIMIENTO DE SOLCITUD DE MESA
 	//Reservar mesa
 	public void inicializarMesas(int cantidadMesas, int capacidadPorMesa) {
@@ -559,7 +539,6 @@ public class Cafe implements Serializable {
 	    }
 	    return lista;
 	}
-	
 	
 	//REQUERIMIENTO DE REALIZAR COMPRA
 	public void crearPedido(Reserva reserva,
@@ -642,7 +621,6 @@ public class Cafe implements Serializable {
 	}
 
 	
-	
 	private boolean validarAlcoholReserva(Reserva reserva) {
 		boolean hayAlcohol = false;
 	
@@ -692,7 +670,6 @@ public class Cafe implements Serializable {
 	
 	    if (!hayCaliente) return true;
 	
-	    // Revisar préstamos activos del usuario
 	    for (Prestamo pr : registroPrestamos.values()) {
 	        if (pr.getUsuario().equals(usuario) && !pr.isDevuelto()) {
 	
@@ -714,11 +691,11 @@ public class Cafe implements Serializable {
 	
 	    // mismo empleado
 	    if (usuario.equals(dueñoCodigo)) {
-	        return subtotal * 0.8; // 20%
+	        return subtotal * 0.8; 
 	    }
 	
 	    // otro usuario
-	    return subtotal * 0.9; // 10%
+	    return subtotal * 0.9; 
 	}
 	private Empleado buscarEmpleadoPorCodigo(String codigo) {
 
@@ -751,21 +728,14 @@ public class Cafe implements Serializable {
 	
 
 	public void solicitarPrestamo(Usuario usuario, Juego juego, Reserva reserva)
-	        throws EmpleadoEnTurnoException,
-	               JuegoNoDisponibleException,
-	               LimitePrestamosException,
-	               BebidaCalienteConAccionException,
-	               RestriccionEdadException,
-	               CapacidadJuegoException,
-	               ReservaRequeridaException,
-	               JuegoNoEncontradoException {
+	        throws EmpleadoEnTurnoException,JuegoNoDisponibleException,LimitePrestamosException,
+	               BebidaCalienteConAccionException,RestriccionEdadException,CapacidadJuegoException,
+	               ReservaRequeridaException,JuegoNoEncontradoException {
 
-	    // 1. disponibilidad
 	    if (!inventarioPrestamo.estaDisponible(juego)) {
 	        throw new JuegoNoDisponibleException("El juego no está disponible");
 	    }
 
-	    // 2. cliente
 	    if (usuario instanceof Cliente) {
 	        if (reserva == null) {
 	            throw new ReservaRequeridaException("El cliente necesita reserva");
@@ -773,15 +743,12 @@ public class Cafe implements Serializable {
 	        validarPrestamoCliente((Cliente) usuario, juego, reserva);
 	    }
 
-	    // 3. empleado
 	    if (usuario instanceof Empleado) {
 	        validarPrestamoEmpleado((Empleado) usuario);
 	    }
 
-	    // 4. inventario
 	    inventarioPrestamo.registrarPrestamo(juego);
 
-	    // 5. crear préstamo
 	    String id = "P" + (registroPrestamos.size() + 1);
 	    Prestamo prestamo = new Prestamo(id, usuario, juego, reserva);
 
@@ -887,7 +854,6 @@ public class Cafe implements Serializable {
 	    inventarioPrestamo.registrarDevolucion(p.getJuego());
 	}
 	
-	//Requerimiento de mesero tiene juego conocidos y
 	
 	public void anadirJuegoAMesero(String login, Juego juego) {
 
@@ -948,12 +914,10 @@ public class Cafe implements Serializable {
 	        return false;
 	    }
 
-	    // mirar el tipo de inventario ingresado por el usuario y verificar si es uno de los qu existen
 	    if (!tipoInventario.equals("PRESTAMO") && !tipoInventario.equals("VENTA")) {
 	        return false;
 	    }
 	    
-	    //mirar cual es el tipo de inventario ingresado y agregar el juego al respectivo
 
 	    if (tipoInventario.equals("PRESTAMO")) {
 
@@ -1053,7 +1017,6 @@ public class Cafe implements Serializable {
 	    }
 	}
 	
-	// En Cafe.java
 	public void comprarJuegoEmpleado(Empleado empleado, Juego juego, double propina) throws JuegoNoDisponibleException, JuegoNoEncontradoException {
 	    
 	

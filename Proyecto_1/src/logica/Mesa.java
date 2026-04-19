@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 
 public class Mesa implements Serializable {
 	
-
 	private int idMesa;
     private int capacidad;
     private ArrayList<Reserva> agenda; 

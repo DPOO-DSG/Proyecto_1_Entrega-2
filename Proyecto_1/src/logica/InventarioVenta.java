@@ -19,12 +19,10 @@ public class InventarioVenta implements Serializable {
 		this.stock = stock;
 	}
 
-	// Método corregido: verifica si el juego existe en el mapa y si su cantidad es mayor a 0
 	public boolean estaDisponible(Juego juego) {
 		return stock.containsKey(juego) && stock.get(juego) > 0;
 	}
 
-	// Método corregido: reduce la cantidad en 1 al registrar una venta
 	public void registrarVenta(Juego j) throws JuegoNoEncontradoException {
 		if (j == null || !stock.containsKey(j)) {
 		    throw new JuegoNoEncontradoException("El juego no existe en el inventario de ventas");
@@ -36,11 +34,9 @@ public class InventarioVenta implements Serializable {
 		    throw new JuegoNoEncontradoException("No hay unidades disponibles para la venta");
 		}
 
-		// Se actualiza el stock restando 1
 		stock.put(j, cantidad - 1);
 	}
 	
-	// Si no tienes un método para agregar stock nuevo, te recomiendo añadir este:
 	public void agregarAlInventario(Juego juego, int cantidad) {
 		if (stock.containsKey(juego)) {
 			stock.put(juego, stock.get(juego) + cantidad);

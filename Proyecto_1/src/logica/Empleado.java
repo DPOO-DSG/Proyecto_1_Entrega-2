@@ -34,18 +34,13 @@ public abstract class Empleado extends Usuario implements Serializable {
 	    this.turnos = turnos;
 	}
 	
-	
-	
 	//Metodo en el que el empleado crea la solicitud de cambio
-	
 	public void solicitarCambioTurno(Cafe cafe, Turno actual, Turno nuevo)
 	        throws SolicitudInvalidaException, NoPerteneceTurnoException, PersonalInsuficienteException, NoPuedeSalirTurnoException {
 
 	    cafe.crearSolicitudCambio(this, actual, nuevo);
 	}
-	
-	
-	
+
 	public boolean estaEnTurnoAhora(Cafe cafe) {
 
 	    DayOfWeek hoy = LocalDateTime.now().getDayOfWeek();
@@ -59,7 +54,6 @@ public abstract class Empleado extends Usuario implements Serializable {
 
 	    return false;
 	}
-	
 	
 	public ArrayList<Turno> consultarTurnos(Cafe cafe) {
 	    return cafe.consultarTurnosEmpleado(this);

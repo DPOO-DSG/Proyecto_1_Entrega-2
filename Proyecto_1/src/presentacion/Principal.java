@@ -396,8 +396,6 @@ public class Principal {
 	    } while (option != 0);
 	}
 	
-	// En Principal.java
-
 	private void comprarJuegoEmpleado(Empleado empleado) {
 	    System.out.println("\n=== COMPRAR JUEGO (EMPLEADO) ===");
 	    
@@ -408,7 +406,6 @@ public class Principal {
 	        return;
 	    }
 	    
-	    // Listar los juegos en venta
 	    ArrayList<Juego> listaJuegos = new ArrayList<>(stock.keySet());
 	    for (int i = 0; i < listaJuegos.size(); i++) {
 	        Juego j = listaJuegos.get(i);
@@ -419,7 +416,7 @@ public class Principal {
 	    int index = sc.nextInt();
 	    sc.nextLine();
 	    
-	    if (index == 0) return; // Cancelar
+	    if (index == 0) return; 
 	    
 	    if (index < 1 || index > listaJuegos.size()) {
 	        System.out.println("Selección inválida.");
@@ -433,7 +430,6 @@ public class Principal {
 	    sc.nextLine();
 	    
 	    try {
-	        // Llamamos al método que creamos en Cafe.java
 	        cafe.comprarJuegoEmpleado(empleado, juegoSeleccionado, propina);
 	        System.out.println("¡Compra realizada con éxito!");
 	        
@@ -559,7 +555,6 @@ public class Principal {
 	        System.out.print("Seleccione un juego: ");
 	        int seleccion = sc.nextInt(); 
 	        
-	        // 2. Validar que el número esté dentro del rango de la lista
 	        if (seleccion > 0 && seleccion <= juegos.size()) {
 	            Juego juegoElegido = juegos.get(seleccion - 1);
 	            juegosFav.add(juegoElegido);
@@ -640,7 +635,6 @@ public class Principal {
 	private void hacerPedido(Empleado e) {
 
 	    try {
-	        // 1. buscar cliente
 	        System.out.print("Login del cliente: ");
 	        String loginCliente = sc.nextLine();
 
@@ -651,7 +645,6 @@ public class Principal {
 	            return;
 	        }
 
-	        // 2. mostrar reservas del cliente
 	        ArrayList<Reserva> reservas = cafe.getReservasCliente(c);
 
 	        if (reservas.isEmpty()) {
@@ -675,7 +668,6 @@ public class Principal {
 
 	        Reserva reserva = reservas.get(rIndex - 1);
 
-	        // 3. elegir platillos
 	        ArrayList<Platillo> platillos = new ArrayList<>();
 	        ArrayList<Platillo> menu = cafe.getMenu();
 
@@ -708,7 +700,6 @@ public class Principal {
 	            platillos.add(menu.get(seleccion - 1));
 	        }
 
-	        // 4. elegir juegos
 	        ArrayList<Juego> juegos = new ArrayList<>();
 	        ArrayList<Juego> catalogo = cafe.consultarCatalogoVenta();
 
@@ -736,7 +727,6 @@ public class Principal {
 	            juegos.add(catalogo.get(seleccion - 1));
 	        }
 
-	        // 5. crear pedido (AQUÍ salta la excepción si hay alcohol con niños)
 	        cafe.crearPedido(reserva, e, platillos, juegos);
 
 	        System.out.println("Pedido creado correctamente");
@@ -1022,18 +1012,15 @@ public class Principal {
 	            verTurnosAdmin();
 	        }else if (option == 6) {
 	            añadirPlatilloAmenu();
-	        }
-	        else if (option == 7) {
+	        }else if (option == 7) {
 	            verSolicitudesPlatillo(); 
 	        }else if (option == 8) {
 	            gestionarSolicitudesPlatillo();
 	        }else if (option == 10) {
 	            añadirJuego();
-	        }
-	        else if (option == 13) {
+	        }else if (option == 13) {
 	            historialPrestamos();
-	        }
-	        else if (option == 9) {
+	        }else if (option == 9) {
 	            verMenu();
 	        }else if (option == 14) {
 	        	verEmpleados();
@@ -1129,7 +1116,6 @@ public class Principal {
 	        sc.nextLine();
 	        
 	        
-	        // Elegir inventario
 	        System.out.println("Elija el inventario donde va a agregar el juego");
 	        System.out.println("1. Inventario de venta");
 	        System.out.println("2. Inventario de préstamo");
@@ -1396,16 +1382,9 @@ public class Principal {
 	    System.out.println("=== SOLICITUDES PENDIENTES ===");
 	    for (CambioDeTurno s : pendientes.values()) {
 	        if (s.getEmpleadoDestino() != null) {
-	            System.out.println(
-	                "ID: " + s.getId() +
-	                " | Intercambio: " +
-	                s.getEmpleado().getLogin() + " <-> " +
-	                s.getEmpleadoDestino().getLogin() +
-	                " | " +
-	                s.getTurnoOriginal().getJornada() +
-	                " <-> " +
-	                s.getTurnoCambio().getJornada()
-	            );
+	            System.out.println("ID: " + s.getId() + " | Intercambio: " +
+	                s.getEmpleado().getLogin() + " <-> " + s.getEmpleadoDestino().getLogin() +" | " +
+	                s.getTurnoOriginal().getJornada() +" <-> " +s.getTurnoCambio().getJornada());
 	        }
 	        else {
 

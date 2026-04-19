@@ -13,11 +13,9 @@ public class Cliente extends Usuario implements Serializable {
 	}
 	
 	
-	
 	public double getPuntosFidelidad() {
 		return puntosFidelidad;
 	}
-
 
 
 	public void setPuntosFidelidad(double puntosFidelidad) {
@@ -25,14 +23,12 @@ public class Cliente extends Usuario implements Serializable {
 	}
 
 
- 
 	@Override
 	public void solicitarPrestamo(Cafe cafe, Juego juego, Reserva reserva) throws Exception{
 	    cafe.solicitarPrestamo(this, juego, reserva);
 	}
 	public double consultarPuntosFidelidad(Cafe cafe) {
 		return cafe.consultarPuntosFidelidad(this);
-	
 	
 	
 	}

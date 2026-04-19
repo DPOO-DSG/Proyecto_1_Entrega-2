@@ -9,14 +9,4 @@ public class Cocinero extends Empleado implements Serializable {
 			ArrayList<Turno> turno) {
 		super(login, password, juegosFavoritos, codigoDescuento, turno);
 	}
-	//getters y setters
-	
-	
-	
-	
-	
-	
-	
-	
-
 }

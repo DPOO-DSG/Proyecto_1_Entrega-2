@@ -16,58 +16,34 @@ public class Pedido implements Serializable {
 		this.juegos = juegos;
 
 	}
-
-
-
-
 	public Usuario getComprador() {
 		return comprador;
 	}
-
-
-
 
 	public void setComprador(Usuario comprador) {
 		this.comprador = comprador;
 	}
 
-
-
-
 	public ArrayList<Platillo> getPlatillos() {
 		return platillos;
 	}
-
-
-
 
 	public void setPlatillos(ArrayList<Platillo> platillos) {
 		this.platillos = platillos;
 	}
 
-
-
-
 	public ArrayList<Juego> getJuegos() {
 		return juegos;
 	}
-
-
-
-
+	
 	public void setJuegos(ArrayList<Juego> juegos) {
 		this.juegos = juegos;
 	}
-
-
-
 
 	@Override
 	public String toString() {
 
 	    StringBuilder sb = new StringBuilder();
-
-
 	    sb.append("\nPlatillos: ");
 	    if (platillos.isEmpty()) {
 	        sb.append("Ninguno");
@@ -88,12 +64,4 @@ public class Pedido implements Serializable {
 
 	    return sb.toString();
 	}
-	
-
-
-
-	
-	
-	
-	
 }
