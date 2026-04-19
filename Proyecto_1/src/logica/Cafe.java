@@ -572,7 +572,7 @@ public class Cafe implements Serializable {
 	            if (p instanceof Bebida) {
 	                Bebida b = (Bebida) p;
 
-	                if (b.isAlcoholico()) {
+	                if (b.isAlcoholica()) {
 	                    throw new AlcoholReservaException("No se permite alcohool con niños");
 	                }
 	            }
@@ -587,7 +587,7 @@ public class Cafe implements Serializable {
 			double propina,
 			boolean usarPuntos,
 			String codigo,
-			Reserva reserva) throws BebidaCalienteConAccionException, AlcoholReservaException, DatosFacturaInvalidosException, JuegoNoDisponibleException {
+			Reserva reserva) throws BebidaCalienteConAccionException, AlcoholReservaException, DatosFacturaInvalidosException, JuegoNoDisponibleException, JuegoNoEncontradoException {
 
 		if (usuario == null || reserva == null) {
 			throw new DatosFacturaInvalidosException("Datos inválidos para la factura");
@@ -653,7 +653,7 @@ public class Cafe implements Serializable {
 	            if (p instanceof Bebida) {
 	                Bebida b = (Bebida) p;
 	
-	                if (b.isAlcoholico()) {
+	                if (b.isAlcoholica()) {
 	                    hayAlcohol = true;
 	                    break;
 	                }
@@ -1053,84 +1053,36 @@ public class Cafe implements Serializable {
 	    }
 	}
 	
-	public Pedido crearPedidoSinReserva(Usuario usuario, ArrayList<Juego> juegos) {
-
-	    if (usuario == null || juegos == null || juegos.isEmpty()) {
-	        return null;
+	// En Cafe.java
+	public void comprarJuegoEmpleado(Empleado empleado, Juego juego, double propina) throws JuegoNoDisponibleException, JuegoNoEncontradoException {
+	    
+	
+	    if (!inventarioVentas.estaDisponible(juego)) {
+	        throw new JuegoNoDisponibleException("El juego " + juego.getNombre() + " no está disponible para la venta.");
 	    }
+	    
+	    int numeroFactura = registroVentas.size() + 1;
+	    
+	    CompraVenta factura = new CompraVenta(numeroFactura, empleado, propina, null);
 
-	    ArrayList<Platillo> vacio = new ArrayList<>();
-
-	    Pedido pedido = new Pedido(usuario, vacio, juegos);
-
-	    pedidosSinReserva.add(pedido);
-
-	    return pedido;
+	    double porcentajeDescuento = 0.20; 
+	    
+	    double precioOriginal = juego.getprecio();
+	    double valorDescuento = precioOriginal * porcentajeDescuento;
+	    double subtotalConDescuento = precioOriginal - valorDescuento; 
+	    
+	    factura.setSubtotal(subtotalConDescuento);
+	    
+	    factura.calcularValores(); 
+	    
+	    inventarioVentas.registrarVenta(juego);
+	    
+	    registroVentas.put(numeroFactura, factura);
 	}
 	
-	public CompraVenta crearFacturaEmpleado(
-	        Empleado empleado,
-	        Pedido pedido,
-	        double propina,
-	        String codigo
-	) throws Exception {
 
-	    if (empleado == null || pedido == null) {
-	        throw new DatosFacturaInvalidosException("Datos inválidos");
-	    }
-
-	    int id = registroVentas.size() + 1;
-
-	    CompraVenta factura = new CompraVenta(
-	            id,
-	            empleado,
-	            propina,
-	            null 
-	    );
-
-	    double total = 0;
-
-	    for (Juego j : pedido.getJuegos()) {
-
-	        
-
-	        total += j.getprecio();
-	    }
-
-	    // aplicar descuento
-	    total = aplicarDescuento(empleado, total, codigo);
-
-	    factura.setTotal(total);
-
-	    // descontar inventario
-	    for (Juego j : pedido.getJuegos()) {
-	        inventarioVentas.registrarVenta(j);
-	    }
-
-	    registroVentas.put(id, factura);
-
-	    return factura;
-	}
 	
-	public CompraVenta comprarJuegosEmpleado(
-	        Empleado empleado,
-	        ArrayList<Juego> juegos,
-	        double propina
-	) throws Exception {
 
-	    if (empleado == null || juegos == null || juegos.isEmpty()) {
-	        throw new DatosFacturaInvalidosException("Datos inválidos");
-	    }
-
-	    // 1. crear pedido sin reserva
-	    Pedido pedido = crearPedidoSinReserva(empleado, juegos);
-
-	    // 2. usar su código de descuento
-	    String codigo = empleado.getCodigoDescuento();
-
-	    // 3. crear factura
-	    return crearFacturaEmpleado(empleado, pedido, propina, codigo);
-	}
 	
 
 	

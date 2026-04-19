@@ -33,10 +33,7 @@ public class Bebida extends Platillo implements Serializable{
 
 
 
-	public boolean isAlcoholico() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+
 	
 
 }

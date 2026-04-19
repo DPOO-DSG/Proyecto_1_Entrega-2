@@ -2,7 +2,6 @@ package logica;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 
 public class CompraVenta implements Serializable {
 	private int numeroFactura;
@@ -14,7 +13,6 @@ public class CompraVenta implements Serializable {
 	private double total;
 	private int puntosGenerados;
 	
-
 	private Reserva reserva;
 	private Usuario usuario;
 	
@@ -59,33 +57,43 @@ public class CompraVenta implements Serializable {
 	}
 
 	public void calcularValores() {
-
 	    double suma = 0;
 
-	    for (Pedido ped : reserva.getPedidos()) {
-
-	        for (Platillo p : ped.getPlatillos()) {
-	            suma += p.getprecio();
-	        }
-
-	        for (Juego j : ped.getJuegos()) {
-	            suma += j.getprecio();
-	        }
-	    }
-
-	    this.subtotal = suma;
+        // Validamos que haya reserva antes de sacar sus pedidos
+        if (reserva != null) {
+            for (Pedido ped : reserva.getPedidos()) {
+                for (Platillo p : ped.getPlatillos()) {
+                    suma += p.getprecio();
+                }
+                for (Juego j : ped.getJuegos()) {
+                    suma += j.getprecio();
+                }
+            }
+        } 
+        
+       
+        if (reserva != null || subtotal == 0) { 
+            this.subtotal = suma;
+        }
+        
 	    this.iva = subtotal * 0.19;
 	    this.total = subtotal + iva + propina;
 
-	    // Puntos (ejemplo)
 	    this.puntosGenerados = (int) (total / 1000);
 	}
+	
 	public double getTotal() {
 		return total;
 	}
+	
 	public void setTotal(double total) {
 		this.total = total;
 	}
+	
+	public void setSubtotal(double subtotal) {
+		this.subtotal = subtotal;
+	}
+	
 	@Override
 	public String toString() {
 
@@ -93,14 +101,18 @@ public class CompraVenta implements Serializable {
 
 	    sb.append("===== FACTURA =====\n");
 	    sb.append("ID: ").append(numeroFactura).append("\n");
-	    sb.append("Cliente: ").append(usuario.getLogin()).append("\n");
+	    sb.append("Cliente/Empleado: ").append(usuario.getLogin()).append("\n");
 	    sb.append("Fecha: ").append(fecha).append("\n");
 
-	    sb.append("\n--- PEDIDOS ---\n");
-
-	    for (Pedido p : reserva.getPedidos()) {
-	        sb.append(p.toString()).append("\n");
-	    }
+        if (reserva != null) {
+            sb.append("\n--- PEDIDOS ---\n");
+            for (Pedido p : reserva.getPedidos()) {
+                sb.append(p.toString()).append("\n");
+            }
+        } else {
+            sb.append("\n--- VENTA DIRECTA (Sin Reserva) ---\n");
+            
+        }
 
 	    sb.append("\nSubtotal: ").append(subtotal).append("\n");
 	    sb.append("IVA (19%): ").append(iva).append("\n");
@@ -111,9 +123,5 @@ public class CompraVenta implements Serializable {
 
 	    return sb.toString();
 	}
-	
-	
-	
-	
 
 }

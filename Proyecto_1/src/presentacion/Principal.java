@@ -396,52 +396,49 @@ public class Principal {
 	    } while (option != 0);
 	}
 	
-	private void comprarJuegoEmpleado(Empleado e) {
+	// En Principal.java
 
+	private void comprarJuegoEmpleado(Empleado empleado) {
+	    System.out.println("\n=== COMPRAR JUEGO (EMPLEADO) ===");
+	    
+	    HashMap<Juego, Integer> stock = cafe.getInventarioVentas().getStock();
+	    
+	    if (stock == null || stock.isEmpty()) {
+	        System.out.println("No hay juegos registrados en el inventario de ventas.");
+	        return;
+	    }
+	    
+	    // Listar los juegos en venta
+	    ArrayList<Juego> listaJuegos = new ArrayList<>(stock.keySet());
+	    for (int i = 0; i < listaJuegos.size(); i++) {
+	        Juego j = listaJuegos.get(i);
+	        System.out.println((i + 1) + ". " + j.getNombre() + " - $" + j.getprecio() + " (Unidades: " + stock.get(j) + ")");
+	    }
+	    
+	    System.out.print("\nSeleccione el número del juego que desea comprar (0 para cancelar): ");
+	    int index = sc.nextInt();
+	    sc.nextLine();
+	    
+	    if (index == 0) return; // Cancelar
+	    
+	    if (index < 1 || index > listaJuegos.size()) {
+	        System.out.println("Selección inválida.");
+	        return;
+	    }
+	    
+	    Juego juegoSeleccionado = listaJuegos.get(index - 1);
+	    
+	    System.out.print("Ingrese la propina (si no desea dar, ingrese 0): ");
+	    double propina = sc.nextDouble();
+	    sc.nextLine();
+	    
 	    try {
-	        ArrayList<Juego> catalogo = cafe.consultarCatalogoVenta();
-
-	        if (catalogo.isEmpty()) {
-	            System.out.println("No hay juegos disponibles para venta");
-	            return;
-	        }
-
-	        System.out.println("=== CATÁLOGO DE JUEGOS ===");
-	        for (int i = 0; i < catalogo.size(); i++) {
-	            System.out.println((i+1) + ". " + catalogo.get(i));
-	        }
-
-	        System.out.print("¿Cuántos juegos desea comprar?: ");
-	        int n = sc.nextInt();
-	        sc.nextLine();
-
-	        ArrayList<Juego> juegos = new ArrayList<>();
-
-	        for (int i = 0; i < n; i++) {
-	            System.out.print("Seleccione juego #" + (i+1) + ": ");
-	            int op = sc.nextInt();
-	            sc.nextLine();
-
-	            if (op < 1 || op > catalogo.size()) {
-	                System.out.println("Selección inválida");
-	                i--;
-	                continue;
-	            }
-
-	            juegos.add(catalogo.get(op - 1));
-	        }
-
-	        System.out.print("Propina: ");
-	        double propina = sc.nextDouble();
-	        sc.nextLine();
-
-	        CompraVenta factura = cafe.comprarJuegosEmpleado(e, juegos, propina);
-
-	        System.out.println("Compra realizada correctamente");
-	        System.out.println(factura);
-
-	    } catch (Exception ex) {
-	        System.out.println("Error: " + ex.getMessage());
+	        // Llamamos al método que creamos en Cafe.java
+	        cafe.comprarJuegoEmpleado(empleado, juegoSeleccionado, propina);
+	        System.out.println("¡Compra realizada con éxito!");
+	        
+	    } catch (JuegoNoDisponibleException | JuegoNoEncontradoException e) {
+	        System.out.println("Error en la compra: " + e.getMessage());
 	    }
 	}
 		
