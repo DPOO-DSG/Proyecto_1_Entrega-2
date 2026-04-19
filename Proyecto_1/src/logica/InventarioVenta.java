@@ -1,8 +1,9 @@
 package logica;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class InventarioVenta {
+public class InventarioVenta implements Serializable {
 	private HashMap<Juego,Integer> stock;
 	
 	
@@ -31,12 +32,10 @@ public class InventarioVenta {
 
 
 	public boolean estaDisponible(Juego juego) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	public void registrarVenta(Juego j) {
-		// TODO Auto-generated method stub
 		
 	}
 

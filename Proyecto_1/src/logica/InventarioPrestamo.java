@@ -1,12 +1,13 @@
 package logica;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import excepciones.JuegoNoEncontradoException;
 
-public class InventarioPrestamo {
+public class InventarioPrestamo implements Serializable {
 	private HashMap<Juego,Integer> stock;
 	
 	//constructor

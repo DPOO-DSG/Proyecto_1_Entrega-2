@@ -1,14 +1,15 @@
 package logica;
 
 import java.util.ArrayList;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class Mesa {
+public class Mesa implements Serializable {
 	
 
 	private int idMesa;
     private int capacidad;
-    private ArrayList<Reserva> agenda; // Lista de todas sus reservas futuras
+    private ArrayList<Reserva> agenda; 
     private ArrayList<Juego> juegosPrestados;
     private Pedido pedido;
     

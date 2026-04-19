@@ -1,11 +1,12 @@
 package logica;
 
+import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import  excepciones.*;
 import java.util.ArrayList;
 
-public abstract class Empleado extends Usuario {
+public abstract class Empleado extends Usuario implements Serializable {
 	private String codigoDescuento;
 	private ArrayList<Turno> turnos;
 	
@@ -71,7 +72,7 @@ public abstract class Empleado extends Usuario {
 	public void hacerPedido(Cafe cafe,
 	        Reserva reserva,
 	        ArrayList<Platillo> platillos,
-	        ArrayList<Juego> juegos) throws ReservaNoEncontradaException, EmpleadoNoExisteException {
+	        ArrayList<Juego> juegos) throws ReservaNoEncontradaException, EmpleadoNoExisteException, AlcoholReservaException {
 
 	    cafe.crearPedido(reserva, this, platillos, juegos);
 	}

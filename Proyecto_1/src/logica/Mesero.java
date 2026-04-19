@@ -1,8 +1,9 @@
 package logica;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Mesero extends Empleado {
+public class Mesero extends Empleado implements Serializable{
 
 	private ArrayList<Juego> juegosConocidos;
 

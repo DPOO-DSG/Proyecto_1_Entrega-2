@@ -1,6 +1,8 @@
 package logica;
 
-public abstract class Platillo {
+import java.io.Serializable;
+
+public abstract class Platillo implements Serializable {
 	private String nombre;
 	private int precio;
 	public Platillo(String nombre, int precio) {

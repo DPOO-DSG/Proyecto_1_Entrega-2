@@ -1,6 +1,8 @@
 package logica;
 
-public class CambioDeTurno {
+import java.io.Serializable;
+
+public class CambioDeTurno implements Serializable {
 	private int id;
 	private Empleado empleado;
 	private Empleado empleadoDestino;

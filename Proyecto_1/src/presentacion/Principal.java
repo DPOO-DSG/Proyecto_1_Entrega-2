@@ -1,6 +1,7 @@
 package presentacion;
 
 import logica.*;
+import persistencia.PersistenciaCafe;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -11,14 +12,11 @@ import  excepciones.*;
 public class Principal {
 	private Cafe cafe;
 	private Scanner sc;
-	public Principal() {
-		this.cafe = new Cafe(50,10);
-		this.cafe.inicializarTurnos(); 
-		this.cafe.inicializarMesas(10, 4); 
-		this.sc = new Scanner (System.in);
-		this.cafe.crearAdministrador("admin", "admin");
-		this.menu();
-		this.sc.close();
+	public Principal(Cafe cafe) {
+	    this.cafe = cafe;
+	    this.sc = new Scanner(System.in);
+	    this.menu();
+	    this.sc.close();
 	}
 	//MENU PRINCIPAL DE INGRESO
 	private void menu() {
@@ -42,6 +40,9 @@ public class Principal {
 	            loginAdmin();
 	        } else if (option == 4) {
 	            registroCliente();
+	        }else if (option == 0) {
+	            PersistenciaCafe.guardar(cafe);
+	            System.out.println("Datos guardados correctamente");
 	        }
 
 	    } while (option != 0);
@@ -195,7 +196,8 @@ public class Principal {
 	        }
 
 	        if (cantidadPersonas > capacidadMaxMesa) {
-	            System.out.println("No se puede hacer la reserva: ninguna mesa soporta esa cantidad de personas.");
+	            System.out.println("No se puede hacer la reserva: ninguna mesa soporta esa cantidad de personas.\n"
+	            		+ "Reserva otra mesa");
 	            return;
 	        }
 
@@ -360,6 +362,7 @@ public class Principal {
 	        System.out.println("8. Guardar juego favorito");
 	        System.out.println("9. Consultar juegos favoritos");
 	        System.out.println("10. Aprender juego dificil");
+	        System.out.println("11. Comprar Juego");
 	        System.out.println("0. Salir");
 
 	        option = sc.nextInt();
@@ -383,14 +386,65 @@ public class Principal {
 	        	devolverPrestamo(e); 
 	        }else if (option == 4) {
 	            crearFactura(e); 
-	        }
-	        else if (option == 10) {
+	        }else if (option == 10) {
 	            aprenderJuegoDificil(e); 
+	        }else if (option == 11) {
+	            comprarJuegoEmpleado(e); 
 	        }
+	        
 	        
 	    } while (option != 0);
 	}
 	
+	private void comprarJuegoEmpleado(Empleado e) {
+
+	    try {
+	        ArrayList<Juego> catalogo = cafe.consultarCatalogoVenta();
+
+	        if (catalogo.isEmpty()) {
+	            System.out.println("No hay juegos disponibles para venta");
+	            return;
+	        }
+
+	        System.out.println("=== CATÁLOGO DE JUEGOS ===");
+	        for (int i = 0; i < catalogo.size(); i++) {
+	            System.out.println((i+1) + ". " + catalogo.get(i));
+	        }
+
+	        System.out.print("¿Cuántos juegos desea comprar?: ");
+	        int n = sc.nextInt();
+	        sc.nextLine();
+
+	        ArrayList<Juego> juegos = new ArrayList<>();
+
+	        for (int i = 0; i < n; i++) {
+	            System.out.print("Seleccione juego #" + (i+1) + ": ");
+	            int op = sc.nextInt();
+	            sc.nextLine();
+
+	            if (op < 1 || op > catalogo.size()) {
+	                System.out.println("Selección inválida");
+	                i--;
+	                continue;
+	            }
+
+	            juegos.add(catalogo.get(op - 1));
+	        }
+
+	        System.out.print("Propina: ");
+	        double propina = sc.nextDouble();
+	        sc.nextLine();
+
+	        CompraVenta factura = cafe.comprarJuegosEmpleado(e, juegos, propina);
+
+	        System.out.println("Compra realizada correctamente");
+	        System.out.println(factura);
+
+	    } catch (Exception ex) {
+	        System.out.println("Error: " + ex.getMessage());
+	    }
+	}
+		
 	private void aprenderJuegoDificil(Empleado e) {
 
 	    ArrayList<Juego> juegos = cafe.consultarCatalogoPrestamo();
@@ -585,6 +639,7 @@ public class Principal {
 	        System.out.println("Error: " + e.getMessage());
 	    }
 	}
+	
 	private void hacerPedido(Empleado e) {
 
 	    try {
@@ -625,9 +680,6 @@ public class Principal {
 
 	        // 3. elegir platillos
 	        ArrayList<Platillo> platillos = new ArrayList<>();
-
-	        System.out.print("¿Cuántos platillos?: ");
-	        sc.nextLine();
 	        ArrayList<Platillo> menu = cafe.getMenu();
 
 	        if (menu.isEmpty()) {
@@ -652,22 +704,16 @@ public class Principal {
 
 	            if (seleccion < 1 || seleccion > menu.size()) {
 	                System.out.println("Selección inválida");
-	                i--; 
+	                i--;
 	                continue;
 	            }
 
-	            Platillo p = menu.get(seleccion - 1);
-	            platillos.add(p);
+	            platillos.add(menu.get(seleccion - 1));
 	        }
 
 	        // 4. elegir juegos
 	        ArrayList<Juego> juegos = new ArrayList<>();
 	        ArrayList<Juego> catalogo = cafe.consultarCatalogoVenta();
-
-	        if (catalogo.isEmpty()) {
-	            System.out.println("No hay juegos disponibles para venta");
-	            return;
-	        }
 
 	        System.out.println("=== CATÁLOGO DE JUEGOS ===");
 	        for (int i = 0; i < catalogo.size(); i++) {
@@ -686,24 +732,26 @@ public class Principal {
 
 	            if (seleccion < 1 || seleccion > catalogo.size()) {
 	                System.out.println("Selección inválida");
-	                i--; // repetir intento
+	                i--;
 	                continue;
 	            }
 
 	            juegos.add(catalogo.get(seleccion - 1));
 	        }
-	        
 
-
-	        // 5. crear pedido
+	        // 5. crear pedido (AQUÍ salta la excepción si hay alcohol con niños)
 	        cafe.crearPedido(reserva, e, platillos, juegos);
 
-	        System.out.println("Pedido creado correctamente ");
+	        System.out.println("Pedido creado correctamente");
+
+	    } catch (AlcoholReservaException ex) {
+	        System.out.println("Error: " + ex.getMessage());
 
 	    } catch (Exception ex) {
-	        System.out.println("Error: " + ex.getMessage());
+	        System.out.println("Error inesperado: " + ex.getMessage());
 	    }
 	}
+
 	
 	private void prestamoJuego(Usuario u) {
 
@@ -844,7 +892,7 @@ public class Principal {
 
 	        try {
 	            emp.solicitarCambioTurno(cafe, turnoOrigen, turnoDestino);
-	            System.out.println("Solicitud enviada correctamente ✅");
+	            System.out.println("Solicitud enviada correctamente");
 
 	        } catch (SolicitudInvalidaException |
 	                 NoPerteneceTurnoException |
@@ -893,7 +941,7 @@ public class Principal {
 
 	        try {
 	            cafe.crearSolicitudIntercambio(emp, otro, turnoOrigen, turnoOtro);
-	            System.out.println("Solicitud de intercambio enviada ✅");
+	            System.out.println("Solicitud de intercambio enviada");
 
 	        } catch (Exception e) {
 	            System.out.println("Error: " + e.getMessage());
@@ -954,6 +1002,8 @@ public class Principal {
 	        System.out.println("11. Gestionar inventario");
 	        System.out.println("12. Ver historial de ventas");
 	        System.out.println("13. Ver historial de prestamos");
+	        System.out.println("14. Ver empleados");
+	        System.out.println("15. Ver clientes");
 	        System.out.println("0. Salir");
 
 	        option = sc.nextInt();
@@ -988,12 +1038,46 @@ public class Principal {
 	        }
 	        else if (option == 9) {
 	            verMenu();
+	        }else if (option == 14) {
+	        	verEmpleados();
+	        }else if (option == 15) {
+	        	verClientes();
 	        }
-
+	        
 	    } while (option != 0);
 	}
 
 
+	private void verEmpleados() {
+
+	    HashMap<String, Empleado> empleados = cafe.getEmpleados();
+
+	    if (empleados.isEmpty()) {
+	        System.out.println("No hay empleados registrados");
+	        return;
+	    }
+
+	    System.out.println("=== EMPLEADOS ===");
+
+	    for (Empleado e : empleados.values()) {
+	        System.out.println("- " + e.getLogin());
+	    }
+	}
+	
+	private void verClientes() {
+		HashMap<String, Cliente> clientes = cafe.getClientes();
+		if (clientes.isEmpty()) {
+			System.out.println("No hay clientes registrados");
+			return;
+		}
+		System.out.println("=== CLIENTES ===");
+		
+		for(Cliente c : clientes.values()) {
+			System.out.println("- " + c.getLogin());
+		}
+	}
+		
+	
 	private void historialPrestamos() {
 
 	    HashMap<String, Prestamo> prestamos = cafe.getRegistroPrestamos();
@@ -1411,9 +1495,20 @@ public class Principal {
     }
     
     
-	public static void main(String[] args) {
-		new Principal();
-	}
+    public static void main(String[] args) {
+        Cafe cafe = PersistenciaCafe.cargar();
+
+        if (cafe == null) {
+            cafe = new Cafe(50, 10);
+            cafe.inicializarTurnos();
+            cafe.inicializarMesas(10, 4);
+        }
+        if (cafe.getAdministradores().isEmpty()) {
+            cafe.crearAdministrador("admin", "admin");
+        }
+
+        new Principal(cafe);
+    }
 	
 	
 

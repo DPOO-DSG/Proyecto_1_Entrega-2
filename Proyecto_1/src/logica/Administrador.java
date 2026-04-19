@@ -1,8 +1,10 @@
 package logica;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class Administrador {
+
+public class Administrador implements Serializable {
 	
 	
 	public HashMap<Integer, CambioDeTurno> verSolicitudes(Cafe cafe) {

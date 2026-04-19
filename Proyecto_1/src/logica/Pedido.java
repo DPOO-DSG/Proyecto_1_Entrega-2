@@ -1,8 +1,9 @@
 package logica;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Pedido {
+public class Pedido implements Serializable {
 	private Usuario comprador;
 	private ArrayList<Platillo> platillos;
 	private ArrayList<Juego> juegos;
@@ -66,7 +67,6 @@ public class Pedido {
 
 	    StringBuilder sb = new StringBuilder();
 
-	    sb.append("Comprador: ").append(comprador.getLogin());
 
 	    sb.append("\nPlatillos: ");
 	    if (platillos.isEmpty()) {

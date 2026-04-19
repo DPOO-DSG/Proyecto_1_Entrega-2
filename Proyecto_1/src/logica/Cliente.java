@@ -1,9 +1,10 @@
 package logica;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 
-public class Cliente extends Usuario {
+public class Cliente extends Usuario implements Serializable {
 	private double puntosFidelidad;
 
 	public Cliente(String login, String password, ArrayList<Juego> juegosFavoritos, double puntosFidelidad) {

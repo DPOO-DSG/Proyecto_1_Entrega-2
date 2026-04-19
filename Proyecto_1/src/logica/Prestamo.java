@@ -1,8 +1,9 @@
 package logica;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class Prestamo {
+public class Prestamo implements Serializable {
 	private String id;
     private Usuario usuario;
     private Juego juego;

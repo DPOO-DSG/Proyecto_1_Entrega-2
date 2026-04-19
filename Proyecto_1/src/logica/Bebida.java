@@ -1,6 +1,8 @@
 package logica;
 
-public class Bebida extends Platillo{
+import java.io.Serializable;
+
+public class Bebida extends Platillo implements Serializable{
 	private String tipo;
 	private boolean alcoholica;
 	

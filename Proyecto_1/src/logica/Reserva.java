@@ -1,9 +1,10 @@
 package logica;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-public class Reserva {
+public class Reserva implements Serializable {
     private String id;
     private LocalDateTime fechaReserva;
     private Cliente cliente; 

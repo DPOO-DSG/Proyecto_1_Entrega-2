@@ -1,12 +1,13 @@
 package logica;
 
+import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import excepciones.*;
-public class Cafe {
+public class Cafe implements Serializable {
 	private int capacidad;
 	private HashMap<Integer,CompraVenta> registroVentas;
 	private HashMap<String,Prestamo> registroPrestamos;
@@ -23,6 +24,7 @@ public class Cafe {
     private int contadorSolicitudes = 0;
     private HashMap<Integer, Platillo> solicitudesAnadirPlatillo;
     private HashMap<String, Reserva> reservas;
+    private ArrayList<Pedido> pedidosSinReserva;
 
  
 	
@@ -42,6 +44,8 @@ public class Cafe {
 	    this.menu = new ArrayList<Platillo>();
 	    this.solicitudesAnadirPlatillo = new HashMap<>();
 	    this.reservas = new HashMap<>();
+	    this.pedidosSinReserva = new ArrayList<Pedido>();
+
 		}
 	
 	public int getCapacidad() {
@@ -561,11 +565,22 @@ public class Cafe {
 	public void crearPedido(Reserva reserva,
 	        Usuario usuario,
 	        ArrayList<Platillo> platillos,
-	        ArrayList<Juego> juegos) {
-	
-	Pedido pedido = new Pedido(usuario, platillos, juegos);
-	
-	reserva.getPedidos().add(pedido);
+	        ArrayList<Juego> juegos) throws AlcoholReservaException {
+
+	    if (reserva.isTieneNinos()) {
+	        for (Platillo p : platillos) {
+	            if (p instanceof Bebida) {
+	                Bebida b = (Bebida) p;
+
+	                if (b.isAlcoholico()) {
+	                    throw new AlcoholReservaException("No se permite alcohool con niños");
+	                }
+	            }
+	        }
+	    }
+
+	    Pedido pedido = new Pedido(usuario, platillos, juegos);
+	    reserva.getPedidos().add(pedido);
 	}
 	
 	public void crearFactura(Usuario usuario,
@@ -778,7 +793,8 @@ public class Cafe {
 
 	        if (mesero == null) {
 	            throw new JuegoNoDisponibleException(
-	                "No hay meseros disponibles para explicar este juego difícil"
+	                "No hay meseros disponibles para explicar este juego difícil\n"
+	                + "Sin embargo se presta el juego."
 	            );
 	        }
 	    }
@@ -822,7 +838,7 @@ public class Cafe {
 	        }
 	    }
 
-	    if (hayCaliente && juego.getCategoria().equals("accion")) {
+	    if (hayCaliente && juego.getCategoria().equalsIgnoreCase("accion")) {
 	        throw new BebidaCalienteConAccionException("No puedes usar juegos de acción con bebidas calientes");
 	    }
 
@@ -943,7 +959,6 @@ public class Cafe {
 
 	        HashMap<Juego, Integer> inventario = inventarioPrestamo.getStock();
 
-	        // evitar duplicados por nombre pues no se puede crear un nombre que tenga el mismo nombre
 	        for (Juego j : inventario.keySet()) {
 	            if (j.getNombre().equals(juego.getNombre())) {
 	                return false;
@@ -1037,6 +1052,89 @@ public class Cafe {
 	        default: return "";
 	    }
 	}
+	
+	public Pedido crearPedidoSinReserva(Usuario usuario, ArrayList<Juego> juegos) {
+
+	    if (usuario == null || juegos == null || juegos.isEmpty()) {
+	        return null;
+	    }
+
+	    ArrayList<Platillo> vacio = new ArrayList<>();
+
+	    Pedido pedido = new Pedido(usuario, vacio, juegos);
+
+	    pedidosSinReserva.add(pedido);
+
+	    return pedido;
+	}
+	
+	public CompraVenta crearFacturaEmpleado(
+	        Empleado empleado,
+	        Pedido pedido,
+	        double propina,
+	        String codigo
+	) throws Exception {
+
+	    if (empleado == null || pedido == null) {
+	        throw new DatosFacturaInvalidosException("Datos inválidos");
+	    }
+
+	    int id = registroVentas.size() + 1;
+
+	    CompraVenta factura = new CompraVenta(
+	            id,
+	            empleado,
+	            propina,
+	            null 
+	    );
+
+	    double total = 0;
+
+	    for (Juego j : pedido.getJuegos()) {
+
+	        
+
+	        total += j.getprecio();
+	    }
+
+	    // aplicar descuento
+	    total = aplicarDescuento(empleado, total, codigo);
+
+	    factura.setTotal(total);
+
+	    // descontar inventario
+	    for (Juego j : pedido.getJuegos()) {
+	        inventarioVentas.registrarVenta(j);
+	    }
+
+	    registroVentas.put(id, factura);
+
+	    return factura;
+	}
+	
+	public CompraVenta comprarJuegosEmpleado(
+	        Empleado empleado,
+	        ArrayList<Juego> juegos,
+	        double propina
+	) throws Exception {
+
+	    if (empleado == null || juegos == null || juegos.isEmpty()) {
+	        throw new DatosFacturaInvalidosException("Datos inválidos");
+	    }
+
+	    // 1. crear pedido sin reserva
+	    Pedido pedido = crearPedidoSinReserva(empleado, juegos);
+
+	    // 2. usar su código de descuento
+	    String codigo = empleado.getCodigoDescuento();
+
+	    // 3. crear factura
+	    return crearFacturaEmpleado(empleado, pedido, propina, codigo);
+	}
+	
+
+	
+
 	
 
 }

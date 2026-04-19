@@ -1,8 +1,9 @@
 package logica;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Turno {
+public class Turno implements Serializable {
 	private String jornada;
 	private ArrayList<Mesero> meseros;
 	private ArrayList<Cocinero> cocineros;

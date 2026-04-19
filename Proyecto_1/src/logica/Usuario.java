@@ -1,8 +1,9 @@
 package logica;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public abstract class Usuario {
+public abstract class Usuario implements Serializable {
 	private String login;
 	private String password;
 	private ArrayList<Juego> juegosFavoritos;
