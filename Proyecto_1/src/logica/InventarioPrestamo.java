@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import excepciones.CopiasInsuficientesException;
 import excepciones.JuegoNoEncontradoException;
 
 public class InventarioPrestamo implements Serializable {
@@ -57,6 +58,24 @@ public class InventarioPrestamo implements Serializable {
 		    }
 
 		    stock.put(juego, stock.get(juego) + 1);
+		}
+		
+		public Juego buscarJuego(String nombre) throws JuegoNoEncontradoException {
+		    for (Juego j : stock.keySet()) {
+		        if (j.getNombre().equalsIgnoreCase(nombre)) {
+		            return j;
+		        }
+		    }
+		    throw new JuegoNoEncontradoException(nombre);
+		}
+		public void validarCopias(Juego juego, int participantes) 
+		        throws CopiasInsuficientesException {
+
+		    int disponibles = stock.getOrDefault(juego, 0);
+
+		    if (disponibles < participantes) {
+		        throw new CopiasInsuficientesException(juego.getNombre());
+		    }
 		}
 		}
 

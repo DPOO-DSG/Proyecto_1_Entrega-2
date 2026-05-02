@@ -24,7 +24,7 @@ public class Cafe implements Serializable {
     private int contadorSolicitudes = 0;
     private HashMap<Integer, Platillo> solicitudesAnadirPlatillo;
     private HashMap<String, Reserva> reservas;
-
+    private HashMap<String, Torneo> torneos;
     
 	public Cafe(int capacidad, int cantidadMesas) {
 		this.capacidad = capacidad;
@@ -1041,6 +1041,37 @@ public class Cafe implements Serializable {
 	    inventarioVentas.registrarVenta(juego);
 	    
 	    registroVentas.put(numeroFactura, factura);
+	}
+
+	
+	public void crearTorneoAmistoso(String nombre, String nombreJuego, int participantes, String dia)
+	        throws TorneoYaExisteException, JuegoNoEncontradoException, CopiasInsuficientesException {
+
+	    if (torneos.containsKey(nombre)) {
+	        throw new TorneoYaExisteException(nombre);
+	    }
+
+	    Juego juego = inventarioPrestamo.buscarJuego(nombreJuego);
+
+	    inventarioPrestamo.validarCopias(juego, participantes);
+
+	    Torneo torneo = new TorneoAmistoso(nombre, juego, participantes, dia);
+	    torneos.put(nombre, torneo);
+	}
+	public void crearTorneoCompetitivo(String nombre, String nombreJuego, int cuposMaximos, String dia,
+	        int costoEntrada, int premio)
+	        throws TorneoYaExisteException, JuegoNoEncontradoException, CopiasInsuficientesException {
+
+	    if (torneos.containsKey(nombre)) {
+	        throw new TorneoYaExisteException(nombre);
+	    }
+
+	    Juego juego = inventarioPrestamo.buscarJuego(nombreJuego);
+
+	    inventarioPrestamo.validarCopias(juego, cuposMaximos);
+
+	    Torneo torneo = new TorneoCompetitivo(nombre, juego, cuposMaximos, dia, costoEntrada, premio);
+	    torneos.put(nombre, torneo);
 	}
 	
 

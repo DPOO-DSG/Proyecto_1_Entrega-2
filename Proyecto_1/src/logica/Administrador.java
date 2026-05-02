@@ -3,6 +3,10 @@ package logica;
 import java.io.Serializable;
 import java.util.HashMap;
 
+import excepciones.CopiasInsuficientesException;
+import excepciones.JuegoNoEncontradoException;
+import excepciones.TorneoYaExisteException;
+
 
 public class Administrador implements Serializable {
 	
@@ -25,7 +29,11 @@ public class Administrador implements Serializable {
 		return cafe.crearJuego(categoria, nombre, cantidad, precio, añoPublicacion, empresaMatriz, minJugadores, maxJugadores, restriccionEdad, dificil, tipoInventario);
 		
 	}
-		
+	public void crearTorneoAmistoso(Cafe cafe,String nombre,String nombreJuego, int participantes, String dia) throws TorneoYaExisteException, JuegoNoEncontradoException, CopiasInsuficientesException {	
+		cafe.crearTorneoAmistoso(nombre,nombreJuego,participantes,dia);
+	}	
+	public void crearTorneoCompetitivo (Cafe cafe,String nombre,String nombreJuego, int participantes, String dia, int costoEntrada, int premio) throws TorneoYaExisteException, JuegoNoEncontradoException, CopiasInsuficientesException {
+		cafe.crearTorneoCompetitivo(nombre,nombreJuego,participantes, dia, costoEntrada, premio);
+    }
 	
 }
-

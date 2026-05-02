@@ -991,6 +991,7 @@ public class Principal {
 	        System.out.println("13. Ver historial de prestamos");
 	        System.out.println("14. Ver empleados");
 	        System.out.println("15. Ver clientes");
+	        System.out.println("16. Crear Torneo");
 	        System.out.println("0. Salir");
 
 	        option = sc.nextInt();
@@ -1027,11 +1028,70 @@ public class Principal {
 	        }else if (option == 15) {
 	        	verClientes();
 	        }
+	        else if (option == 16) {
+	        	crearTorneo();
+	        }
 	        
 	    } while (option != 0);
 	}
 
 
+	private void crearTorneo() {
+
+	    try {
+	        System.out.println("\n=== CREAR TORNEO ===");
+
+	        System.out.println("1. Amistoso");
+	        System.out.println("2. Competitivo");
+	        System.out.print("Opción: ");
+	        int tipo = Integer.parseInt(sc.nextLine());
+
+	        if (tipo != 1 && tipo != 2) {
+	            System.out.println("Opción inválida.");
+	            return;
+	        }
+
+	        System.out.print("Nombre del torneo: ");
+	        String nombre = sc.nextLine();
+
+	        System.out.print("Nombre del juego: ");
+	        String nombreJuego = sc.nextLine();
+
+	        System.out.print("Número de participantes: ");
+	        int cupos = Integer.parseInt(sc.nextLine());
+
+	        System.out.print("Día del torneo: ");
+	        String dia = sc.nextLine();
+
+	        if (tipo == 1) {
+	            cafe.crearTorneoAmistoso(nombre, nombreJuego, cupos, dia);
+	            System.out.println("Torneo amistoso creado correctamente.");
+	        } 
+	        else {
+	            System.out.print("Costo de entrada: ");
+	            int costo = Integer.parseInt(sc.nextLine());
+
+	            System.out.print("Premio: ");
+	            int premio = Integer.parseInt(sc.nextLine());
+
+	            cafe.crearTorneoCompetitivo(nombre, nombreJuego, cupos, dia, costo, premio);
+	            System.out.println("Torneo competitivo creado correctamente.");
+	        }
+
+	    } 
+	    catch (TorneoYaExisteException e) {
+	        System.out.println("Error: " + e.getMessage());
+	    } 
+	    catch (JuegoNoEncontradoException e) {
+	        System.out.println("No se creó el torneo: " + e.getMessage());
+	    } 
+	    catch (CopiasInsuficientesException e) {
+	        System.out.println("Error: " + e.getMessage());
+	    } 
+	    catch (NumberFormatException e) {
+	        System.out.println("Error: debes ingresar números válidos.");
+	    }
+	}
 	private void verEmpleados() {
 
 	    HashMap<String, Empleado> empleados = cafe.getEmpleados();
