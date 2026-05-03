@@ -42,6 +42,7 @@ public class Cafe implements Serializable {
 	    this.menu = new ArrayList<Platillo>();
 	    this.solicitudesAnadirPlatillo = new HashMap<>();
 	    this.reservas = new HashMap<>();
+	    this.torneos = new HashMap<>();
 		}
 	
 	public int getCapacidad() {
@@ -1066,17 +1067,29 @@ public class Cafe implements Serializable {
 	    if (torneos.containsKey(nombre)) {
 	        throw new TorneoYaExisteException(nombre);
 	    }
+	    if (this.torneos == null) {
+	        this.torneos = new HashMap<>();
+	    }
 
+	    if (torneos.containsKey(nombre)) {
+	        throw new TorneoYaExisteException(nombre);
+	    }
 	    Juego juego = inventarioPrestamo.buscarJuego(nombreJuego);
-
 	    inventarioPrestamo.validarCopias(juego, participantes);
-
 	    Torneo torneo = new TorneoAmistoso(nombre, juego, participantes, dia);
 	    torneos.put(nombre, torneo);
 	}
+	
 	public void crearTorneoCompetitivo(String nombre, String nombreJuego, int cuposMaximos, String dia,
 	        int costoEntrada, int premio)
 	        throws TorneoYaExisteException, JuegoNoEncontradoException, CopiasInsuficientesException {
+
+	    if (torneos.containsKey(nombre)) {
+	        throw new TorneoYaExisteException(nombre);
+	    }
+	    if (this.torneos == null) {
+	        this.torneos = new HashMap<>();
+	    }
 
 	    if (torneos.containsKey(nombre)) {
 	        throw new TorneoYaExisteException(nombre);
@@ -1099,7 +1112,7 @@ public class Cafe implements Serializable {
 	        throw new Exception("El torneo no existe.");
 	    } 
 
-	    torneo.inscribirUsuario(u, cantidad);
+	    torneo.inscribirUsuario(this, u, cantidad);
 	}
 
 	public HashMap<String, Torneo> getTorneos() {

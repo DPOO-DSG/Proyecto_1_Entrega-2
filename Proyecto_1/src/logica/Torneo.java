@@ -1,7 +1,8 @@
 package logica;
+import java.io.Serializable;
 import java.util.HashMap;
 
-public abstract class Torneo {
+public abstract class Torneo implements Serializable {
 
 	private String nombre; 
 	private Juego juego; 
@@ -75,35 +76,41 @@ public abstract class Torneo {
 		this.inscripciones = inscripciones;
 	}
 	
-	public void inscribirUsuario(Usuario u, int cantidad) throws Exception {
-
-		if (u instanceof Empleado) {
+	public void inscribirUsuario(Cafe cafe, Usuario u, int cantidad) throws Exception {
+	    if (u instanceof Empleado) {
 	        if (((Empleado) u).tieneTurno(Dia)) {
 	            throw new Exception("El empleado tiene turno ese día.");
 	        }
 	    }
 
-	    if (u instanceof Cliente) {
-	        int actuales = inscripciones.getOrDefault(u, 0);
-	        if (actuales + cantidad > 3) {
-	            throw new Exception("Máximo 3 cupos por cliente.");
+	    int actuales = inscripciones.getOrDefault(u, 0);
+	    if (actuales + cantidad > 3) {
+	        throw new Exception("Máximo 3 cupos por usuario.");
+	    }
+	    
+	    int totalActual = getTotalInscritos();
+	    boolean esFan = u.esFanaticoDe(juego);
+
+	    if (!esFan) {
+	        int cuposNormalesMaximos = cuposMaximos - cuposReservados;
+	        int cuposNormalesOcupados = totalActual - cuposReservadosOcupados;
+	        
+	        if (cuposNormalesOcupados + cantidad > cuposNormalesMaximos) {
+	            throw new Exception("No hay cupos regulares. Los restantes son exclusivos para fanáticos.");
+	        }
+	    } else {
+	        if (cuposReservadosOcupados < cuposReservados) {
+	            int disponibles = cuposReservados - cuposReservadosOcupados;
+	            int usar = Math.min(cantidad, disponibles);
+	            cuposReservadosOcupados += usar;
 	        }
 	    }
 
-	    int totalActual = getTotalInscritos();
 	    if (totalActual + cantidad > cuposMaximos) {
-	        throw new Exception("No hay cupos suficientes.");
+	        throw new Exception("No hay cupos suficientes en el torneo.");
 	    }
 
-
-	    boolean esFan = u.esFanaticoDe(juego);
-	    if (esFan && cuposReservadosOcupados < cuposReservados) {
-	        int disponibles = cuposReservados - cuposReservadosOcupados;
-	        int usar = Math.min(cantidad, disponibles);
-	        cuposReservadosOcupados += usar;
-	    } 
-
-	    inscripciones.put(u, inscripciones.getOrDefault(u, 0) + cantidad);
+	    inscripciones.put(u, actuales + cantidad);
 	}
 	
 	public int getTotalInscritos() {
