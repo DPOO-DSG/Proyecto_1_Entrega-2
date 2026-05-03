@@ -44,4 +44,9 @@ public abstract class Usuario implements Serializable {
 	
 	//REQ FUNCIONAL SOLICITAR PRESTAMO 
 	public abstract void solicitarPrestamo(Cafe cafe, Juego juego, Reserva reserva)throws Exception;
+	
+	public boolean esFanaticoDe(Juego juego) {
+	    return juegosFavoritos.contains(juego);
+	}
+	public abstract void inscribirTorneo(Cafe cafe, String nombreTorneo, int cupos) throws Exception;
 }

@@ -1,6 +1,5 @@
 package logica;
-
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public abstract class Torneo {
 
@@ -8,16 +7,16 @@ public abstract class Torneo {
 	private Juego juego; 
 	
 	private String Dia;
-	protected int cuposMaximos;
-	protected int cuposReservados;
-	protected int cuposReservadosOcupados;
-	protected ArrayList<Usuario> participantes;
-	
+	private int cuposMaximos;
+	private int cuposReservados;
+	private int cuposReservadosOcupados;
+	private HashMap<Usuario, Integer> inscripciones;
+
 	public Torneo(String nombre, Juego juego, int cuposMaximos, String dia) {
 	    this.nombre = nombre;
 	    this.juego = juego;
 	    this.cuposMaximos = cuposMaximos;
-	    this.participantes = new ArrayList<>();
+	    this.inscripciones = new HashMap<>();
 
 	    this.cuposReservados = (int) Math.ceil(cuposMaximos * 0.2);
 	    this.cuposReservadosOcupados = 0;
@@ -69,14 +68,55 @@ public abstract class Torneo {
 	public void setCuposReservadosOcupados(int cuposReservadosOcupados) {
 		this.cuposReservadosOcupados = cuposReservadosOcupados;
 	}
-
-	public ArrayList<Usuario> getParticipantes() {
-		return participantes;
+	public HashMap<Usuario, Integer> getInscripciones() {
+		return inscripciones;
 	}
-
-	public void setParticipantes(ArrayList<Usuario> participantes) {
-		this.participantes = participantes;
+	public void setInscripciones(HashMap<Usuario, Integer> inscripciones) {
+		this.inscripciones = inscripciones;
 	}
+	
+	public void inscribirUsuario(Usuario u, int cantidad) throws Exception {
+
+		if (u instanceof Empleado) {
+	        if (((Empleado) u).tieneTurno(Dia)) {
+	            throw new Exception("El empleado tiene turno ese día.");
+	        }
+	    }
+
+	    if (u instanceof Cliente) {
+	        int actuales = inscripciones.getOrDefault(u, 0);
+	        if (actuales + cantidad > 3) {
+	            throw new Exception("Máximo 3 cupos por cliente.");
+	        }
+	    }
+
+	    int totalActual = getTotalInscritos();
+	    if (totalActual + cantidad > cuposMaximos) {
+	        throw new Exception("No hay cupos suficientes.");
+	    }
+
+
+	    boolean esFan = u.esFanaticoDe(juego);
+	    if (esFan && cuposReservadosOcupados < cuposReservados) {
+	        int disponibles = cuposReservados - cuposReservadosOcupados;
+	        int usar = Math.min(cantidad, disponibles);
+	        cuposReservadosOcupados += usar;
+	    } 
+
+	    inscripciones.put(u, inscripciones.getOrDefault(u, 0) + cantidad);
+	}
+	
+	public int getTotalInscritos() {
+	    int total = 0;
+	    for (int cupos : inscripciones.values()) {
+	        total += cupos;
+	    }
+	    return total;
+	}
+	
+	public abstract void otorgarPremio(Usuario ganador);
+
+
 	
 	
 	

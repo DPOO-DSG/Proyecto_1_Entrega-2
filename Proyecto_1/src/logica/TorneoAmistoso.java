@@ -8,6 +8,17 @@ public class TorneoAmistoso extends Torneo{
 		super(nombre, juego, cuposMaximos, dia);
 	}
 
+	@Override
+	public void otorgarPremio(Usuario ganador) {
+
+	    if (ganador instanceof Cliente) {
+	        Cliente c = (Cliente) ganador;
+	        c.agregarBonoDescuento();
+	    }
+
+	}
+	
+	
 
 	
 	

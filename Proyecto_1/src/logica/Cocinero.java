@@ -9,4 +9,10 @@ public class Cocinero extends Empleado implements Serializable {
 			ArrayList<Turno> turno) {
 		super(login, password, juegosFavoritos, codigoDescuento, turno);
 	}
+
+	@Override
+	public void inscribirTorneo(Cafe cafe, Torneo torneo) {
+		// TODO Auto-generated method stub
+		
+	}
 }

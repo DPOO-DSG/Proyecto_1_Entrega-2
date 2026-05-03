@@ -27,5 +27,12 @@ public class Mesero extends Empleado implements Serializable{
 	        juegosConocidos.add(juego);
 	    }
 	}
+
+	@Override
+	public void inscribirTorneo(Cafe cafe, String nombreTorneo, int cupos) throws Exception {
+		// TODO Auto-generated method stub
+		cafe.inscribirATorneo(nombreTorneo, this, cupos);
+	}
+	
 }
 

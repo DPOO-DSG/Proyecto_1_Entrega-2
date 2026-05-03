@@ -70,4 +70,14 @@ public abstract class Empleado extends Usuario implements Serializable {
 
 	    cafe.crearPedido(reserva, this, platillos, juegos);
 	}
+	public boolean tieneTurno(String dia) {
+		// TODO Auto-generated method stub
+		for (Turno t : turnos) {
+	        if (t.getJornada().equalsIgnoreCase(dia)) {
+	            return true;
+	        }
+	    }
+		return false;
+		
+	}
 }

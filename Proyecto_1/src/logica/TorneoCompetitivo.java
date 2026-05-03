@@ -13,6 +13,11 @@ public class TorneoCompetitivo extends Torneo{
 	    this.costoEntrada = costoEntrada;
 	    this.premio = premio;
 	}
+
+	@Override
+	public void otorgarPremio(Usuario ganador) {
+	}
+	
 	
 	
 	

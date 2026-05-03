@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 public class Cliente extends Usuario implements Serializable {
 	private double puntosFidelidad;
+	private boolean bonoTorneo; 
 
 	public Cliente(String login, String password, ArrayList<Juego> juegosFavoritos, double puntosFidelidad) {
 		super(login, password, juegosFavoritos);
@@ -31,5 +32,27 @@ public class Cliente extends Usuario implements Serializable {
 		return cafe.consultarPuntosFidelidad(this);
 	
 	
+	}
+
+	public void agregarBonoDescuento() {
+	    if (!bonoTorneo) {
+	        bonoTorneo = true;
+	    }
+	}
+	public boolean usarBonoDescuento() {
+	    if (bonoTorneo) {
+	        bonoTorneo = false;
+	        return true;
+	    }
+	    return false;
+	}
+
+
+	@Override
+	public void inscribirTorneo(Cafe cafe, String nombreTorneo, int cupos) throws Exception {
+		// TODO Auto-generated method stub
+		cafe.inscribirATorneo(nombreTorneo, this, cupos);
+
+		
 	}
 }

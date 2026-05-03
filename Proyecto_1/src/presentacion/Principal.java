@@ -78,6 +78,7 @@ public class Principal {
 	        System.out.println("9. Devolver juego prestado");
 	        System.out.println("10. Consultar catálogo de juegos(ventas)");
 	        System.out.println("11. Consultar juegos favoritos");
+	        System.out.println("12. Inscribirse a torneo");
 	        System.out.println("0. Salir");
 
 	        option = sc.nextInt();
@@ -111,10 +112,49 @@ public class Principal {
 	        else if (option == 11) {
 	        	consultarJuegosFav(c);
 	        }
-
+	        else if (option == 12) {
+	        	inscribirTorneo(c);
+	        }
 	    } while (option != 0);
 	}
 	
+	private void inscribirTorneo(Usuario u) {
+
+	    System.out.println("\n=== TORNEOS ===");
+
+	    HashMap<String, Torneo> torneos = cafe.getTorneos();
+
+	    if (torneos.isEmpty()) {
+	        System.out.println("No hay torneos disponibles.");
+	        return;
+	    }
+
+	    ArrayList<Torneo> lista = new ArrayList<>(torneos.values());
+
+	    for (int i = 0; i < lista.size(); i++) {
+	        System.out.println((i + 1) + ". " + lista.get(i).getNombre());
+	    }
+
+	    System.out.print("Seleccione el torneo: ");
+	    int opcion = Integer.parseInt(sc.nextLine());
+
+	    if (opcion < 1 || opcion > lista.size()) {
+	        System.out.println("Opción inválida.");
+	        return;
+	    }
+
+	    Torneo torneo = lista.get(opcion - 1);
+
+	    System.out.print("Cantidad de cupos: ");
+	    int cantidad = Integer.parseInt(sc.nextLine());
+
+	    try {
+	        cafe.inscribirATorneo(torneo.getNombre(), u, cantidad);
+	        System.out.println("Inscripción exitosa.");
+	    } catch (Exception e) {
+	        System.out.println("Error: " + e.getMessage());
+	    }
+	}
 	private void verMenu() {
 
 	    ArrayList<Platillo> menu = cafe.consultarMenu();
@@ -363,6 +403,7 @@ public class Principal {
 	        System.out.println("9. Consultar juegos favoritos");
 	        System.out.println("10. Aprender juego dificil");
 	        System.out.println("11. Comprar Juego");
+	        System.out.println("12. Inscribir a Torneo");
 	        System.out.println("0. Salir");
 
 	        option = sc.nextInt();
@@ -390,6 +431,8 @@ public class Principal {
 	            aprenderJuegoDificil(e); 
 	        }else if (option == 11) {
 	            comprarJuegoEmpleado(e); 
+	        }else if (option == 12) {
+	            inscribirTorneo(e); 
 	        }
 	        
 	        
@@ -992,6 +1035,7 @@ public class Principal {
 	        System.out.println("14. Ver empleados");
 	        System.out.println("15. Ver clientes");
 	        System.out.println("16. Crear Torneo");
+	        System.out.println("17.  Otorgar premio de torneo amistoso");
 	        System.out.println("0. Salir");
 
 	        option = sc.nextInt();
@@ -1031,11 +1075,73 @@ public class Principal {
 	        else if (option == 16) {
 	        	crearTorneo();
 	        }
+	        else if (option == 17) {
+	        	otorgarPremio(); 
+	        }
 	        
 	    } while (option != 0);
 	}
 
 
+	private void otorgarPremio() {
+		System.out.println("\n=== TORNEOS ===");
+
+	    HashMap<String, Torneo> torneos = cafe.getTorneos();
+
+	    if (torneos.isEmpty()) {
+	        System.out.println("No hay torneos registrados.");
+	        return;
+	    }
+
+	    ArrayList<Torneo> listaTorneos = new ArrayList<>(torneos.values());
+
+	    for (int i = 0; i < listaTorneos.size(); i++) {
+	        System.out.println((i + 1) + ". " + listaTorneos.get(i).getNombre());
+	    }
+
+	    System.out.print("Escoja el torneo: ");
+	    int numTorneo = Integer.parseInt(sc.nextLine());
+
+	    if (numTorneo < 1 || numTorneo > listaTorneos.size()) {
+	        System.out.println("Opción inválida.");
+	        return;
+	    }
+ 
+	    Torneo torneo = listaTorneos.get(numTorneo - 1);
+
+	    System.out.println("\n=== PARTICIPANTES ===");
+
+	    HashMap<Usuario, Integer> inscripciones = torneo.getInscripciones();
+
+	    if (inscripciones.isEmpty()) {
+	        System.out.println("No hay participantes.");
+	        return;
+	    }
+
+	    ArrayList<Usuario> listaUsuarios = new ArrayList<>(inscripciones.keySet());
+
+	    for (int i = 0; i < listaUsuarios.size(); i++) {
+	        Usuario u = listaUsuarios.get(i);
+	        int cupos = inscripciones.get(u);
+
+	        System.out.println((i + 1) + ". " + u.getLogin() + " (" + cupos + " cupos)");
+	    }
+
+	    System.out.print("Seleccione el ganador: ");
+	    int numGanador = Integer.parseInt(sc.nextLine());
+
+	    if (numGanador < 1 || numGanador > listaUsuarios.size()) {
+	        System.out.println("Opción inválida.");
+	        return;
+	    }
+
+	    Usuario ganador = listaUsuarios.get(numGanador - 1);
+
+	    torneo.otorgarPremio(ganador);
+
+	    System.out.println("Premio otorgado a: " + ganador.getLogin());
+        
+	}
 	private void crearTorneo() {
 
 	    try {
@@ -1064,6 +1170,7 @@ public class Principal {
 	        String dia = sc.nextLine();
 
 	        if (tipo == 1) {
+	        	
 	            cafe.crearTorneoAmistoso(nombre, nombreJuego, cupos, dia);
 	            System.out.println("Torneo amistoso creado correctamente.");
 	        } 

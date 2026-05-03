@@ -1074,6 +1074,25 @@ public class Cafe implements Serializable {
 	    torneos.put(nombre, torneo);
 	}
 	
+	public void inscribirATorneo(String nombreTorneo, Usuario u, int cantidad)
+	        throws Exception {
+
+	    Torneo torneo = torneos.get(nombreTorneo);
+
+	    if (torneo == null) {
+	        throw new Exception("El torneo no existe.");
+	    } 
+
+	    torneo.inscribirUsuario(u, cantidad);
+	}
+
+	public HashMap<String, Torneo> getTorneos() {
+		return torneos;
+	}
+
+	public void setTorneos(HashMap<String, Torneo> torneos) {
+		this.torneos = torneos;
+	}
 
 	
 
