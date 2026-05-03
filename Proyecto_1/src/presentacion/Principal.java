@@ -14,7 +14,7 @@ public class Principal {
     public Principal(Cafe cafe) {
         this.cafe = cafe;
         this.sc = new Scanner(System.in);
-        menu(); 
+         
         }
 
     // =========================
@@ -90,6 +90,6 @@ public class Principal {
             cafe.crearAdministrador("admin", "admin");
         }
 
-        new Principal(cafe);
+        new Principal(cafe).menu();
     }
 }
