@@ -11,8 +11,13 @@ public class Cocinero extends Empleado implements Serializable {
 	}
 
 	@Override
-	public void inscribirTorneo(Cafe cafe, Torneo torneo) {
+	public void inscribirTorneo(Cafe cafe, String nombreTorneo, int cupos) throws Exception {
 		// TODO Auto-generated method stub
+		cafe.inscribirATorneo(nombreTorneo, this, cupos);
 		
+	}
+	@Override
+	public void eliminarTorneo(Cafe cafe, String nombreTorneo) throws Exception {
+		cafe.eliminarDeTorneo(nombreTorneo, this);
 	}
 }

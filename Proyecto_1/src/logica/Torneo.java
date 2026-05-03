@@ -115,6 +115,25 @@ public abstract class Torneo {
 	}
 	
 	public abstract void otorgarPremio(Usuario ganador);
+	
+	
+	
+	
+	public void eliminarInscripcion(Usuario u) throws Exception { 
+
+	    if (!inscripciones.containsKey(u)) {
+	        throw new Exception("El usuario no está inscrito en el torneo.");
+	    }
+
+	    int cupos = inscripciones.get(u);
+
+	    if (u.esFanaticoDe(juego)) {
+	        int aLiberar = Math.min(cupos, cuposReservadosOcupados);
+	        cuposReservadosOcupados -= aLiberar;
+	    }
+
+	    inscripciones.remove(u);
+	}
 
 
 	

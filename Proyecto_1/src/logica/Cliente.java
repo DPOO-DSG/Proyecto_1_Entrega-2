@@ -8,6 +8,16 @@ public class Cliente extends Usuario implements Serializable {
 	private double puntosFidelidad;
 	private boolean bonoTorneo; 
 
+	public boolean isBonoTorneo() {
+		return bonoTorneo;
+	}
+
+
+	public void setBonoTorneo(boolean bonoTorneo) {
+		this.bonoTorneo = bonoTorneo;
+	}
+
+
 	public Cliente(String login, String password, ArrayList<Juego> juegosFavoritos, double puntosFidelidad) {
 		super(login, password, juegosFavoritos);
 		this.puntosFidelidad = puntosFidelidad;
@@ -50,9 +60,15 @@ public class Cliente extends Usuario implements Serializable {
 
 	@Override
 	public void inscribirTorneo(Cafe cafe, String nombreTorneo, int cupos) throws Exception {
-		// TODO Auto-generated method stub
 		cafe.inscribirATorneo(nombreTorneo, this, cupos);
 
 		
 	}
+ 
+
+	@Override
+	public void eliminarTorneo(Cafe cafe, String nombreTorneo) throws Exception {
+		cafe.eliminarDeTorneo(nombreTorneo, this);
+	}
+	
 }

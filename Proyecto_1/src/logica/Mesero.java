@@ -33,6 +33,9 @@ public class Mesero extends Empleado implements Serializable{
 		// TODO Auto-generated method stub
 		cafe.inscribirATorneo(nombreTorneo, this, cupos);
 	}
-	
+	@Override
+	public void eliminarTorneo(Cafe cafe, String nombreTorneo) throws Exception {
+		cafe.eliminarDeTorneo(nombreTorneo, this);
+	}
 }
 

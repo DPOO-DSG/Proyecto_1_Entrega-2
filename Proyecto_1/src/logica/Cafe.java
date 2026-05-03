@@ -564,7 +564,7 @@ public class Cafe implements Serializable {
 	
 	public void crearFactura(Usuario usuario,
 			double propina,
-			boolean usarPuntos,
+			boolean usarPuntos,boolean BonoTorneo,
 			String codigo,
 			Reserva reserva) throws BebidaCalienteConAccionException, AlcoholReservaException, DatosFacturaInvalidosException, JuegoNoDisponibleException, JuegoNoEncontradoException {
 
@@ -597,15 +597,27 @@ public class Cafe implements Serializable {
 
 		double total = compra.getTotal();
 
-		// descuento
-		total = aplicarDescuento(usuario, total, codigo);
-
-		// puntos
 		if (usuario instanceof Cliente) {
-			Cliente c = (Cliente) usuario;
+		    Cliente c = (Cliente) usuario;
 
-			total = aplicarPuntos(c, total, usarPuntos);
-			asignarPuntos(c, total);
+		    if (BonoTorneo) {
+
+		        if (c.isBonoTorneo()) {
+
+		            total = aplicarBonoTorneo(total);
+		            c.usarBonoDescuento(); // lo consume
+
+		        } else {
+		            throw new DatosFacturaInvalidosException("El cliente no tiene bono de torneo disponible.");
+		        }
+
+		    }   
+		    else {
+
+		        total = aplicarDescuento(usuario, total, codigo);
+		        total = aplicarPuntos(c, total, usarPuntos);
+		        asignarPuntos(c, total);
+		    }
 		}
 
 		compra.setTotal(total);
@@ -621,6 +633,10 @@ public class Cafe implements Serializable {
 	}
 
 	
+	private double aplicarBonoTorneo(double total) {
+		return total * 0.9; //10% de descuento x bono de torneo 
+	}
+
 	private boolean validarAlcoholReserva(Reserva reserva) {
 		boolean hayAlcohol = false;
 	
@@ -1092,6 +1108,17 @@ public class Cafe implements Serializable {
 
 	public void setTorneos(HashMap<String, Torneo> torneos) {
 		this.torneos = torneos;
+	}
+
+	public void eliminarDeTorneo(String nombreTorneo, Usuario u) throws Exception {
+	    Torneo torneo = torneos.get(nombreTorneo);
+
+		if (torneo == null) {
+	        throw new Exception("El torneo no existe.");
+	    }
+
+	    torneo.eliminarInscripcion(u);
+		
 	}
 
 	

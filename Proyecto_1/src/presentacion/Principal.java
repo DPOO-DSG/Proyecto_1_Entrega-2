@@ -79,6 +79,8 @@ public class Principal {
 	        System.out.println("10. Consultar catálogo de juegos(ventas)");
 	        System.out.println("11. Consultar juegos favoritos");
 	        System.out.println("12. Inscribirse a torneo");
+	        System.out.println("13. Borrar inscripción a torneo");
+
 	        System.out.println("0. Salir");
 
 	        option = sc.nextInt();
@@ -115,9 +117,46 @@ public class Principal {
 	        else if (option == 12) {
 	        	inscribirTorneo(c);
 	        }
+	        else if (option == 13) {
+	        	eliminarInscripcion(c);
+	        }
 	    } while (option != 0);
 	}
 	
+	private void eliminarInscripcion(Usuario u) {
+		System.out.println("\n=== TORNEOS EN LOS QUE ESTÁS INSCRITO===");
+
+	    HashMap<String, Torneo> torneos = cafe.getTorneos();
+
+	    if (torneos.isEmpty()) {
+	        System.out.println("No hay torneos disponibles.");
+	        return;
+	    }
+
+	    ArrayList<Torneo> lista = new ArrayList<>(torneos.values());
+
+	    for (int i = 0; i < lista.size(); i++) {
+	        System.out.println((i + 1) + ". " + lista.get(i).getNombre());
+	    }
+
+	    System.out.print("Seleccione el torneo: ");
+	    int opcion = Integer.parseInt(sc.nextLine());
+
+	    if (opcion < 1 || opcion > lista.size()) {
+	        System.out.println("Opción inválida.");
+	        return;
+	    } 
+
+	    Torneo torneo = lista.get(opcion - 1);
+	    try {
+	        cafe.eliminarDeTorneo(torneo.getNombre(), u);
+	        System.out.println("Eliminación exitosa.");
+	    } catch (Exception e) {
+	        System.out.println("Error: " + e.getMessage());
+	    }
+	    
+		
+	}
 	private void inscribirTorneo(Usuario u) {
 
 	    System.out.println("\n=== TORNEOS ===");
@@ -404,6 +443,8 @@ public class Principal {
 	        System.out.println("10. Aprender juego dificil");
 	        System.out.println("11. Comprar Juego");
 	        System.out.println("12. Inscribir a Torneo");
+	        System.out.println("13. Eliminar Inscripción");
+
 	        System.out.println("0. Salir");
 
 	        option = sc.nextInt();
@@ -433,6 +474,8 @@ public class Principal {
 	            comprarJuegoEmpleado(e); 
 	        }else if (option == 12) {
 	            inscribirTorneo(e); 
+	        }else if (option == 13) {
+	            eliminarInscripcion(e); 
 	        }
 	        
 	        
@@ -562,8 +605,11 @@ public class Principal {
 
 	        System.out.print("Código descuento: ");
 	        String codigo = sc.nextLine();
+	        
+	        System.out.print("Desea usar bonos de descuento de torneo?: ");
+	        boolean bonoTorneo = sc.nextBoolean();
 
-	        cafe.crearFactura(c, propina, usarPuntos, codigo, r);
+	        cafe.crearFactura(c, propina, usarPuntos,bonoTorneo, codigo, r);
 
 	        System.out.println("Factura generada correctamente");
 
