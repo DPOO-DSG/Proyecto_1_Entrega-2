@@ -10,12 +10,14 @@ public class TorneoAmistoso extends Torneo implements Serializable{
 	}
 
 	@Override
-	public void otorgarPremio(Usuario ganador) {
+	public String otorgarPremio(Usuario ganador) {
 
 	    if (ganador instanceof Cliente) {
 	        Cliente c = (Cliente) ganador;
 	        c.agregarBonoDescuento();
+	        return ("Entregado el premio correctamente");
 	    }
+		return null;
 
 	}
 	

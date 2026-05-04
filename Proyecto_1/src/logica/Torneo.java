@@ -76,7 +76,8 @@ public abstract class Torneo implements Serializable {
 		this.inscripciones = inscripciones;
 	}
 	
-	public void inscribirUsuario(Cafe cafe, Usuario u, int cantidad) throws Exception {
+	public CompraVenta inscribirUsuario(Cafe cafe, Usuario u, int cantidad) throws Exception {
+	    
 	    if (u instanceof Empleado) {
 	        if (((Empleado) u).tieneTurno(Dia)) {
 	            throw new Exception("El empleado tiene turno ese día.");
@@ -111,6 +112,8 @@ public abstract class Torneo implements Serializable {
 	    }
 
 	    inscripciones.put(u, actuales + cantidad);
+
+	    return null; 
 	}
 	
 	public int getTotalInscritos() {
@@ -121,7 +124,7 @@ public abstract class Torneo implements Serializable {
 	    return total;
 	}
 	
-	public abstract void otorgarPremio(Usuario ganador);
+	public abstract String otorgarPremio(Usuario ganador);
 	
 	
 	

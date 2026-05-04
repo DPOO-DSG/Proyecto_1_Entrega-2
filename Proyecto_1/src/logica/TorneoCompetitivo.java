@@ -15,41 +15,36 @@ public class TorneoCompetitivo extends Torneo implements Serializable {
     }
 
     @Override
-    public void inscribirUsuario(Cafe cafe, Usuario u, int cantidad) throws Exception {
+    public CompraVenta inscribirUsuario(Cafe cafe, Usuario u, int cantidad) throws Exception {
         super.inscribirUsuario(cafe, u, cantidad);
 
         if (u instanceof Cliente) {
             Cliente c = (Cliente) u;
+
             int subtotalInscripcion = this.costoEntrada * cantidad;
-            
             int numeroFactura = cafe.getRegistroVentas().size() + 1;
-            
+
             CompraVenta factura = new CompraVenta(numeroFactura, c, 0.0, null);
-            
             factura.setSubtotal(subtotalInscripcion);
-            factura.calcularValores(); 
-            
+            factura.calcularValores();
+
             cafe.getRegistroVentas().put(numeroFactura, factura);
-            
+
             double nuevosPuntos = factura.getTotal() * 0.01;
             c.setPuntosFidelidad(c.getPuntosFidelidad() + nuevosPuntos);
-            
-            System.out.println("Inscripción exitosa. Se ha generado la Factura #" + numeroFactura 
-                             + " por un total de $" + factura.getTotal() + " (IVA incluido).");
-                             
-        } else if (u instanceof Empleado) {
-            System.out.println("Inscripción de empleado confirmada. Entrada gratuita aplicada, no se generó factura.");
+
+            return factura;
         }
+
+        return null; // empleado no paga
     }
 
-    @Override
-    public void otorgarPremio(Usuario ganador) {
+    public String otorgarPremio(Usuario ganador) {
         if (ganador instanceof Cliente) {
-            System.out.println("¡El cliente '" + ganador.getLogin() + "' ha ganado!");
-            System.out.println("Entregar premio en metálico por valor de: $" + this.premio);
-        } else if (ganador instanceof Empleado) {
-            System.out.println("El empleado '" + ganador.getLogin() + "' ha ganado.");
-            System.out.println("Por políticas internas, los empleados no reciben premios en metálico.");
+            return "Cliente ganador: " + ganador.getLogin() + " Premio: $" + this.premio;
+        } else {
+            return "Empleado ganador: " + ganador.getLogin() + " (sin premio monetario)";
         }
+    
     }
 }

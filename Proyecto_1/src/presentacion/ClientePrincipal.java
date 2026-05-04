@@ -243,8 +243,15 @@ public class ClientePrincipal extends Principal {
 		    int cantidad = Integer.parseInt(sc.nextLine());
 
 		    try {
-		        cafe.inscribirATorneo(torneo.getNombre(), u, cantidad);
-		        System.out.println("Inscripción exitosa.");
+		        CompraVenta factura = cafe.inscribirATorneo(torneo.getNombre(), u, cantidad);
+
+		        if (factura != null) {
+		            System.out.println("Inscripción exitosa.");
+		            System.out.println("Factura generada. Total: $" + factura.getTotal());
+		        } else {
+		            System.out.println("Inscripción exitosa (entrada gratuita).");
+		        }
+
 		    } catch (Exception e) {
 		        System.out.println("Error: " + e.getMessage());
 		    }
