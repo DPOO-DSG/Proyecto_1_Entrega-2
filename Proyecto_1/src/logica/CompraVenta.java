@@ -59,7 +59,6 @@ public class CompraVenta implements Serializable {
 	public void calcularValores() {
 	    double suma = 0;
 
-        // Validamos que haya reserva antes de sacar sus pedidos
         if (reserva != null) {
             for (Pedido ped : reserva.getPedidos()) {
                 for (Platillo p : ped.getPlatillos()) {

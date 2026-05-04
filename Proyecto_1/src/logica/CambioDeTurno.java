@@ -61,12 +61,10 @@ public class CambioDeTurno implements Serializable {
 		return estado;
 	}
 	public void aprobar() {
-		// TODO Auto-generated method stub
 		this.estado = "APROBADA";
 		
 	}
 	public void rechazar() {
-		// TODO Auto-generated method stub
 		this.estado= "RECHAZADA";
 	}
 	
