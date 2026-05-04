@@ -14,7 +14,7 @@ public class TorneoCompetitivo extends Torneo implements Serializable {
         this.premio = premio;
     }
 
-    @Override
+    @Override 
     public CompraVenta inscribirUsuario(Cafe cafe, Usuario u, int cantidad) throws Exception {
         super.inscribirUsuario(cafe, u, cantidad);
 
