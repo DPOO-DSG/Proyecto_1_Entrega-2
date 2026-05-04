@@ -21,6 +21,7 @@ public abstract class Torneo implements Serializable {
 
 	    this.cuposReservados = (int) Math.ceil(cuposMaximos * 0.2);
 	    this.cuposReservadosOcupados = 0;
+	    this.Dia = dia;
 	}
 	public String getNombre() {
 		return nombre;
