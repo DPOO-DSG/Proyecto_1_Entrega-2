@@ -100,6 +100,7 @@ public class HistoriaEmpleadoTest {
             mesero.solicitarCambioTurno(cafe, turnoMartes, turnoMiercoles);
         });
         
+        // Verificamos que la solicitud se envió al sistema para que el admin la revise
         assertFalse(cafe.getSolicitudesCambioTurno().isEmpty(), "Debe existir una solicitud de cambio de turno pendiente");
     }
 }

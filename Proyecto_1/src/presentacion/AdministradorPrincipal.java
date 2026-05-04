@@ -22,6 +22,7 @@ import logica.Prestamo;
 import logica.Torneo;
 import logica.Turno;
 import logica.Usuario;
+import persistencia.PersistenciaCafe;
 
 public class AdministradorPrincipal extends Principal{
 	public AdministradorPrincipal(Cafe cafe) {
@@ -671,7 +672,17 @@ public class AdministradorPrincipal extends Principal{
 		    }
 		
 		}
+		public static void main(String[] args) {
+	        Cafe cafe = PersistenciaCafe.cargar();
+	        if (cafe == null) {
+	            cafe = new Cafe(50, 10);
+	            cafe.inicializarTurnos();
+	            cafe.inicializarMesas(10, 4);
+	        }
 
+	        new AdministradorPrincipal(cafe);
+	        PersistenciaCafe.guardar(cafe);
+	    }
 
 	    
 }
